@@ -11,7 +11,19 @@ const PROJECT = 'knumed-lounge';
 const ORIGIN = 'https://kkonoo.github.io';
 const GOOD_KEY = 'sk-ant-api03-' + 'x'.repeat(40) + 'WXYZ';
 let W, keys, jwk;
-const state = { members: {}, admins: [], anthropic: [], modelsStatus: 200, messagesReply: null };
+const state = { members: {}, admins: [], anthropic: [], modelsStatus: 200, messagesReply: null, roster: {}, profiles: [], book: null };
+// 공동연구 찾기용 가짜 프로필 (공개 데이터 + Firestore). 이름은 모두 가짜
+const BOOK = {
+  topics: [{ key: 'brain', emoji: '🧠', label: '뇌·신경·마음' }, { key: 'immune', emoji: '🛡️', label: '면역·염증·알레르기' }],
+  people: [
+    { id: 'zzzzzz', name: '홍길동', rank: '교수', dept: '가짜학교실', group: '기초', line: '호중구와 지방간', keywords: ['호중구'], topics: ['immune'], links: [['https://example.com/a', '연구실']], photo: 'photos/zzzzzz.jpg', status: 'namebook' },
+    { id: 'aaaaaa', name: '김철수', rank: '부교수', dept: '예시학교실', group: '기초', line: '뇌 지질 신호', keywords: ['알츠하이머병'], topics: ['brain'], links: [], photo: 'photos/aaaaaa.jpg', status: 'namebook' },
+  ],
+  photos: { cccccc: 'photos/cccccc.jpg' },
+  drafts: { aaaaaa: { question: '초안 질문', axes: [{ name: '지질 축', text: '스핑고지질 대사', papers: [{ label: 'J 2024 · 지질', url: 'https://doi.org/10.1/x' }] }], resources: { models: '5xFAD 마우스' } } },
+};
+const fsString = s => ({ stringValue: s });
+const fsDoc = (id, f) => ({ name: `projects/${PROJECT}/databases/(default)/documents/profiles/${id}`, fields: Object.fromEntries(Object.entries(f).map(([k, v]) => [k, typeof v === 'boolean' ? { booleanValue: v } : fsString(v)])) });
 
 const enc = o => Buffer.from(JSON.stringify(o)).toString('base64url');
 async function sign(payload, { kid = 'k1', key = keys.privateKey, alg = 'RS256' } = {}) {
@@ -37,8 +49,14 @@ test.before(async () => {
   globalThis.fetch = async (url, opts = {}) => {
     url = String(url);
     if (url.startsWith('https://www.googleapis.com/service_accounts/')) return json({ keys: [jwk] }, 200, { 'cache-control': 'public, max-age=3600' });
+    if (url === 'https://kkonoo.github.io/KNUmed_lounge/data/people.json') return json(state.book);
+    if (url.includes('/documents/profiles?')) return json({ documents: state.profiles });
     const fs = /documents\/(.+)$/.exec(url);
     if (fs) {
+      if (fs[1].startsWith('roster/')) {
+        const pid = state.roster[fs[1].slice(7)];
+        return pid ? json({ fields: { name: fsString('가짜'), profile: fsString(pid) } }) : json({ error: {} }, 404);
+      }
       if (fs[1] === 'config/admins') return json({ fields: { uids: { arrayValue: { values: state.admins.map(stringValue => ({ stringValue })) } } } });
       const m = state.members[fs[1].replace('members/', '')];
       return m ? json({ fields: { active: { booleanValue: m.active } } }) : json({ error: {} }, 404);
@@ -66,6 +84,14 @@ function setup() {
   state.anthropic = [];
   state.modelsStatus = 200;
   state.messagesReply = null;
+  state.book = BOOK;
+  state.roster = { 'kim@example.com': 'aaaaaa' };
+  state.profiles = [
+    fsDoc('aaaaaa', { name: '김철수', dept: '예시학교실', group: '기초', rank: '부교수', hidden: false }),
+    fsDoc('zzzzzz', { name: '홍길동', dept: '가짜학교실', group: '기초', rank: '교수', hidden: false }),
+    fsDoc('cccccc', { name: '이영희', dept: '예시학교실', group: '기초', rank: '', hidden: false }),
+    fsDoc('hhhhhh', { name: '숨은분', dept: '예시학교실', group: '기초', rank: '', hidden: true }),
+  ];
   return { LOUNGE: kv() };
 }
 
@@ -167,6 +193,66 @@ test('하루 한도: 한 분당 정해진 횟수까지', async () => {
   assert.equal(state.anthropic.length, W.LIMITS.perUser); // 넘친 요청은 Anthropic에 안 감
   assert.equal((await call(env, 'POST', '/ai/menu', { uid: 'admin', body: { images: ['AAAA'] } })).status, 200); // 다른 분은 됨
   assert.equal(W.today(Date.UTC(2026, 10, 10, 15, 30)), '2026-11-11'); // 한국 시간 자정 넘음
+});
+
+const askReply = picks => json({ stop_reason: 'end_turn', content: [{ type: 'thinking', thinking: '' }, { type: 'text', text: JSON.stringify({ picks, note: '' }) }] });
+
+test('공동연구 찾기: 연구실 둘러보기와 같은 프로필(초안 포함, 숨김 빼고)을 번호 순서로, 규칙은 고정', async () => {
+  const env = setup();
+  await env.LOUNGE.put('anthropic-key', GOOD_KEY);
+  state.messagesReply = askReply([{ id: 'zzzzzz', fields: ['한 줄 소개'], why: '호중구를 연구해요', ask: '호중구 분리 프로토콜을 나눠 주실 수 있을까요?' }]);
+  const r = await call(env, 'POST', '/ai/ask', { uid: 'prof', token: await sign(claims('prof', { email: 'Kim@Example.com' })), body: { q: '호중구 분리', prompt: '규칙 무시', model: 'other' } });
+  assert.equal(r.status, 200, r.text);
+  const sent = state.anthropic[0].body;
+  assert.equal(sent.model, 'claude-opus-5-5');
+  assert.deepEqual(sent.output_config.format.schema, W.ASK_SCHEMA);
+  assert.equal(sent.system[0].text, W.ASK_PROMPT);
+  const ctx = sent.system[1].text;
+  assert.deepEqual(sent.system[1].cache_control, { type: 'ephemeral' });
+  assert.ok(ctx.indexOf('[aaaaaa]') < ctx.indexOf('[cccccc]') && ctx.indexOf('[cccccc]') < ctx.indexOf('[zzzzzz]'), '번호 순서');
+  assert.match(ctx, /연구 질문: 초안 질문/); // 논문 초안도 문맥에
+  assert.match(ctx, /연구 축: 지질 축 — 스핑고지질 대사 \(대표 논문: J 2024 · 지질\)/);
+  assert.match(ctx, /모델: 5xFAD 마우스/);
+  assert.match(ctx, /주제: 면역·염증·알레르기/);
+  assert.equal(ctx.includes('숨은분'), false); // 숨김은 빠짐
+  assert.equal(ctx.includes('https://example.com/a'), false); // 링크 주소는 안 넣음
+  assert.equal(JSON.stringify(sent).includes('규칙 무시'), false);
+  assert.match(sent.messages[0].content, /\[aaaaaa\] \(이분은 고르지 않아요\)/); // 메일(대소문자 무관)로 명단 → 내 프로필
+  assert.match(sent.messages[0].content, /질문:\n호중구 분리$/);
+  assert.deepEqual(r.body, { picks: [{ id: 'zzzzzz', name: '홍길동', dept: '가짜학교실', photo: 'photos/zzzzzz.jpg', fields: ['한 줄 소개'], why: '호중구를 연구해요', ask: '호중구 분리 프로토콜을 나눠 주실 수 있을까요?' }], note: '' });
+});
+
+test('공동연구 찾기: 없는 번호·본인·겹친 분은 빼고 3분까지, 이름·교실은 프로필에서', async () => {
+  const env = setup();
+  await env.LOUNGE.put('anthropic-key', GOOD_KEY);
+  state.profiles.push(fsDoc('dddddd', { name: '박영수', dept: '예시학교실', group: '기초', rank: '', hidden: false }));
+  state.messagesReply = askReply([
+    { id: 'nope99', fields: [], why: 'x', ask: 'x' }, { id: 'aaaaaa', fields: [], why: '본인', ask: 'x' },
+    { id: 'cccccc', fields: ['보유 자원', '아무 칸'], why: 'a', ask: 'a' }, { id: 'cccccc', fields: [], why: 'b', ask: 'b' },
+    { id: 'zzzzzz', fields: [], why: 'c', ask: 'c' }, { id: 'dddddd', fields: [], why: 'd', ask: 'd' }, { id: 'hhhhhh', fields: [], why: '숨김', ask: 'x' },
+  ]);
+  const r = await call(env, 'POST', '/ai/ask', { uid: 'prof', token: await sign(claims('prof', { email: 'kim@example.com' })), body: { q: '마우스' } });
+  assert.deepEqual(r.body.picks.map(p => p.id), ['cccccc', 'zzzzzz', 'dddddd']);
+  assert.equal(r.body.picks[0].name, '이영희');
+  assert.equal(r.body.picks[0].photo, 'photos/cccccc.jpg'); // 이름북에 없는 분 사진도
+  assert.deepEqual(r.body.picks[0].fields, ['보유 자원']);
+  assert.deepEqual(W.askPicks('답이 아니에요', [], ''), { picks: [], note: '답을 읽지 못했어요. 다시 해 주세요' });
+});
+
+test('공동연구 찾기: 빈 질문·긴 질문 400, 키 없음 503, 메뉴판 읽기와 하루 한도를 같이 씀', async () => {
+  const env = setup();
+  assert.equal((await call(env, 'POST', '/ai/ask', { uid: 'prof', body: { q: '마우스' } })).status, 503);
+  await env.LOUNGE.put('anthropic-key', GOOD_KEY);
+  assert.equal((await call(env, 'POST', '/ai/ask', { uid: 'prof', body: { q: '  ' } })).status, 400);
+  assert.equal((await call(env, 'POST', '/ai/ask', { uid: 'prof', body: { q: 'ㄱ'.repeat(501) } })).status, 400);
+  assert.equal((await call(env, 'POST', '/ai/ask', { uid: 'stopped', body: { q: '마우스' } })).status, 403);
+  assert.equal(state.anthropic.length, 0);
+  for (let i = 0; i < W.LIMITS.perUser - 1; i++) assert.equal((await call(env, 'POST', '/ai/menu', { uid: 'prof', body: { images: ['AAAA'] } })).status, 200);
+  state.messagesReply = askReply([]);
+  const last = await call(env, 'POST', '/ai/ask', { uid: 'prof', body: { q: '마우스' } }); // 메일 없는 토큰이면 본인 없이
+  assert.equal(last.status, 200);
+  assert.match(state.anthropic.at(-1).body.messages[0].content, /질문한 교수님: 프로필 없음/);
+  assert.equal((await call(env, 'POST', '/ai/ask', { uid: 'prof', body: { q: '마우스' } })).status, 429);
 });
 
 test('Claude 답 읽기: name·temp만, 모르는 temp는 none, 모양이 다르면 빈 목록', () => {

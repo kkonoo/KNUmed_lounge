@@ -15,6 +15,7 @@ const SHELL = [
   'people/', 'people/people.css', 'people/people-core.js', 'people/profile-db.js', 'people/people.js', 'data/people.json',
   'people/me/', 'people/me/me.js',
   'admin/', 'admin/admin.css', 'admin/admin-db.js', 'admin/admin.js',
+  'ask/', 'ask/ask.css', 'ask/ask.js',
 ];
 
 self.addEventListener('install', e => {

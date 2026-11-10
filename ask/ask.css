@@ -1,0 +1,23 @@
+/* 공동연구 찾기 */
+main { display: flex; flex-direction: column; gap: 1rem; }
+.ask-form textarea { resize: vertical; }
+.ask-form .form-actions { align-items: center; }
+.ask-left { margin-left: auto; color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.ask-out { display: flex; flex-direction: column; gap: 12px; scroll-margin-top: 72px; }
+.ask-out:empty { display: none; }
+
+/* 고른 교수님 한 분 */
+.ask-pick { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.ask-who { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.ask-who:hover b { text-decoration: underline; }
+.ask-who > div { display: flex; flex-direction: column; gap: 2px; }
+.ask-who b { font-size: 1.05rem; font-weight: 700; }
+.ask-who span { color: var(--muted); font-size: .88rem; }
+.ask-pick .photo { width: 3.5rem; aspect-ratio: 3 / 4; flex: none; border-radius: 9px; object-fit: cover; background: var(--surface-2); }
+.ask-pick .photo.empty { display: grid; place-items: center; color: var(--faint); }
+.ask-pick .photo.empty .lc { width: 40%; height: 40%; }
+.ask-fields { margin: 0; color: var(--muted); font-size: .82rem; }
+.ask-why { margin: 0; line-height: 1.6; }
+.ask-first { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.ask-first small { flex-basis: 100%; color: var(--muted); font-size: .78rem; }
+.ask-first p { flex: 1 1 12rem; margin: 0; line-height: 1.55; }

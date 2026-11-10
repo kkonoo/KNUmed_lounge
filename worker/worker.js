@@ -1,6 +1,7 @@
 // 경북의대 라운지 Worker (Cloudflare Workers): 브라우저가 할 수 없는 일만 해요. 배포는 worker/README.md
 //   GET    /status       Claude를 쓸 수 있는지 (교수님)
 //   POST   /ai/menu      메뉴판 사진 → 메뉴 이름 { images: [JPEG base64] } → { items: [{ name, temp }] } (교수님, 하루 한도)
+//   POST   /ai/ask       공동연구 찾기 { q } → { picks: [{ id, name, dept, photo, fields, why, ask }], note } (교수님, 하루 한도)
 //   GET    /admin/key    키가 있는지, 끝 4자리, 오늘 쓴 횟수 (관리자)
 //   PUT    /admin/key    Claude API 키 넣기 { key } (관리자, 넣기 전에 Anthropic에 맞는 키인지 확인)
 //   DELETE /admin/key    키 지우기 (관리자)
@@ -10,7 +11,9 @@
 // - 그 토큰으로 Firestore를 읽어 교수님(members/{uid}.active)·관리자(config/admins)인지 봐요. firestore.rules가 그대로 적용돼요
 // - Claude API 키는 KV(LOUNGE)에만 두고 브라우저로 돌려주지 않아요(끝 4자리만)
 // - 프롬프트는 여기 고정이에요. 아무 질문이나 대신 보내는 통로가 되지 않게
-// - 한 분당 하루, 모두 합쳐 하루 한도가 있어요. 사진과 답은 저장하지 않아요
+// - 한 분당 하루, 모두 합쳐 하루 한도가 있어요(메뉴판 읽기와 공동연구 찾기를 합쳐서). 사진·질문·답은 저장하지 않아요
+
+import core from '../people/people-core.js'; // 연구실 둘러보기와 같은 규칙으로 프로필을 합침 (wrangler가 함께 묶어 배포)
 
 const PROJECT = 'knumed-lounge';
 const ORIGINS = ['https://kkonoo.github.io', 'http://localhost:8767'];
@@ -19,6 +22,8 @@ const LIMITS = { perUser: 20, all: 300 }; // 하루 (한국 시간)
 const PHOTO_MAX = 6, PHOTO_CHARS = 4_000_000; // 사진 수, 사진 한 장 base64 글자 수 (화면이 긴 쪽 2000px로 줄여 보냄)
 const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const KEY = 'anthropic-key';
+const SITE = 'https://kkonoo.github.io/KNUmed_lounge/'; // 공개 데이터(data/people.json)를 읽는 곳
+const ASK_MAX = 500; // 질문 글자 수
 
 // ---------- 메뉴판 읽기: Claude에게 보내는 글과 받을 모양 (장난감 상자 주문 모으기와 같음) ----------
 const MENU_PROMPT = `이 사진은 카페나 식당의 메뉴판이에요. 주문할 수 있는 메뉴를 모두 뽑아 items에 넣어 주세요.
@@ -81,7 +86,7 @@ async function verifyIdToken(token, projectId, getKeys = googleKeys, now = Date.
   if (body.aud !== projectId || body.iss !== `https://securetoken.google.com/${projectId}`) throw bad;
   if (typeof body.sub !== 'string' || !body.sub || body.sub.length > 128) throw bad;
   if (!(body.exp > now) || !(body.iat <= now + 60) || !(body.auth_time <= now + 60)) throw bad;
-  return { uid: body.sub, token };
+  return { uid: body.sub, email: typeof body.email === 'string' ? body.email.toLowerCase() : '', token };
 }
 
 // ---------- Firestore (그 사람의 토큰으로 읽어서 규칙이 그대로 적용) ----------
@@ -103,7 +108,7 @@ async function who(req, projectId) {
   const isAdmin = (admins?.uids?.arrayValue?.values || []).some(v => v.stringValue === me.uid);
   const isMember = member?.active?.booleanValue === true;
   if (!isMember && !isAdmin) throw new Fail(403, '가입을 마친 교수님만 쓸 수 있어요');
-  return { uid: me.uid, isAdmin };
+  return { uid: me.uid, email: me.email, token: me.token, isAdmin };
 }
 
 // ---------- 하루 한도 (한국 시간 날짜) ----------
@@ -167,6 +172,132 @@ async function checkKey(apiKey) {
   if (!res.ok) throw claudeError(res.status);
 }
 
+// ---------- 공동연구 찾기 (DESIGN §11): 연구실 둘러보기 프로필 전체를 문맥으로 ----------
+const ASK_FIELDS = ['한 줄 소개', '연구 질문', '키워드', '연구 축', '연구 발자취', '보유 자원'];
+const ASK_PROMPT = `경북대 의과대학 기초교실 교수님들의 공개 프로필이 아래에 있어요. 한 교수님이 공동연구에 필요한 것(모델·시료·장비·데이터·기법·주제)을 물어요.
+프로필에서 그것을 갖고 있거나 다뤄 온 교수님을 찾아 주세요.
+
+지킬 것
+- 프로필에 적힌 것만 근거로 써요. 프로필에 없는 자원·경력·논문은 지어내지 않아요. 확실하지 않으면 그렇다고 써요.
+- "누가 좋은 협업 상대인가"가 아니라 "누가 그 자원이나 경험을 갖고 있나"에 답해요. 교수님이나 연구를 평가하거나 순위를 매기지 않아요.
+- 모든 교수님을 똑같이 대해요. 이 사이트를 누가 운영하는지, 프로필이 얼마나 긴지, 직위는 고르는 데 쓰지 않아요.
+- 질문한 교수님 본인은 고르지 않아요.
+- 맞는 분이 있으면 2~3분(정말 한 분뿐이면 한 분)을 골라요. 맞는 분이 없으면 picks를 비우고 note에 이유를 짧게 써요.
+
+답 모양
+- picks: 고른 순서대로. id는 프로필의 [번호] 그대로.
+- fields: 근거가 된 프로필 칸 이름 (${ASK_FIELDS.join(', ')} 중에서)
+- why: 그 칸에 적힌 내용을 짧게 인용하거나 요약해서, 왜 이 질문과 맞는지 한두 문장 (150자 안쪽)
+- ask: 처음 연락할 때 물어볼 질문 하나. 그 교수님께 바로 보낼 수 있게 존댓말로 (100자 안쪽)
+- note: 덧붙일 말이 있으면 한 문장, 없으면 빈 글자
+- 모두 한국어 해요체로 써요.`;
+const ASK_SCHEMA = {
+  type: 'object',
+  properties: {
+    picks: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          fields: { type: 'array', items: { type: 'string', enum: ASK_FIELDS } },
+          why: { type: 'string' },
+          ask: { type: 'string' },
+        },
+        required: ['id', 'fields', 'why', 'ask'],
+        additionalProperties: false,
+      },
+    },
+    note: { type: 'string' },
+  },
+  required: ['picks', 'note'],
+  additionalProperties: false,
+};
+
+// Firestore REST 값 → 보통 값
+function plain(v) {
+  if (!v || typeof v !== 'object') return v;
+  if ('stringValue' in v) return v.stringValue;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('integerValue' in v) return Number(v.integerValue);
+  if ('doubleValue' in v) return v.doubleValue;
+  if ('timestampValue' in v) return Date.parse(v.timestampValue);
+  if ('nullValue' in v) return null;
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(plain);
+  if ('mapValue' in v) return Object.fromEntries(Object.entries(v.mapValue.fields || {}).map(([k, x]) => [k, plain(x)]));
+  return null;
+}
+// 연구실 둘러보기와 같은 목록: 공개 데이터(이름북·초안·사진) 위에 Firestore 프로필을 얹음 (숨김은 빠짐)
+async function loungePeople(projectId, idToken) {
+  const [bookRes, fsRes] = await Promise.all([
+    fetch(`${SITE}data/people.json`),
+    fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/profiles?pageSize=300`, { headers: { Authorization: `Bearer ${idToken}` } }),
+  ]);
+  if (!bookRes.ok || !fsRes.ok) throw new Fail(502, '프로필을 읽지 못했어요. 잠시 뒤에 다시 해 주세요');
+  const book = await bookRes.json();
+  const docs = ((await fsRes.json()).documents || []).map(d => ({ id: d.name.split('/').pop(), ...plain({ mapValue: { fields: d.fields || {} } }) }));
+  return { people: core.mergeProfiles(book.people || [], docs, book.photos || {}, book.drafts || {}), topics: book.topics || [] };
+}
+// 후보 거르기: 지금은 모두 통과. 임상교실이 들어오면 주제·키워드로 먼저 거르는 자리 (DESIGN §11)
+const askCandidates = people => people;
+// 문맥: 번호 순서(무작위 번호라 운영 연구실이 앞에 오지 않음)로 고정 → 같은 글이라 캐시도 됨
+function askContext(people, topics) {
+  const topicName = Object.fromEntries(topics.map(t => [t.key, t.label]));
+  const res = Object.fromEntries(core.RESOURCE_KINDS);
+  return [...people].sort((a, b) => (a.id < b.id ? -1 : 1)).map(p => {
+    const lines = [`[${p.id}] ${p.name} · ${p.dept}${p.rank ? ` · ${p.rank}` : ''} (${p.confirmedAt ? '교수님이 확인한 프로필' : p.drafted ? '확인 전, 논문으로 만든 초안 포함' : '확인 전'})`];
+    const add = (label, v) => { if (v) lines.push(`${label}: ${v}`); };
+    add('한 줄 소개', p.line);
+    add('연구 질문', p.question);
+    add('키워드', (p.keywords || []).join(', '));
+    add('주제', (p.topics || []).map(k => topicName[k]).filter(Boolean).join(', '));
+    for (const a of p.axes || []) add('연구 축', `${a.name}${a.text ? ` — ${a.text}` : ''}${a.papers?.length ? ` (대표 논문: ${a.papers.map(x => x.label).join('; ')})` : ''}`);
+    add('연구 발자취', (p.timeline || []).map(t => `${t.years} ${t.text}`).join(' / '));
+    add('보유 자원', Object.entries(p.resources || {}).filter(([, v]) => v).map(([k, v]) => `${res[k] || k}: ${v.replace(/\s*\n\s*/g, '; ')}`).join(' | '));
+    return lines.join('\n');
+  }).join('\n\n');
+}
+async function askPeople(apiKey, context, q, selfId) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2026-10-21',
+      'anthropic-beta': 'server-side-fallback-2026-07-01',
+    },
+    body: JSON.stringify({
+      model: MODEL, max_tokens: 16000, fallbacks: 'default',
+      output_config: { effort: 'low', format: { type: 'json_schema', schema: ASK_SCHEMA } },
+      // 규칙과 프로필은 모두에게 같은 글 → 5분 안에 이어서 물으면 캐시로 싸게
+      system: [{ type: 'text', text: ASK_PROMPT }, { type: 'text', text: `프로필\n\n${context}`, cache_control: { type: 'ephemeral' } }],
+      messages: [{ role: 'user', content: `질문한 교수님: ${selfId ? `[${selfId}] (이분은 고르지 않아요)` : '프로필 없음'}\n\n질문:\n${q}` }],
+    }),
+  });
+  if (!res.ok) throw claudeError(res.status);
+  const body = await res.json();
+  if (body.stop_reason === 'refusal') throw new Fail(422, 'Claude가 이 질문에는 답하지 않았어요. 필요한 자원이나 기법으로 바꿔 물어봐 주세요');
+  return body.content?.filter(b => b.type === 'text').at(-1)?.text || '';
+}
+// Claude 답 → 화면에 보낼 것. 없는 번호·본인은 빼고 3분까지, 이름·교실·사진은 프로필에서 (답을 믿지 않음)
+function askPicks(text, people, selfId) {
+  let out;
+  try { out = JSON.parse(text); } catch { return { picks: [], note: '답을 읽지 못했어요. 다시 해 주세요' }; }
+  const byId = new Map(people.map(p => [p.id, p])), seen = new Set();
+  const cut = (s, n) => String(s || '').trim().slice(0, n);
+  const picks = (Array.isArray(out?.picks) ? out.picks : []).filter(x => {
+    const ok = byId.has(x?.id) && x.id !== selfId && !seen.has(x.id);
+    if (ok) seen.add(x.id);
+    return ok;
+  }).slice(0, 3).map(x => {
+    const p = byId.get(x.id);
+    return {
+      id: p.id, name: p.name, dept: p.dept, photo: p.photo || '',
+      fields: (Array.isArray(x.fields) ? x.fields : []).filter(f => ASK_FIELDS.includes(f)),
+      why: cut(x.why, 300), ask: cut(x.ask, 200),
+    };
+  });
+  return { picks, note: cut(out?.note, 300) };
+}
+
 // ---------- 길 나누기 ----------
 async function route(req, env) {
   const url = new URL(req.url), path = url.pathname.replace(/\/+$/, '') || '/';
@@ -190,6 +321,21 @@ async function route(req, env) {
     if (!apiKey) throw new Fail(503, '관리자가 아직 Claude API 키를 넣지 않았어요');
     await count(kv, me.uid);
     return { items: await askMenu(apiKey, images) };
+  }
+  if (path === '/ai/ask' && req.method === 'POST') {
+    const q = String((await req.json().catch(() => null))?.q || '').trim();
+    if (!q) throw new Fail(400, '무엇을 찾는지 적어 주세요');
+    if (q.length > ASK_MAX) throw new Fail(400, `질문은 ${ASK_MAX}자까지예요`);
+    const apiKey = await kv.get(KEY);
+    if (!apiKey) throw new Fail(503, '관리자가 아직 Claude API 키를 넣지 않았어요');
+    const [{ people, topics }, mine] = await Promise.all([
+      loungePeople(projectId, me.token),
+      me.email ? firestoreGet(projectId, `roster/${me.email}`, me.token) : null,
+    ]);
+    const selfId = mine?.profile?.stringValue || '';
+    const pool = askCandidates(people);
+    await count(kv, me.uid);
+    return askPicks(await askPeople(apiKey, askContext(pool, topics), q, selfId), pool, selfId);
   }
   if (path === '/admin/key') {
     if (!me.isAdmin) throw new Fail(403, '관리자만 할 수 있어요');
@@ -232,5 +378,5 @@ export default {
     }
   },
   // 검사용 (tests/worker.test.js). Workers 런타임은 default 말고 다른 export(글자·객체)가 있으면 시작하지 않아서 여기에 둠
-  LIMITS, MENU_PROMPT, MENU_SCHEMA, verifyIdToken, today, menuItems,
+  LIMITS, MENU_PROMPT, MENU_SCHEMA, ASK_PROMPT, ASK_SCHEMA, verifyIdToken, today, menuItems, askContext, askPicks,
 };

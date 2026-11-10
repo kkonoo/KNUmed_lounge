@@ -238,11 +238,14 @@ function openForm(e) {
   Object.assign(mealPick, { type: 'checkbox', checked: !!e?.mealPick });
   const pickRow = h('label', 'check');
   pickRow.append(mealPick, '참석 체크 때 식당 메뉴를 하나씩 미리 고르기');
+  // 사진 읽기 단추는 <label> 밖에 둠 (안에 두면 메뉴 칸 이름에 단추 글자가 섞임)
   const menuField = (label, ta, hint) => {
     const f = field(label, ta, hint);
     const photo = menuPhotoButton(() => ta.value, v => { ta.value = v; });
-    if (photo) f.append(photo);
-    return f;
+    if (!photo) return f;
+    const box = h('div', 'menu-field');
+    box.append(f, photo);
+    return box;
   };
   let titleTouched = !!e;
   title.addEventListener('input', () => { titleTouched = true; });

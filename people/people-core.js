@@ -202,3 +202,6 @@ function newProfileId(taken, rand = Math.random) {
     if (!taken.has(s)) return s;
   }
 }
+
+// Worker(worker/worker.js, 공동연구 찾기)도 같은 규칙으로 프로필을 합쳐요. 브라우저에는 module이 없어 건너뜀
+if (typeof module === 'object' && module.exports) module.exports = { mergeProfiles, RESOURCE_KINDS };

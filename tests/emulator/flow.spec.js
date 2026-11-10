@@ -277,6 +277,30 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     assert.equal(await P.getByRole('button', { name: '공지로 올리기' }).count(), 0);
   });
 
+  await t.test('공동연구 찾기: 질문을 보내면 고른 분·근거·첫 질문이 보이고, 이름은 프로필로', async () => {
+    // Worker는 가짜로 (실제 Worker·Anthropic에는 안 감). 보낸 질문만 확인
+    const sent = [];
+    await P.context().route(/workers\.dev\//, async r => {
+      const u = new URL(r.request().url()), cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' };
+      if (r.request().method() === 'OPTIONS') return r.fulfill({ status: 204, headers: cors });
+      if (u.pathname === '/status') return r.fulfill({ headers: cors, json: { ai: true, used: 2, limit: 20 } });
+      sent.push(r.request().postDataJSON());
+      return r.fulfill({ headers: cors, json: { picks: [{ id: 'abc234', name: '나가짜', dept: '가짜학교실', photo: '', fields: ['보유 자원'], why: '보유 자원에 마우스 호중구 분리가 있어요', ask: '호중구 분리 방법을 여쭤봐도 될까요?' }], note: '' } });
+    });
+    await P.goto(`${site.url}ask/`);
+    await P.getByText('오늘 2/20번 썼어요').waitFor();
+    await P.getByRole('button', { name: '찾아 보기' }).click();
+    await P.getByText('무엇을 찾는지 적어 주세요').waitFor(); // 빈 질문은 안 보냄
+    await P.getByLabel('찾는 것').fill('마우스 호중구 분리');
+    await P.getByRole('button', { name: '찾아 보기' }).click();
+    await P.locator('.ask-pick', { hasText: '나가짜' }).getByText('근거: 보유 자원').waitFor();
+    await P.getByText('호중구 분리 방법을 여쭤봐도 될까요?').waitFor();
+    await P.getByText('오늘 3/20번 썼어요').waitFor();
+    assert.deepEqual(sent, [{ q: '마우스 호중구 분리' }]);
+    assert.equal(await P.locator('.ask-who').getAttribute('href'), `${site.url}people/#p=abc234`);
+    await P.context().unroute(/workers\.dev\//);
+  });
+
   await t.test('PIN 바꾸기 → 로그아웃 → 새 PIN으로 로그인', async () => {
     await P.goto(`${site.url}login/`);
     await P.getByText(`${PROF.name} 교수님`).waitFor();
