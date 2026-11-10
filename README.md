@@ -18,6 +18,41 @@ https://kkonoo.github.io/KNUmed_lounge/
 - 로그인은 메일 주소와 PIN(숫자 4자리도 돼요)이에요. 메일 인증은 없어요.
 - 처음 들어올 때는 친목회 공지 메일에 있는 가입 코드를 같이 넣어요.
 
+## 지금 되는 것
+
+- 🔬 교수 디렉터리: 이름북의 기초 38분. 이름·교실·키워드·소개로 찾고 교실·주제로 걸러요. 거른 상태는 주소 `#` 뒤에 남아서 링크로 보낼 수 있어요(예: `people/#dept=생리학교실`).
+- 친목회·공동연구 찾기·로그인은 Firebase를 연결한 뒤에 열어요.
+
+## 구조
+
+빌드·설치할 것 없는 HTML/CSS/JS예요. 화면마다 폴더 하나예요.
+
+```
+index.html              홈: 입구 카드
+css/base.css            모든 화면이 같이 쓰는 색(라이트/다크 자동)·단추·판 (toy_box에서)
+css/home.css            홈 카드
+js/ui.js                화면 만들기(h, button), 이 기기에 저장(store, 'lounge:<화면>'), 알림 (toy_box에서)
+js/theme.js             화면 밝기 🌗 자동·☀️ 밝게·🌙 어둡게 (이 기기 'lounge:theme')
+people/                 교수 디렉터리: index.html · people.js(화면) · people-core.js(계산, 화면 없음) · people.css
+data/people.json        디렉터리 데이터 (공개 파일, 메일·연락처 없음)
+photos/<번호>.jpg       사진 (프로필 번호로 이름 붙임)
+pipeline/               데이터 만들기 (사이트와 따로 실행)
+tests/                  node --test
+```
+
+### 디렉터리 데이터 다시 만들기
+
+이름북을 고쳤으면 그 저장소를 받아 두고 이렇게 돌려요. 이미 있는 분은 같은 번호를 그대로 써요.
+
+```bash
+pip install pillow
+python3 pipeline/from_namebook.py ../Biomed_KNUmed
+```
+
+### 확인 (테스트)
+
+저장소 맨 위에서 `node --test`. 찾기·거르기 계산과, `data/people.json`에 메일·연락처가 들어가지 않았는지를 확인해요.
+
 ## 이 저장소에 두지 않는 것
 
 이 저장소는 공개예요. 그래서 아래는 여기 올리지 않아요.

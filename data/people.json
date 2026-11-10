@@ -1,0 +1,1019 @@
+{
+ "meta": {
+  "from": "Biomed_KNUmed namebook (의과학과 교수진 소개, 학부생용)",
+  "note": "공개 파일이에요. 메일·연락처를 넣지 않아요."
+ },
+ "topics": [
+  {
+   "key": "cancer",
+   "emoji": "🎗",
+   "label": "암"
+  },
+  {
+   "key": "infection",
+   "emoji": "🦠",
+   "label": "감염·미생물"
+  },
+  {
+   "key": "immune",
+   "emoji": "🛡",
+   "label": "면역·염증·알레르기"
+  },
+  {
+   "key": "brain",
+   "emoji": "🧠",
+   "label": "뇌·신경·마음"
+  },
+  {
+   "key": "metabolic",
+   "emoji": "🍩",
+   "label": "대사 (지방간·당뇨·비만·신장)"
+  },
+  {
+   "key": "musculo",
+   "emoji": "🦴",
+   "label": "뼈·근육·재생"
+  },
+  {
+   "key": "repro",
+   "emoji": "👶",
+   "label": "생식·발생"
+  },
+  {
+   "key": "sense",
+   "emoji": "👁",
+   "label": "눈·귀"
+  }
+ ],
+ "people": [
+  {
+   "id": "4eu32d",
+   "name": "구윤경",
+   "rank": "교수",
+   "dept": "기생충학·열대의학교실",
+   "group": "기초",
+   "line": "말라리아 원충이 약에 내성을 갖는 원리를 밝히고 새 항말라리아 약물을 찾아요",
+   "keywords": [
+    "말라리아",
+    "약물 내성",
+    "열대의학"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI4Mw==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/4eu32d.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "kjy7dt",
+   "name": "권태환",
+   "rank": "교수",
+   "dept": "생화학·세포생물학교실",
+   "group": "기초",
+   "line": "콩팥이 몸의 수분을 조절하는 원리(수분통로 AQP2)를 유전자 전사 수준에서 연구해요",
+   "keywords": [
+    "신장 생리",
+    "수분통로단백",
+    "전사 조절"
+   ],
+   "topics": [
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=e2JgDbkAAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/kjy7dt.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "ymg4ub",
+   "name": "김동선",
+   "rank": "교수",
+   "dept": "해부학교실",
+   "group": "기초",
+   "line": "후성유전체 분석으로 미세먼지가 폐·피부 질환을 일으키는 기전과 바이오마커를 찾아요",
+   "keywords": [
+    "후성유전체",
+    "미세먼지",
+    "바이오마커"
+   ],
+   "topics": [
+    "cancer"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTMyMw==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/ymg4ub.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "n5hjnb",
+   "name": "김상현",
+   "rank": "교수",
+   "dept": "약리학교실",
+   "group": "기초",
+   "line": "아토피피부염·알레르기 염증의 기전을 밝히고 새 치료 물질과 약물전달 기술을 개발해요",
+   "keywords": [
+    "아토피피부염",
+    "알레르기",
+    "면역약리"
+   ],
+   "topics": [
+    "immune"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI5OA==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/n5hjnb.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "sjxmx9",
+   "name": "김정민",
+   "rank": "교수",
+   "dept": "미생물학교실",
+   "group": "기초",
+   "line": "다제내성 세균을 잡는 박테리오파지 치료제와 장내 미생물을 연구해요",
+   "keywords": [
+    "박테리오파지",
+    "슈퍼박테리아",
+    "장내 미생물"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "https://research.knu.ac.kr/en/persons/jungmin-kim/",
+     "연구자 프로필"
+    ]
+   ],
+   "photo": "photos/sjxmx9.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "emkbpu",
+   "name": "김하정",
+   "rank": "부교수",
+   "dept": "생리학교실",
+   "group": "기초",
+   "line": "죽은 세포를 치우는 탐식 작용과 염증 조절, 종양미세환경을 연구해요",
+   "keywords": [
+    "세포생리",
+    "염증 조절",
+    "종양미세환경"
+   ],
+   "topics": [
+    "immune",
+    "cancer"
+   ],
+   "links": [
+    [
+     "https://research.knu.ac.kr/en/persons/hajeong-kim/",
+     "연구자 프로필"
+    ]
+   ],
+   "photo": "photos/emkbpu.jpg",
+   "source": "pure,pubmed",
+   "status": "namebook"
+  },
+  {
+   "id": "79trtz",
+   "name": "남성욱",
+   "rank": "교수",
+   "dept": "분자의학교실",
+   "group": "기초",
+   "line": "장 오가노이드 배양 칩과 이미지 분석 기술로 동물실험을 대신할 모델을 만들어요",
+   "keywords": [
+    "오가노이드",
+    "바이오칩",
+    "이미지 분석"
+   ],
+   "topics": [
+    "immune"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI2NA==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/79trtz.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "xvsy2v",
+   "name": "박권무",
+   "rank": "교수",
+   "dept": "해부학교실",
+   "group": "기초",
+   "line": "급성 신장 손상과 섬유화가 생기고 회복되는 기전을 연구해요",
+   "keywords": [
+    "신장 손상",
+    "섬유화",
+    "일차섬모"
+   ],
+   "topics": [
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTMyMg==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/xvsy2v.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "u6qvt9",
+   "name": "박지영",
+   "rank": "교수",
+   "dept": "병리학교실",
+   "group": "기초",
+   "line": "차세대 염기서열 분석(NGS)으로 갑상선암·부인암을 진단하는 분자병리를 연구해요",
+   "keywords": [
+    "분자병리",
+    "암 유전체",
+    "NGS"
+   ],
+   "topics": [
+    "cancer"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTMwNw==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/u6qvt9.jpg",
+   "source": "pubmed",
+   "status": "namebook"
+  },
+  {
+   "id": "y6q4hu",
+   "name": "배재성",
+   "rank": "교수",
+   "dept": "생리학교실",
+   "group": "기초",
+   "line": "환자 샘플 분석부터 정밀한 동물 모델 검증을 통한 신약개발까지! 배재성 교수 연구실은 스핑고지질대사 조절을 축으로 알츠하이머병을 비롯한 뇌 및 전신 대사질환의 병인 기전을 규명합니다. 깊이 있는 기초 실험과 중개연구를 통해 실질적 치료제 개발을 합니다.",
+   "keywords": [
+    "알츠하이머병",
+    "지질 신호",
+    "신경줄기세포"
+   ],
+   "topics": [
+    "brain",
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTMxNw==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/y6q4hu.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "k77nvt",
+   "name": "백문창",
+   "rank": "교수",
+   "dept": "분자의학교실",
+   "group": "기초",
+   "line": "엑소좀(세포외소포)으로 암을 진단·치료하는 면역항암 기술을 개발해요",
+   "keywords": [
+    "엑소좀",
+    "면역항암",
+    "나노소포"
+   ],
+   "topics": [
+    "cancer",
+    "immune"
+   ],
+   "links": [
+    [
+     "http://exosome.knu.ac.kr",
+     "연구실 홈페이지"
+    ]
+   ],
+   "photo": "photos/k77nvt.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "hbxbrv",
+   "name": "석경호",
+   "rank": "교수",
+   "dept": "약리학교실",
+   "group": "기초",
+   "line": "뇌의 교세포와 신경염증이 뇌 노화와 뇌질환에 미치는 영향을 연구해요",
+   "keywords": [
+    "신경염증",
+    "교세포",
+    "뇌 노화"
+   ],
+   "topics": [
+    "brain",
+    "immune"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI5OQ==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/hbxbrv.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "aacr9x",
+   "name": "성영관",
+   "rank": "교수",
+   "dept": "면역학교실",
+   "group": "기초",
+   "line": "탈모가 생기는 원리를 밝히고 모낭 재생과 발모 치료제를 개발해요",
+   "keywords": [
+    "탈모",
+    "모낭 재생",
+    "피부생물학"
+   ],
+   "topics": [
+    "musculo"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=fU6gc4EAAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/aacr9x.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "dehfgh",
+   "name": "신민상",
+   "rank": "교수",
+   "dept": "미생물학교실",
+   "group": "기초",
+   "line": "다제내성균(아시네토박터)의 병원성 조절 기전과 항균 단백질을 연구해요",
+   "keywords": [
+    "다제내성균",
+    "세균 병원성",
+    "항균 단백질"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=o4Ucq2sAAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/dehfgh.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "j8sbxc",
+   "name": "김석호",
+   "rank": "부교수",
+   "dept": "미생물학교실",
+   "group": "기초",
+   "line": "AMR & Phages Lab은 항생제 내성(AMR) 극복을 위해 박테리오파지(Phages) 기반 차세대 항균 치료 기술을 연구합니다. 합성생물학 기반 파지-항생제 시너지 및 정밀 전달 시스템을 개발하여 난치성 세균 감염 제어의 혁신을 이끕니다.",
+   "keywords": [
+    "다제내성균",
+    "박테리오파지",
+    "엔도리신"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "https://www.researchgate.net/lab/Shukho-Kim-Lab-MDR-Phages-Shukho-Kim",
+     "ResearchGate"
+    ]
+   ],
+   "photo": "photos/j8sbxc.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "gmq676",
+   "name": "유정수",
+   "rank": "교수",
+   "dept": "분자의학교실",
+   "group": "기초",
+   "line": "암을 찾아 영상화하고 치료하는 방사성의약품과 분자영상 프로브를 개발해요",
+   "keywords": [
+    "방사성의약품",
+    "분자영상",
+    "나노의학"
+   ],
+   "topics": [
+    "cancer"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI2Nw==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/gmq676.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "ww8k4q",
+   "name": "윤영란",
+   "rank": "교수",
+   "dept": "분자의학교실",
+   "group": "기초",
+   "line": "약이 몸속에서 움직이는 방식(약동학)과 대사체를 분석하고 AI로 신약 개발을 도와요",
+   "keywords": [
+    "임상약리",
+    "대사체학",
+    "약동학"
+   ],
+   "topics": [
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI2Ng==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/ww8k4q.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "dgv2gf",
+   "name": "이경민",
+   "rank": "교수",
+   "dept": "해부학교실",
+   "group": "기초",
+   "line": "인지·시스템 신경과학과 분자신경생물학으로 뇌가 일하는 원리를 연구해요",
+   "keywords": [
+    "신경과학",
+    "인지",
+    "분자신경생물학"
+   ],
+   "topics": [
+    "brain"
+   ],
+   "links": [
+    [
+     "https://research.knu.ac.kr/en/persons/kyungmin-lee/",
+     "연구자 프로필"
+    ]
+   ],
+   "photo": "photos/dgv2gf.jpg",
+   "source": "pure",
+   "status": "namebook"
+  },
+  {
+   "id": "jbtyhn",
+   "name": "이병헌",
+   "rank": "교수",
+   "dept": "생화학·세포생물학교실",
+   "group": "기초",
+   "line": "파지 디스플레이로 암을 찾아가는 펩타이드를 발굴해 표적 항암제를 개발해요",
+   "keywords": [
+    "펩타이드",
+    "표적항암제",
+    "종양미세환경"
+   ],
+   "topics": [
+    "cancer"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=NCNICI0AAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/jbtyhn.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "wdztdt",
+   "name": "이재만",
+   "rank": "부교수",
+   "dept": "생화학·세포생물학교실",
+   "group": "기초",
+   "line": "핵수용체(PPARα 등)가 간 대사와 섭식·체중을 조절하는 원리를 연구해요",
+   "keywords": [
+    "핵수용체",
+    "간 대사",
+    "자가포식"
+   ],
+   "topics": [
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTMxMA==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/wdztdt.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "kwvhqn",
+   "name": "이제철",
+   "rank": "교수",
+   "dept": "미생물학교실",
+   "group": "기초",
+   "line": "다제내성균의 독성 단백질과 막소포를 연구해 항생제를 대신할 치료 전략을 찾아요",
+   "keywords": [
+    "다제내성균",
+    "막소포",
+    "항균 전략"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=5TlwgOYAAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/kwvhqn.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "w4qffq",
+   "name": "장용민",
+   "rank": "교수",
+   "dept": "분자의학교실",
+   "group": "기초",
+   "line": "MRI·자기공명분광으로 뇌와 질병을 들여다보는 분자영상 기술을 개발해요",
+   "keywords": [
+    "MRI",
+    "분자영상",
+    "뇌영상"
+   ],
+   "topics": [
+    "brain"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI2NQ==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/w4qffq.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "b2x22u",
+   "name": "최제용",
+   "rank": "교수",
+   "dept": "생화학·세포생물학교실",
+   "group": "기초",
+   "line": "최제용 교수 연구실은 근골격조직에서 RUNX/CBFβ의 기능을 분자유전학 및 유전자 발현 조절 접근법으로 연구합니다. 골광화와 같은 생리 현상은 물론 골다공증·골관절염 등 근골격계 질환의 진단과 치료법 개발에 몰두하며, 일본, 미국, 중국 등과 활발히 국제 공동연구를 수행하고 있습니다.",
+   "keywords": [
+    "뼈 생물학",
+    "골다공증",
+    "골관절염"
+   ],
+   "topics": [
+    "musculo"
+   ],
+   "links": [
+    [
+     "https://bonechoi.knu.ac.kr/",
+     "연구실 홈페이지"
+    ]
+   ],
+   "photo": "photos/b2x22u.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "crzzc2",
+   "name": "한형수",
+   "rank": "교수",
+   "dept": "생리학교실",
+   "group": "기초",
+   "line": "멀티오믹스와 인공지능으로 암·치매를 연구하고 디지털 헬스케어를 개발해요",
+   "keywords": [
+    "멀티오믹스",
+    "인공지능",
+    "디지털 헬스케어"
+   ],
+   "topics": [
+    "cancer",
+    "brain"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=8Sr9DVcAAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/crzzc2.jpg",
+   "source": "dir",
+   "status": "namebook"
+  },
+  {
+   "id": "q6ruks",
+   "name": "허근",
+   "rank": "교수",
+   "dept": "생화학·세포생물학교실",
+   "group": "기초",
+   "line": "허근 교수 연구실은 대장암 및 간암의 발생과 전이 기전을 연구합니다. 비암호화 RNA, 엑소좀, RNA 메틸화와 오가노이드 모델을 활용하여 암 조기진단 바이오마커와 새로운 치료 표적을 발굴합니다.",
+   "keywords": [
+    "액체생검",
+    "엑소좀 RNA",
+    "암 바이오마커"
+   ],
+   "topics": [
+    "cancer"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTMxMQ==",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/q6ruks.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "a858p6",
+   "name": "홍연철",
+   "rank": "교수",
+   "dept": "기생충학·열대의학교실",
+   "group": "기초",
+   "line": "아메바성 뇌염을 일으키는 가시아메바 등 병원성 원충의 생존 기전과 진단·치료법을 연구해요",
+   "keywords": [
+    "병원성 원충",
+    "가시아메바",
+    "진단법"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "https://research.knu.ac.kr/en/persons/yeonchul-hong/",
+     "연구자 프로필"
+    ]
+   ],
+   "photo": "photos/a858p6.jpg",
+   "source": "pure",
+   "status": "namebook"
+  },
+  {
+   "id": "e4tanr",
+   "name": "홍장원",
+   "rank": "교수",
+   "dept": "생리학교실",
+   "group": "기초",
+   "line": "호중구 등 선천면역세포가 지방간·당뇨 합병증에 관여하는 원리를 연구해요",
+   "keywords": [
+    "호중구",
+    "선천면역",
+    "지방간"
+   ],
+   "topics": [
+    "immune",
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=5HZWdXcAAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/e4tanr.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "s2nb4e",
+   "name": "이충용",
+   "rank": "부교수",
+   "dept": "미생물학교실",
+   "group": "기초",
+   "line": "인플루엔자 등 인수공통 바이러스의 진화와 종간 전파를 머신러닝과 백신 연구로 추적해요",
+   "keywords": [
+    "인플루엔자",
+    "바이러스 진화",
+    "백신"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "http://virus.knu.ac.kr/",
+     "연구실 홈페이지"
+    ]
+   ],
+   "photo": "photos/s2nb4e.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "p244yk",
+   "name": "서인철",
+   "rank": "부교수",
+   "dept": "면역학교실",
+   "group": "기초",
+   "line": "마이크로바이옴과 다중오믹스, 대규모 코호트 데이터로 면역·감염 질환을 연구해요",
+   "keywords": [
+    "마이크로바이옴",
+    "다중오믹스",
+    "코호트 연구"
+   ],
+   "topics": [
+    "immune",
+    "infection"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=zDr9aw0AAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/p244yk.jpg",
+   "source": "pure,pubmed",
+   "status": "namebook"
+  },
+  {
+   "id": "j8eswk",
+   "name": "남용석",
+   "rank": "조교수",
+   "dept": "해부학교실",
+   "group": "기초",
+   "line": "시신 해부 연구로 수술에 필요한 신경·혈관의 정확한 해부학 지도를 만들어요",
+   "keywords": [
+    "임상해부학",
+    "신경·혈관",
+    "수술 해부"
+   ],
+   "topics": [
+    "musculo"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTIxMjg=",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/j8eswk.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "yqqdrd",
+   "name": "김성준",
+   "rank": "조교수",
+   "dept": "미생물학교실",
+   "group": "기초",
+   "line": "바이러스가 미토콘드리아 등 세포소기관을 이용하는 원리를 밝히고 백신을 연구해요",
+   "keywords": [
+    "바이러스",
+    "미토콘드리아",
+    "백신"
+   ],
+   "topics": [
+    "infection"
+   ],
+   "links": [
+    [
+     "http://kimlab.knu.ac.kr/",
+     "연구실 홈페이지"
+    ]
+   ],
+   "photo": "photos/yqqdrd.jpg",
+   "source": "dir,bk",
+   "status": "namebook"
+  },
+  {
+   "id": "mxxq28",
+   "name": "김예리",
+   "rank": "조교수",
+   "dept": "면역학교실",
+   "group": "기초",
+   "line": "유전자 변화는 어떻게 신경과 근육의 질병으로 이어질까요? 감각신경생물학·대사 연구실은 유전자 조절과 미토콘드리아 기능을 중심으로 질병의 비밀을 탐구합니다. 유전체 분석부터 세포·동물모델 실험까지, 다양한 접근으로 질병의 원인을 밝히고 새로운 치료의 가능성을 찾아갑니다.",
+   "keywords": [
+    "난청",
+    "이독성",
+    "미토콘드리아"
+   ],
+   "topics": [
+    "sense"
+   ],
+   "links": [
+    [
+     "https://scholar.google.com/citations?user=TFwfm9IAAAAJ",
+     "Google Scholar"
+    ]
+   ],
+   "photo": "photos/mxxq28.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "xxmm65",
+   "name": "이종걸",
+   "rank": "조교수",
+   "dept": "면역학교실",
+   "group": "기초",
+   "line": "생식유전생물학연구실은 임신이 시작되는 과정을 세포·분자 수준에서 연구합니다. 자궁내막의 탈락막화, 배아 착상, 태반 형성에 주목하며, 사람 유래 세포모델과 동물실험을 통해 환경유해물질이 초기 임신에 미치는 영향과 난임·임신성 질환의 원인을 탐구합니다.",
+   "keywords": [
+    "난임",
+    "자궁내막",
+    "생식독성"
+   ],
+   "topics": [
+    "repro"
+   ],
+   "links": [
+    [
+     "https://im.knu.ac.kr/lee",
+     "연구실 홈페이지"
+    ]
+   ],
+   "photo": "photos/xxmm65.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "7kuh88",
+   "name": "이화림",
+   "rank": "조교수",
+   "dept": "약리학교실",
+   "group": "기초",
+   "line": "3D 에서는 모든 생명 현상이 달라집니다. 우리는 바이오프린팅으로 체외모델을 만들고, 세포에서 조직, 인체까지 아우르는 메커니즘을 분석하여 질병연구, 신약개발과 4D 인공장기까지 도전합니다.",
+   "keywords": [
+    "3D 바이오프린팅",
+    "인공장기",
+    "폐 모델"
+   ],
+   "topics": [
+    "musculo",
+    "cancer"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI0MzM=",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/7kuh88.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "c7c9wd",
+   "name": "최지웅",
+   "rank": "조교수",
+   "dept": "면역학교실",
+   "group": "기초",
+   "line": "세포외소포·나노의약·마이크로로봇으로 종양 면역을 바꾸는 치료 기술을 개발해요",
+   "keywords": [
+    "나노의학",
+    "세포외소포",
+    "면역치료"
+   ],
+   "topics": [
+    "cancer",
+    "immune"
+   ],
+   "links": [
+    [
+     "https://choi-dds.knu.ac.kr/",
+     "연구실 홈페이지"
+    ]
+   ],
+   "photo": "photos/c7c9wd.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "j5ud56",
+   "name": "하은지",
+   "rank": "조교수",
+   "dept": "분자의학교실",
+   "group": "기초",
+   "line": "유전체의학 연구실은 단일세포·공간전사체·미생물군집 등 오믹스 빅데이터로 질병을 이해하는 연구실입니다. 연구실 RPG HaLab Quest에서 분야 탐색부터 연구까지의 여정을 미리 체험해 보세요.",
+   "keywords": [
+    "멀티오믹스",
+    "질병유전체",
+    "BI"
+   ],
+   "topics": [
+    "cancer",
+    "infection",
+    "immune",
+    "brain",
+    "metabolic",
+    "musculo"
+   ],
+   "links": [
+    [
+     "https://halab.knu.ac.kr",
+     "연구실 홈페이지"
+    ],
+    [
+     "https://halab-quest.knu.ac.kr",
+     "HaLab Quest"
+    ]
+   ],
+   "photo": "photos/j5ud56.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  },
+  {
+   "id": "ttm8jc",
+   "name": "김균후",
+   "rank": "조교수",
+   "dept": "생화학·세포생물학교실",
+   "group": "기초",
+   "line": "췌장 베타세포가 대사 스트레스에 반응하는 원리와 당뇨병 유전 변이를 연구해요",
+   "keywords": [
+    "베타세포",
+    "당뇨병",
+    "유전 변이"
+   ],
+   "topics": [
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://med.knu.ac.kr/pages/sub.htm?nav_code=knu1670413496&mode=view&mv_data=aWR4PTI0NzM=",
+     "교수 소개 페이지"
+    ]
+   ],
+   "photo": "photos/ttm8jc.jpg",
+   "source": "bk",
+   "status": "namebook"
+  },
+  {
+   "id": "cnxab3",
+   "name": "김정은",
+   "rank": "교수",
+   "dept": "분자의학교실",
+   "group": "기초",
+   "line": "Skeletal Connectome Lab은 골격을 중심으로 근육·힘줄·신경·호르몬의 연결과 상호작용을 연구합니다. 뼈세포의 기능, 호르몬에 의한 근육·힘줄 조절, 근골격계·대사 질환, 암의 뼈 전이 및 비만 관련 유전자 기능을 탐구합니다.",
+   "keywords": [
+    "근골격계",
+    "뼈 대사",
+    "뼈 전이"
+   ],
+   "topics": [
+    "musculo",
+    "metabolic"
+   ],
+   "links": [
+    [
+     "https://kimslab-2fwddodh.manus.space/",
+     "연구실 홈페이지"
+    ]
+   ],
+   "photo": "photos/cnxab3.jpg",
+   "source": "flyer",
+   "status": "namebook"
+  }
+ ]
+}

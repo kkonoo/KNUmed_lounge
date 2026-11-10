@@ -1,0 +1,44 @@
+/* 홈: 입구 카드 (toy_box 홈 카드에서 가져옴). 평소엔 얇은 선, 올리면 선이 강조색으로 바뀌고 살짝 뜸 */
+.home-intro { margin: .25rem 0 1.25rem; color: var(--muted); font-size: .95rem; }
+.door-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 1rem; }
+.door {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  padding: 1.35rem 1.35rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  text-decoration: none;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+a.door:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: var(--shadow); }
+.door .emoji { display: grid; place-items: center; width: 3.6rem; height: 3.6rem; margin-bottom: .6rem; border-radius: 14px; background: var(--bg); font-size: 2.1rem; line-height: 1; }
+.door b { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+.door span { color: var(--muted); font-size: .9rem; }
+.door small { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: auto; padding-top: .9rem; font-size: .8rem; color: var(--muted); }
+a.door small::after { content: "→"; font-size: 1rem; color: var(--faint); transition: transform .15s, color .15s; }
+a.door:hover small::after { color: var(--accent); transform: translateX(3px); }
+/* 아직 안 연 입구: 흐리게, 누를 수 없음 */
+.door.soon { background: transparent; border-style: dashed; }
+.door.soon .emoji { filter: grayscale(1); opacity: .6; }
+.door.soon b { color: var(--muted); }
+.door .tag { display: inline-block; padding: .1rem .5rem; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); font-size: .75rem; color: var(--muted); }
+
+.home-foot {
+  padding: 1.25rem max(1.5rem, calc((100% - 1400px) / 2 + 1.5rem)) 2rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .85rem;
+}
+.home-foot a { color: var(--muted); }
+
+@media (max-width: 900px) { .home-foot { padding-inline: 1rem; } }
+/* 폰: 카드를 가로로 (그림 왼쪽, 글 오른쪽) 눕혀서 한 화면에 더 많이 */
+@media (max-width: 560px) {
+  .door-cards { gap: .6rem; }
+  .door { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: .15rem .9rem; padding: 1rem 1.1rem; }
+  .door .emoji { grid-row: span 3; width: 3.2rem; height: 3.2rem; margin: 0; font-size: 1.8rem; }
+  .door b { font-size: 1.1rem; }
+  .door small { padding-top: .35rem; }
+}

@@ -1,0 +1,207 @@
+/* 경북의대 라운지: 모든 페이지가 같이 쓰는 색·부품 (toy_box css/base.css에서 가져옴). 화면마다 따로인 모양은 <화면>/<화면>.css
+   크기는 rem: 폰은 16px, 큰 화면 게임(<html class="big">)은 노트북·프로젝터에서 글자·판이 같이 커짐 */
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface-2: #F9F8F6;
+  --line: #E8E6E0;
+  --text: #1E1F22;
+  --muted: #7C7A74;
+  --faint: #B8B5AD;
+  --accent: #5B5FE8;
+  --accent-soft: #ECEDFD;
+  --on-accent: #FFFFFF;
+  --gold: #D9A13B;
+  --danger: #E5484D;
+  --shadow: 0 1px 2px rgba(20, 20, 20, .04), 0 6px 20px rgba(20, 20, 20, .05);
+  --radius: 16px;
+  color-scheme: only light; /* only = 삼성 인터넷 등이 강제로 어둡게 바꾸지 않게 */
+}
+/* 어두운 색: 기기 설정이 어두움(🌗 자동) 또는 🌙 어둡게를 고름 (js/theme.js가 <html data-theme>를 붙임). 게임 css도 같은 두 곳에 씀 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121214; --surface: #1B1B1E; --surface-2: #222226; --line: #2C2C31;
+    --text: #ECECEE; --muted: #8E8E95; --faint: #5C5C63;
+    --accent: #8F92FF; --accent-soft: #25264A; --on-accent: #101124; --gold: #E3B45C; --danger: #FF6B6F;
+    --shadow: none; color-scheme: only dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121214; --surface: #1B1B1E; --surface-2: #222226; --line: #2C2C31;
+  --text: #ECECEE; --muted: #8E8E95; --faint: #5C5C63;
+  --accent: #8F92FF; --accent-soft: #25264A; --on-accent: #101124; --gold: #E3B45C; --danger: #FF6B6F;
+  --shadow: none; color-scheme: only dark;
+}
+html { font-size: 16px; }
+@media (min-width: 1280px) { html.big { font-size: 18px; } }
+@media (min-width: 1700px) { html.big { font-size: 21px; } }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, "Malgun Gothic", system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.45;
+  word-break: keep-all; /* 한국어는 낱말 중간에서 줄이 안 바뀌게 */
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- 머리 줄: ‹ 처음으로 · 게임 이름 · (소리 단추). 위에 붙어 있고 아래 선 하나 ---------- */
+.game-head {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 3.75rem;
+  padding: .5rem max(1.5rem, calc((100% - 1400px) / 2 + 1.5rem)); /* 글은 main과 같은 폭에 맞춤 */
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.game-head h1 { margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+.game-head .head-end { margin-left: auto; display: flex; gap: .375rem; }
+main { max-width: 1400px; margin: 0 auto; padding: 1.25rem 1.5rem 2rem; }
+/* 폰 기준 페이지 (폭탄 돌리기·시크릿 산타 개인 화면) */
+.phone .game-head { padding-inline: max(1rem, calc((100% - 480px) / 2 + 1rem)); }
+.phone main { max-width: 480px; padding-inline: 1rem; }
+
+/* ---------- 단추 ---------- */
+.btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: .5rem 1rem;
+  border-radius: 10px;
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background .15s, border-color .15s, filter .15s;
+}
+.btn:hover { background: var(--surface-2); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.small { padding: .3rem .7rem; font-size: .8rem; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.big { padding: .9rem 2.2rem; border-radius: 14px; font-size: 1.15rem; }
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--text);
+  transition: background .15s;
+}
+.icon-btn:hover { background: var(--surface); }
+.icon-btn.small { width: 1.75rem; height: 1.75rem; font-size: 1rem; color: var(--muted); }
+.icon-btn.small:hover { background: var(--surface-2); color: var(--text); }
+.icon-btn:disabled { opacity: .3; cursor: default; }
+
+/* 🌗 화면 밝기 단추와 고르는 메뉴 (js/theme.js) */
+.theme-btn { font-size: 1.15rem; }
+.theme-menu { position: fixed; inset: auto; margin: 0; padding: .3rem; min-width: 11rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text); box-shadow: 0 12px 32px rgba(0, 0, 0, .18); }
+.theme-menu button { display: block; width: 100%; padding: .55rem .8rem; border: none; border-radius: 8px; background: transparent; font-size: .95rem; text-align: left; cursor: pointer; }
+.theme-menu button:hover { background: var(--surface-2); }
+.theme-menu button.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+
+/* 고르기 (짧게·보통·길게 같은 것) */
+.seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+.seg button { flex: 1; padding: .4rem .9rem; border: none; border-radius: 9px; background: transparent; font-size: .9rem; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.seg button.on { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+
+/* 알약 단추 (저장한 목록) */
+.pills { display: flex; flex-wrap: wrap; gap: .3rem; }
+.pills button { padding: .3rem .7rem; border: 1px solid var(--line); border-radius: 99px; background: transparent; font-size: .8rem; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.pills button:hover { background: var(--surface-2); color: var(--text); }
+
+/* [−] 숫자 [＋] */
+.stepper { display: inline-flex; align-items: center; padding: 1px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); }
+.stepper b { min-width: 1.8rem; text-align: center; font-variant-numeric: tabular-nums; }
+
+/* ---------- 판 ---------- */
+.panel { display: flex; flex-direction: column; padding: 1.1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.panel-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-bottom: .5rem; }
+.panel-head h2 { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.panel-head > .btn { margin-left: auto; }
+.hint { font-size: .8rem; color: var(--muted); }
+textarea, .text-input {
+  width: 100%;
+  padding: .6rem .8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  line-height: 1.5;
+  outline: none;
+}
+textarea { resize: vertical; }
+textarea:focus, .text-input:focus { border-color: var(--accent); }
+
+/* 놀이 화면 공통 (살림노트 놀이에서) */
+.play-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 24rem); gap: 1rem; align-items: start; }
+.play-stage { align-items: center; gap: 1rem; }
+.play-one { gap: .8rem; }
+.play-setup { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.play-btns { display: flex; flex-wrap: wrap; gap: .4rem; }
+.play-status { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.play-one > .hint { margin: 0; }
+.result { display: flex; flex-direction: column; align-items: center; gap: .6rem; }
+.result-text { margin: 0; font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; text-align: center; overflow-wrap: anywhere; }
+
+/* ---------- 창·알림 ---------- */
+dialog {
+  width: min(380px, calc(100vw - 32px));
+  padding: 1.4rem;
+  border: none;
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .25);
+}
+dialog::backdrop { background: rgba(20, 20, 25, .4); backdrop-filter: blur(2px); }
+dialog h2 { margin: .2rem 0 .8rem; font-size: 1.05rem; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: .4rem; margin-top: 1rem; }
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(2rem + env(safe-area-inset-bottom));
+  z-index: 30;
+  transform: translateX(-50%);
+  padding: .6rem 1.1rem;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: .9rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.toast.show { opacity: 1; }
+
+@media (max-width: 900px) {
+  .game-head { min-height: 3.25rem; padding: .4rem 1rem; }
+  .game-head h1 { font-size: 1.1rem; }
+  main { padding: 1rem .75rem 1.25rem; }
+  .play-grid { grid-template-columns: minmax(0, 1fr); gap: .75rem; }
+}
