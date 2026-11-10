@@ -269,7 +269,6 @@ function openForm(p) {
   acts.append(save, button('취소', () => { if (leave()) dlg.close(); }, 'btn'));
   form.append(
     h('h2', '', p ? '글 고치기' : '글쓰기'),
-    h('p', 'hint', '교수님들만 봐요. 미출판 결과, 환자 정보, 남의 연구에 대한 평가는 올리지 말아 주세요.'),
     block('말머리', seg), field('제목', title), field('내용', body), ...(!p && S.isAdmin ? [noticeRow] : []), msg, acts,
   );
   form.addEventListener('submit', async e => {

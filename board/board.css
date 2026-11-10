@@ -40,4 +40,3 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 
 dialog.post-form { width: min(560px, calc(100vw - 24px)); max-height: 92dvh; overflow: auto; }
 dialog.post-form h2 { margin: 0 0 .2rem; }
-dialog.post-form .hint { margin: 0; line-height: 1.5; }
