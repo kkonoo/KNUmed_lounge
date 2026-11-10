@@ -136,12 +136,19 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.getByLabel('한 줄 소개').fill('가짜 세포가 늙는 원리를 연구해요');
     await P.getByLabel('키워드').fill('노화, 가짜 RNA');
     await P.getByRole('button', { name: /감염·미생물/ }).click();
+    const open = title => P.locator('details.me-sec > summary', { hasText: title }).click(); // 처음엔 '소개'만 펼쳐져 있음
+    assert.equal(await P.getByPlaceholder('축 이름').first().isVisible(), false);
+    await open('연구 축');
     await P.getByPlaceholder('축 이름').first().fill('가짜 노화 축');
     await P.getByPlaceholder('이 축에서 묻는 것 한 문장').first().fill('노화는 어떻게 시작될까요');
     await P.getByPlaceholder(/대표 논문/).first().fill('예시 2024 https://example.com/p1');
+    await open('연구 발자취');
     await P.getByPlaceholder('2016–2020').first().fill('2016–2020');
     await P.getByPlaceholder('그때 한 일 한 줄').first().fill('가짜 모델 확립');
+    await open('보유 자원');
     await P.getByLabel('장비').fill('가짜 공초점 현미경');
+    await P.locator('details.me-sec > summary', { hasText: '보유 자원' }).getByText('1/5칸').waitFor(); // 접어도 채운 칸 수가 보임
+    await open('로그인한 교수님만');
     await P.getByLabel('찾는 것').fill('가짜 환자 PBMC');
     await P.getByLabel('연락처·담당자').fill('연구실 내선 0000');
     await P.getByRole('button', { name: '확인하고 저장' }).click();

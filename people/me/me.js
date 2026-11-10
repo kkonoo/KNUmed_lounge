@@ -26,12 +26,23 @@ async function start() {
 }
 
 const area = (value, maxLength, rows, placeholder = '') => { const t = h('textarea'); Object.assign(t, { value, maxLength, rows, placeholder }); return t; };
-function fieldset(title, hint, ...nodes) {
-  const f = h('fieldset');
-  f.append(h('legend', '', title));
-  if (hint) f.append(h('p', 'hint', hint));
-  f.append(...nodes);
-  return f;
+// 섹션 하나 = 접고 펴는 칸. 제목 옆에 채운 칸 수를 보여 줘서 접어 둬도 어디가 비었는지 알 수 있게
+function section(title, hint, ...nodes) {
+  const d = h('details', 'me-sec');
+  const sum = h('summary');
+  const filled = h('small', '');
+  sum.append(h('span', '', title), filled);
+  const body = h('div', 'me-sec-body');
+  if (hint) body.append(h('p', 'hint', hint));
+  body.append(...nodes);
+  d.append(sum, body);
+  const count = () => {
+    const inputs = [...body.querySelectorAll('input, textarea')];
+    filled.textContent = `${inputs.filter(i => i.value.trim()).length}/${inputs.length}칸`;
+  };
+  body.addEventListener('input', count);
+  count();
+  return d;
 }
 
 function render(S, pid, doc, priv, book) {
@@ -43,7 +54,7 @@ function render(S, pid, doc, priv, book) {
   const state = h('p', 'hint');
   const paintState = ms => {
     state.textContent = ms
-      ? `마지막 확인 ${fmtDay(ms)}. 바뀐 게 없어도 저장을 누르면 오늘 확인한 것으로 남아요.`
+      ? `마지막 확인 ${fmtDay(ms)} 바뀐 게 없어도 저장을 누르면 오늘 확인한 것으로 남아요.`
       : '아직 확인 전이에요. 저장하면 연구실 둘러보기에 이 내용으로 보여요.';
   };
   paintState(doc.confirmedAt);
@@ -95,26 +106,28 @@ function render(S, pid, doc, priv, book) {
   const contact = textInput('text', { value: priv.contact || '', maxLength: M.contact, placeholder: '예: 연구실 내선, 담당 연구원' });
 
   const form = h('form', 'me-form'), msg = msgBox();
+  const intro = section('소개', '', field('직위', rank), field('한 줄 소개', line), field('연구 질문', question), field('키워드', keywords, `${M.keywords}개까지`), block('주제', topicPills));
   const save = h('button', 'btn primary', '확인하고 저장');
   save.type = 'submit';
   const view = h('a', 'btn', '연구실 둘러보기에서 보기');
   view.href = `../#p=${pid}`;
   const acts = h('div', 'form-actions');
   acts.append(save, view);
-  const privBox = fieldset('로그인한 교수님만 보는 칸', '',
+  const privBox = section('로그인한 교수님만 보는 칸', '',
     field('찾는 것', seeking, '자원이나 기법 수준으로 적어 주세요(예: 마우스 혈장 지질 정량, 환자 PBMC). 미출판 가설은 적지 마세요'),
     field('요즘 한 줄', now), field('연락처·담당자', contact));
   privBox.classList.add('private');
   form.append(
     who, state,
     h('p', 'hint', '출판된 내용과 교수님이 직접 확인하신 내용만 적어 주세요. 미출판 결과나 계획, 남의 연구에 대한 평가는 적지 않아요. 모든 교수님이 같은 칸을 써요. 이름·교실·사진은 관리자에게 말씀해 주세요.'),
-    fieldset('소개', '', field('직위', rank), field('한 줄 소개', line), field('연구 질문', question), field('키워드', keywords, `${M.keywords}개까지`), block('주제', topicPills)),
-    fieldset('연구 축', `${M.axes}개까지. 출판된 논문으로 보여 줄 수 있는 것만 적어 주세요`, ...axes.map(a => a.slot)),
-    fieldset('연구 발자취', `기간마다 한 줄, ${M.timeline}줄까지`, ...steps.map(s => s.row)),
-    fieldset('보유 자원', '다른 교수님과 같이 쓰거나 빌려드릴 수 있는 것. 없는 칸은 비워 두셔도 돼요', ...res.map(([, label, t]) => field(label, t))),
-    fieldset('링크', '연구실 홈페이지, Google Scholar, ORCID 같은 곳', ...links.map(l => l.row)),
+    intro,
+    section('연구 축', `${M.axes}개까지. 출판된 논문으로 보여 줄 수 있는 것만 적어 주세요`, ...axes.map(a => a.slot)),
+    section('연구 발자취', `기간마다 한 줄, ${M.timeline}줄까지`, ...steps.map(s => s.row)),
+    section('보유 자원', '다른 교수님과 같이 쓰거나 빌려드릴 수 있는 것. 없는 칸은 비워 두셔도 돼요', ...res.map(([, label, t]) => field(label, t))),
+    section('링크', '연구실 홈페이지, Google Scholar, ORCID 같은 곳', ...links.map(l => l.row)),
     privBox, msg, acts,
   );
+  intro.open = true; // 처음엔 소개만 펼침
 
   let dirty = false;
   form.addEventListener('input', () => { dirty = true; });
@@ -130,7 +143,7 @@ function render(S, pid, doc, priv, book) {
       links: links.map(l => ({ label: l.label.value, url: l.url.value })),
     });
     say(msg, profileProblem(pub));
-    if (!msg.hidden) return;
+    if (!msg.hidden) { form.querySelectorAll('details.me-sec').forEach(d => { d.open = true; }); return; }
     try {
       await busy(save, '저장하는 중…', () => profileDb.save(pid, pub, { seeking: seeking.value.trim(), now: now.value.trim(), contact: contact.value.trim() }, S.user.uid));
       dirty = false;
