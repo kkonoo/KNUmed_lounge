@@ -1,5 +1,5 @@
 'use strict';
-// 로그인 화면: 로그인 · 처음 가입 · (로그인한 뒤) 내 계정 — PIN 바꾸기 · 로그아웃
+// 로그인 화면: 로그인 · 처음 가입 · (로그인한 뒤) 내 계정 — 내 프로필 · PIN 바꾸기 · 로그아웃
 // 계정 동작은 js/session.js, 계산은 js/account-core.js
 
 const app = $('app');
@@ -122,7 +122,9 @@ function renderSignedIn(s) {
   const actions = h('div', 'form-actions');
   const home = h('a', 'btn primary', '라운지로');
   home.href = nextUrl();
-  actions.append(home, button('PIN 바꾸기', () => { pinBox.hidden = !pinBox.hidden; if (!pinBox.hidden) oldPin.input.focus(); }, 'btn'));
+  actions.append(home);
+  if (s.member.active) { const me = h('a', 'btn', '내 프로필'); me.href = `${LOUNGE_ROOT}people/me/`; actions.append(me); }
+  actions.append(button('PIN 바꾸기', () => { pinBox.hidden = !pinBox.hidden; if (!pinBox.hidden) oldPin.input.focus(); }, 'btn'));
   if (s.isAdmin) { const ad = h('a', 'btn', '관리자'); ad.href = `${LOUNGE_ROOT}admin/`; actions.append(ad); }
   actions.append(out);
   panel.append(actions, pinBox);

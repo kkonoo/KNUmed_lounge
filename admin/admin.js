@@ -1,6 +1,6 @@
 'use strict';
-// 관리자 화면: 처음 설정 · 명단 · 관리자 · 가입 코드 · 기록
-// 데이터는 admin-db.js, 계산은 js/account-core.js, 입력 부품은 js/form.js
+// 관리자 화면: 처음 설정 · 명단(연구실 둘러보기 프로필 잇기 포함) · 관리자 · 가입 코드 · 기록
+// 데이터는 admin-db.js, 계산은 js/account-core.js · people/people-core.js, 입력 부품은 js/form.js
 
 const app = $('app');
 const CONSOLE_USERS = 'https://console.firebase.google.com/project/knumed-lounge/authentication/users';
@@ -140,7 +140,7 @@ function renderRoster(body) {
   };
   paintRows();
   const top = h('div', 'stack');
-  top.append(summary, paste, search, list);
+  top.append(summary, paste, profileBox(), search, list);
   body.append(top);
 }
 
@@ -150,14 +150,14 @@ function rosterRow(r) {
   const who = h('div', 'r-who');
   const name = h('b', '', r.name);
   name.append(h('small', '', [r.dept, r.group === '임상' ? '임상' : ''].filter(Boolean).join(' · ')));
-  who.append(name, h('span', '', r.email));
+  who.append(name, h('span', '', r.profile ? r.email : `${r.email} · 프로필 없음`));
   const badge = h('span', `badge ${r.state}`, { joined: '가입함', waiting: '아직', stopped: '멈춤' }[r.state]);
   const acts = h('div', 'r-acts');
   acts.append(button('고치기', () => { editing = r.email; render(); }, 'btn small'));
   acts.append(button(r.state === 'stopped' ? '다시 쓰기' : '멈추기', async () => {
     const on = r.state === 'stopped';
     if (!on && !confirmBox(`${r.name} 교수님 계정을 멈출까요? 그 순간부터 로그인해도 아무것도 못 봐요.`)) return;
-    try { await adminDb.setActive(r.email, on, r.mems, r.name); await reload(); } catch (e) { fail('바꾸지 못했어요', e); }
+    try { await adminDb.setActive(r.email, on, r.mems, r.name, r.profile); await reload(); } catch (e) { fail('바꾸지 못했어요', e); }
   }, 'btn small'));
   if (r.state === 'joined') acts.append(button('PIN 초기화', () => pinResetHelp(r), 'btn small'));
   if (r.mems.length > 1) {
@@ -167,7 +167,7 @@ function rosterRow(r) {
   }
   acts.append(button('지우기', async () => {
     if (!confirmBox(`${r.name} 교수님을 명단에서 지울까요? 가입 정보도 같이 지워져요.`)) return;
-    try { await adminDb.removeRoster(r.email, r.mems, r.name); await reload(); } catch (e) { fail('지우지 못했어요', e); }
+    try { await adminDb.removeRoster(r.email, r.mems, r.name, r.profile); await reload(); } catch (e) { fail('지우지 못했어요', e); }
   }, 'btn small danger'));
   row.append(who, badge, acts);
   return row;
@@ -179,18 +179,28 @@ function editRow(r, row) {
   const name = textInput('text', { value: r.name, maxLength: 20 });
   const dept = textInput('text', { value: r.dept || '', maxLength: 30, placeholder: '예: 생리학교실' });
   const grp = select([['기초', '기초'], ['임상', '임상']], r.group);
+  const choices = profileChoices().filter(p => p.id === r.profile || !D.roster.some(x => x.profile === p.id));
+  const prof = select([['', '(잇지 않음)'], ['new', '새 프로필 만들기'], ...choices.map(p => [p.id, `${p.name} · ${p.dept || '교실 없음'}`])], r.profile || '');
   const two = h('div', 'row2');
   two.append(field('이름', name), field('구분', grp));
   const save = h('button', 'btn primary', '저장');
   save.type = 'submit';
   const acts = h('div', 'form-actions');
   acts.append(save, button('취소', () => { editing = ''; render(); }, 'btn'));
-  form.append(h('p', 'hint', r.email), two, field('교실', dept), acts);
+  form.append(h('p', 'hint', r.email), two, field('교실', dept), field('연구실 둘러보기 프로필', prof, '이은 프로필만 이 교수님이 고칠 수 있어요'), acts);
   form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!name.value.trim()) return toast('이름을 넣어 주세요');
+    const patch = { name: name.value.trim(), dept: dept.value.trim(), group: grp.value };
+    const same = prof.value === (r.profile || '');
     try {
-      await busy(save, '저장 중…', () => adminDb.editRoster(r.email, { name: name.value.trim(), dept: dept.value.trim(), group: grp.value }, r.mems));
+      await busy(save, '저장 중…', async () => {
+        await adminDb.editRoster(r.email, patch, r.mems, same ? r.profile : '');
+        if (same) return;
+        if (!prof.value) return adminDb.unlinkProfile(r.email, patch.name);
+        const pid = prof.value === 'new' ? newProfileId(new Set([...D.book.map(p => p.id), ...D.profiles.map(p => p.id)])) : prof.value;
+        await adminDb.linkProfiles([linkOf({ ...r, ...patch }, pid, D.book.find(p => p.id === pid))], `${patch.name} (${r.email})`);
+      });
       editing = '';
       await reload();
     } catch (err) { fail('저장하지 못했어요', err); }
@@ -198,6 +208,67 @@ function editRow(r, row) {
   row.append(form);
   setTimeout(() => name.focus());
   return row;
+}
+
+// ---------- 연구실 둘러보기 프로필 잇기 ----------
+// 명단 줄마다 프로필 번호(roster.profile). 이어진 교수님만 그 프로필을 고칠 수 있어요 (firestore.rules)
+// 이을 수 있는 프로필: 이름북(data/people.json) + Firestore에만 있는 것
+function profileChoices() {
+  const byId = new Map();
+  for (const p of D.book) byId.set(p.id, { id: p.id, name: p.name, dept: p.dept, rank: p.rank });
+  for (const p of D.profiles) byId.set(p.id, { ...byId.get(p.id), id: p.id, name: p.name, dept: p.dept, rank: p.rank });
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+}
+// 명단 줄 r을 프로필 pid에 잇는 값. 이름·교실·구분은 명단 기준(교실이 비면 이름북), 직위는 이름북, 멈춘 분은 숨김
+const linkOf = (r, pid, person) => ({
+  email: r.email, pid, exists: D.profiles.some(p => p.id === pid),
+  base: { name: r.name, dept: r.dept || person?.dept || '', group: r.group, rank: person?.rank || '', hidden: r.status !== 'active' },
+});
+const actsRow = (...nodes) => { const a = h('div', 'form-actions'); a.append(...nodes); return a; };
+
+function profileBox() {
+  const linked = D.roster.filter(r => r.profile).length;
+  const box = h('details', 'paste');
+  box.open = D.roster.length > 1 && linked < D.roster.length;
+  box.append(h('summary', '', `연구실 둘러보기 프로필 잇기 ${linked}/${D.roster.length}`));
+  const body = h('div', 'form');
+  body.append(h('p', 'hint', '명단의 교수님과 연구실 둘러보기 프로필을 이어요. 이어진 교수님만 자기 프로필을 고칠 수 있어요. 한 분씩은 아래 명단의 ‘고치기’에서 골라요.'));
+
+  const sugg = nameLinks(D.roster, D.book, new Set(D.roster.map(r => r.profile).filter(Boolean)));
+  if (sugg.length) {
+    const ul = h('ul', 'link-preview');
+    for (const { row, person } of sugg) ul.append(h('li', '', `${row.name}${row.dept ? ` (${row.dept})` : ''} → 이름북 ${person.name} · ${person.dept}`));
+    const go = button(`${sugg.length}분 이름북 프로필과 잇기`, async () => {
+      try {
+        await busy(go, '잇는 중…', () => adminDb.linkProfiles(sugg.map(x => linkOf(x.row, x.person.id, x.person)), `이름북과 ${sugg.length}분`));
+        toast(`${sugg.length}분을 이었어요`);
+        await reload();
+      } catch (e) { fail('잇지 못했어요', e); }
+    }, 'btn primary');
+    body.append(block('이름이 같은 이름북 프로필', ul, '이름으로 맞춘 거예요. 틀린 분이 없는지 보고 눌러 주세요'), actsRow(go));
+  }
+
+  const bookNames = new Set(D.book.map(p => p.name));
+  const fresh = D.roster.filter(r => !r.profile && !bookNames.has(r.name));
+  if (fresh.length) {
+    const go = button(`${fresh.length}분 새 프로필 만들기`, async () => {
+      if (!confirmBox(`이름북에 없는 ${fresh.length}분께 새 프로필을 만들까요? 연구실 둘러보기에는 이름과 교실만 보이고, 교수님이 저장하시면 소개가 보여요.`)) return;
+      const ids = new Set([...D.book.map(p => p.id), ...D.profiles.map(p => p.id)]);
+      const links = fresh.map(r => { const pid = newProfileId(ids); ids.add(pid); return linkOf(r, pid, null); });
+      try {
+        await busy(go, '만드는 중…', () => adminDb.linkProfiles(links, `새 프로필 ${fresh.length}분`));
+        toast(`${fresh.length}분 프로필을 만들었어요`);
+        await reload();
+      } catch (e) { fail('만들지 못했어요', e); }
+    }, 'btn');
+    body.append(block('이름북에 없는 분', h('p', 'hint', fresh.map(r => r.name).join(' · '))), actsRow(go));
+  }
+
+  const left = D.roster.filter(r => !r.profile && bookNames.has(r.name) && !sugg.some(x => x.row.email === r.email));
+  if (left.length) body.append(h('p', 'hint', `이름북에 같은 이름이 여럿이거나 이미 이어진 분: ${left.map(r => r.name).join(' · ')}. 명단의 ‘고치기’에서 직접 골라 주세요.`));
+  if (linked === D.roster.length) body.append(h('p', 'hint', '모두 이어졌어요.'));
+  box.append(body);
+  return box;
 }
 
 // PIN 초기화: Worker를 붙이기 전까지는 Firebase 콘솔에서 로그인 계정을 지우고 다시 가입

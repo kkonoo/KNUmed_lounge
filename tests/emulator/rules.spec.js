@@ -314,3 +314,80 @@ test('게시판: 글쓴이는 남의 댓글까지 한 번에 지우며 글을 �
   await withPost();
   await assertSucceeds(tryRemove(ADMIN));
 });
+
+// ---------- 연구실 둘러보기 프로필 ----------
+const base0 = { name: PROF.name, dept: PROF.dept, group: '기초', rank: '', hidden: false };
+const content = (u, extra = {}) => ({
+  rank: '교수', line: '세포가 늙는 원리를 연구해요', question: '세포 노화는 어떻게 시작될까요?', keywords: ['노화', 'RNA'], topics: ['cancer'],
+  axes: [{ name: '세포 노화', text: '노화는 어떻게 시작될까', papers: [{ label: '예시 2024', url: 'https://example.com/p1' }] }],
+  timeline: [{ years: '2016–2020', text: '부임, 노화 모델 확립' }],
+  resources: { models: '노화 마우스', samples: '', equipment: '공초점 현미경', data: '', techniques: 'RNA-seq' },
+  links: [{ label: '연구실 홈페이지', url: 'https://example.com/lab' }], confirmedAt: serverTimestamp(), by: u.uid, ...extra,
+});
+const priv = (extra = {}) => ({ seeking: '환자 PBMC', now: '단일세포 분석을 배워요', contact: '연구실 내선 0000', at: serverTimestamp(), ...extra });
+async function withProfile({ link = true } = {}) {
+  await base();
+  await seed(async db => {
+    await setDoc(doc(db, 'profiles/abc234'), base0);
+    if (link) await updateDoc(doc(db, 'roster', PROF.email), { profile: 'abc234' });
+  });
+}
+
+test('프로필 연결: 관리자가 명단에 번호를 넣고 기본 칸으로 만듦', async () => {
+  await base();
+  const db = as(ADMIN);
+  const b = writeBatch(db);
+  b.update(doc(db, 'roster', PROF.email), { profile: 'abc234', at: serverTimestamp() });
+  b.set(doc(db, 'profiles/abc234'), base0);
+  await assertSucceeds(b.commit());
+  await assertSucceeds(updateDoc(doc(db, 'profiles/abc234'), { name: '김철수', dept: '바뀐교실', group: '기초', hidden: true }));
+  await assertFails(updateDoc(doc(db, 'roster', OTHER.email), { profile: 'BAD!!!' }));
+  await assertFails(setDoc(doc(db, 'profiles/ABCDEF'), base0));
+  await assertFails(setDoc(doc(db, 'profiles/xyz234'), { ...base0, line: '관리자가 쓴 소개' }));
+  await assertFails(setDoc(doc(as(PROF), 'profiles/xyz234'), base0));
+  await assertFails(updateDoc(doc(as(PROF), 'roster', PROF.email), { profile: 'xyz234' })); // 본인이 남의 번호로 바꿀 수 없음
+});
+
+test('프로필: 누구나 읽음, 본인만 소개 칸을 씀 (저장 = 확인)', async () => {
+  await withProfile();
+  await assertSucceeds(getDocs(collection(anon(), 'profiles')));
+  await assertSucceeds(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF)));
+  await assertFails(updateDoc(doc(as(OTHER), 'profiles/abc234'), content(OTHER))); // 가입 전, 연결 안 됨
+  await seed(db => setDoc(doc(db, 'members', OTHER.uid), memberDoc(OTHER)));
+  await assertFails(updateDoc(doc(as(OTHER), 'profiles/abc234'), content(OTHER))); // 회원이지만 남의 프로필
+  await assertFails(updateDoc(doc(as(ADMIN), 'profiles/abc234'), content(ADMIN))); // 관리자도 남의 소개는 못 씀
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { name: '다른이름' })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { hidden: true })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { confirmedAt: now() })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { line: 'ㄱ'.repeat(161) })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { resources: { models: '', secret: 'x' } })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { keywords: Array(11).fill('k') })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { axes: Array(4).fill({ name: 'x', text: '', papers: [] }) })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { timeline: Array(5).fill({ years: '2020', text: 'x' }) })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { firstReads: [] })));
+  await assertFails(deleteDoc(doc(as(PROF), 'profiles/abc234')));
+});
+
+test('프로필: 멈춘 회원이나 연결이 풀린 분은 못 고침', async () => {
+  await withProfile();
+  await seed(db => updateDoc(doc(db, 'members', PROF.uid), { active: false }));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF)));
+  await withProfile({ link: false });
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF)));
+});
+
+test('프로필 로그인 칸: 회원만 읽고 본인만 씀', async () => {
+  await withProfile();
+  const ref = db => doc(db, 'profiles/abc234/private/info');
+  const db = as(PROF), b = writeBatch(db);
+  b.update(doc(db, 'profiles/abc234'), content(PROF));
+  b.set(ref(db), priv());
+  await assertSucceeds(b.commit());
+  await assertSucceeds(getDoc(ref(as(ADMIN))));
+  await assertFails(getDoc(ref(anon())));
+  await assertFails(getDoc(ref(as(OTHER)))); // 가입 전
+  await assertFails(setDoc(ref(as(ADMIN)), priv()));
+  await assertFails(setDoc(ref(as(PROF)), priv({ seeking: 'ㄱ'.repeat(301) })));
+  await assertFails(setDoc(doc(as(PROF), 'profiles/abc234/private/other'), priv()));
+  await assertFails(deleteDoc(ref(as(PROF))));
+});

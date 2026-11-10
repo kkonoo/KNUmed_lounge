@@ -3,6 +3,8 @@
 //   처음 설정 → 명단 65분 붙여 넣기 → 가입 코드로 가입(틀린 코드 먼저) → 친목회 올리기 → 참석 체크·한 번 더 눌러 취소
 //   → 홈 한 줄 → 자유 게시판(글·새 글·댓글·고치기·지우기) → PIN 바꾸기·다시 로그인 → 멈춘 계정 막힘
 // 실행: tests/emulator 에서 npm test. 이름·메일은 모두 가짜
+const fs = require('node:fs');
+const path = require('node:path');
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
@@ -12,11 +14,12 @@ const CODE = 'abc234';
 const ADMIN = { name: '홍길동', dept: '가짜학교실', email: 'hong@example.com', pin: '1234' };
 const PROF = { name: '김철수', email: 'kim@example.com', pin: '0000' };
 
-// 기초친목회 메일 받는 사람 칸처럼 65분 (관리자·김철수 포함)
+// 기초친목회 메일 받는 사람 칸처럼 65분 (관리자·김철수 포함). 이름북(data/people.json)의 실제 이름과는 겹치지 않게
+const BOOK_NAMES = new Set(JSON.parse(fs.readFileSync(path.join(__dirname, '../../data/people.json'), 'utf8')).people.map(p => p.name));
 function fakeRosterText() {
   const fam = '김이박최정강조윤장임한오서신권황안송류전', given = ['민수', '영희', '지훈', '서연', '도윤', '하은', '준호', '수아', '태민', '유진'];
   const names = [ADMIN.name, PROF.name];
-  for (const f of fam) for (const g of given) if (names.length < 65 && !names.includes(f + g)) names.push(f + g);
+  for (const f of fam) for (const g of given) if (names.length < 65 && !names.includes(f + g) && !BOOK_NAMES.has(f + g)) names.push(f + g);
   return names.map((n, i) => {
     const email = n === ADMIN.name ? ADMIN.email : n === PROF.name ? PROF.email : `prof${String(i).padStart(2, '0')}@example.com`;
     return `${n} 교수님 <${email}>`;
@@ -24,13 +27,14 @@ function fakeRosterText() {
 }
 const inDays = n => { const d = new Date(Date.now() + n * 864e5); return d.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }); };
 
-let site, browser, admin, prof;
+let site, browser, admin, prof, guest;
 before(async () => {
   await resetEmulators();
   site = await serve();
   browser = await chromium.launch();
   admin = await person(browser);
   prof = await person(browser);
+  guest = await person(browser); // 로그인 안 한 사람
 });
 after(async () => {
   await browser?.close();
@@ -62,6 +66,13 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.getByRole('button', { name: '65분 명단에 넣기' }).click();
     await toast(A, '새로 64분, 고침 0분');
     await A.locator('.summary', { hasText: /명단\s*65\s*가입\s*1\s*아직\s*64/ }).waitFor(); // 알림 뒤 다시 읽어 그림
+  });
+
+  await t.test('프로필 잇기: 이름북에 없는 65분께 새 프로필', async () => {
+    await A.getByText('연구실 둘러보기 프로필 잇기 0/65').waitFor();
+    await A.getByRole('button', { name: '65분 새 프로필 만들기' }).click();
+    await toast(A, '65분 프로필을 만들었어요');
+    await A.getByText('연구실 둘러보기 프로필 잇기 65/65').waitFor();
   });
 
   await t.test('가입: 틀린 코드는 막히고, 맞는 코드로 다시 하면 됨', async () => {
@@ -110,6 +121,50 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
   await t.test('홈: 다음 친목회 한 줄에 내 체크', async () => {
     await P.goto(site.url);
     await P.locator('#nextEvent:not([hidden])', { hasText: '미정' }).waitFor();
+  });
+
+  await t.test('내 프로필: 고치고 저장하면 연구실 둘러보기에 보임, 로그인 칸은 교수님만', async () => {
+    const G = guest.page;
+    await G.goto(`${site.url}people/`);
+    await G.getByPlaceholder('이름·교실·키워드로 찾기').fill(PROF.name);
+    await G.locator('a.prof', { hasText: PROF.name }).getByText('아직 소개를 준비하고 있어요').waitFor(); // 이름·교실만
+    await P.goto(`${site.url}login/`);
+    await P.getByRole('link', { name: '내 프로필' }).click();
+    await P.waitForURL(/\/people\/me\/$/);
+    await P.getByText('아직 확인 전이에요').waitFor();
+    await P.getByLabel('직위').fill('부교수');
+    await P.getByLabel('한 줄 소개').fill('가짜 세포가 늙는 원리를 연구해요');
+    await P.getByLabel('키워드').fill('노화, 가짜 RNA');
+    await P.getByRole('button', { name: /감염·미생물/ }).click();
+    await P.getByPlaceholder('축 이름').first().fill('가짜 노화 축');
+    await P.getByPlaceholder('이 축에서 묻는 것 한 문장').first().fill('노화는 어떻게 시작될까요');
+    await P.getByPlaceholder(/대표 논문/).first().fill('예시 2024 https://example.com/p1');
+    await P.getByPlaceholder('2016–2020').first().fill('2016–2020');
+    await P.getByPlaceholder('그때 한 일 한 줄').first().fill('가짜 모델 확립');
+    await P.getByLabel('장비').fill('가짜 공초점 현미경');
+    await P.getByLabel('찾는 것').fill('가짜 환자 PBMC');
+    await P.getByLabel('연락처·담당자').fill('연구실 내선 0000');
+    await P.getByRole('button', { name: '확인하고 저장' }).click();
+    await toast(P, '저장했어요');
+    await P.getByText(/마지막 확인 /).waitFor();
+
+    await G.reload();
+    await G.getByPlaceholder('이름·교실·키워드로 찾기').fill('공초점'); // 보유 자원으로도 찾음
+    const card = G.locator('a.prof', { hasText: PROF.name });
+    await card.getByText('가짜 세포가 늙는 원리를 연구해요').waitFor();
+    await card.click();
+    await G.getByRole('heading', { name: /김철수/ }).waitFor();
+    await G.locator('.axis', { hasText: '가짜 노화 축' }).getByRole('link', { name: '예시 2024' }).waitFor();
+    await G.locator('.d-sec', { hasText: '연구 발자취' }).getByText('가짜 모델 확립').waitFor();
+    await G.locator('.d-sec', { hasText: '보유 자원' }).getByText('가짜 공초점 현미경').waitFor();
+    await G.locator('.d-private').getByText('로그인한 교수님만 봐요').waitFor();
+    assert.equal(await G.getByText('가짜 환자 PBMC').count(), 0); // 로그인 칸은 안 보임
+    await G.locator('.topbar a.icon-btn').click(); // 목록으로
+    await G.locator('a.prof').first().waitFor();
+
+    await P.getByRole('link', { name: '연구실 둘러보기에서 보기' }).click();
+    await P.locator('.d-private').getByText('가짜 환자 PBMC').waitFor();
+    await P.getByRole('link', { name: '내 프로필 고치기' }).waitFor();
   });
 
   await t.test('자유 게시판: 글쓰기 → 홈 새 글 → 댓글 → 고치기 → 지우기', async () => {
@@ -175,7 +230,10 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('.r-row', { hasText: PROF.email }).getByText('멈춤').waitFor();
     await P.goto(`${site.url}events/`);
     await P.getByText('사용이 멈춘 계정이에요').waitFor();
+    await guest.page.goto(`${site.url}people/#q=${encodeURIComponent(PROF.name)}`); // 연구실 둘러보기에서도 숨김
+    await guest.page.reload(); // # 뒤만 바뀌면 새로 읽지 않으니까
+    await guest.page.getByText('맞는 분이 없어요').waitFor();
   });
 
-  assert.deepEqual([...admin.errors, ...prof.errors], []);
+  assert.deepEqual([...admin.errors, ...prof.errors, ...guest.errors], []);
 });

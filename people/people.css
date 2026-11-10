@@ -18,8 +18,11 @@
 .dept-block h2 small { font-size: .8rem; font-weight: 500; color: var(--muted); }
 .prof-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: .8rem; }
 
-/* 교수님 카드: 사진 왼쪽, 글 오른쪽 */
-.prof { display: grid; grid-template-columns: 4.8rem minmax(0, 1fr); gap: .9rem; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+/* 교수님 카드: 사진 왼쪽, 글 오른쪽. 누르면 자세히 */
+.prof { display: grid; grid-template-columns: 4.8rem minmax(0, 1fr); gap: .9rem; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); text-decoration: none; transition: border-color .15s ease-out; }
+a.prof:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.prof .line.none { color: var(--faint); }
+.prof.stale { opacity: .6; }
 .prof .photo { width: 4.8rem; aspect-ratio: 3 / 4; border-radius: 10px; object-fit: cover; background: var(--surface-2); }
 .prof .photo.empty { display: grid; place-items: center; color: var(--faint); }
 .prof .photo.empty .lc { width: 40%; height: 40%; }
@@ -35,6 +38,30 @@
 
 .empty-note { padding: 2rem 1rem; text-align: center; color: var(--muted); }
 
+/* 자세히 (#p=번호) */
+.detail { display: flex; flex-direction: column; gap: .9rem; max-width: 720px; margin: 0 auto; }
+.d-head { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 1rem; align-items: start; }
+.d-head .photo { width: 6rem; aspect-ratio: 3 / 4; border-radius: 12px; object-fit: cover; background: var(--surface-2); }
+.d-head .photo.empty { display: grid; place-items: center; color: var(--faint); }
+.d-head .photo.empty .lc { width: 40%; height: 40%; }
+.d-head h2 { display: flex; align-items: baseline; flex-wrap: wrap; gap: .1rem .45rem; margin: .2rem 0 0; font-size: 1.45rem; font-weight: 700; letter-spacing: -0.02em; }
+.d-head h2 small { font-size: .9rem; font-weight: 500; color: var(--muted); }
+.d-head .dept { margin: .2rem 0 0; color: var(--muted); }
+.d-head .state { margin: .5rem 0 0; font-size: .8rem; color: var(--faint); }
+.d-line { margin: 0; font-size: 1.08rem; line-height: 1.6; }
+.d-sec { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.d-sec h3 { margin: 0 0 .55rem; font-size: .9rem; font-weight: 700; color: var(--muted); }
+.d-text { margin: 0; line-height: 1.65; white-space: pre-wrap; }
+.axis + .axis { margin-top: .7rem; padding-top: .7rem; border-top: 1px solid var(--line); }
+.axis b { font-weight: 700; }
+.axis p { margin: .2rem 0 0; line-height: 1.6; }
+.axis .links { margin-top: .35rem; }
+.pairs { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: .35rem 1rem; margin: 0; }
+.pairs dt { color: var(--muted); font-size: .88rem; font-variant-numeric: tabular-nums; }
+.pairs dd { margin: 0; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.d-private { background: transparent; border-style: dashed; }
+.d-private .hint { margin: 0; }
+
 /* 폰: 교실·주제 단추를 한 줄로 두고 옆으로 밀어서 봄 (목록이 화면 아래로 밀려나지 않게) */
 @media (max-width: 560px) {
   .filter-row { align-items: center; }
@@ -43,4 +70,24 @@
   .filter-row .pills::-webkit-scrollbar { display: none; }
   .prof { grid-template-columns: 3.8rem minmax(0, 1fr); gap: .75rem; padding: .85rem; }
   .prof .photo { width: 3.8rem; }
+}
+.d-sec .links { margin: 0; font-size: .9rem; }
+
+/* 내 프로필 고치기 (people/me/) */
+.me-form { display: flex; flex-direction: column; gap: 1rem; }
+.me-form fieldset { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 14px 16px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); min-width: 0; }
+.me-form legend { padding: 0 .3rem; font-size: .95rem; font-weight: 700; }
+.me-form fieldset > .hint { margin: 0; line-height: 1.5; }
+.me-form .slot { display: flex; flex-direction: column; gap: 6px; }
+.me-form .slot + .slot { padding-top: 12px; border-top: 1px dashed var(--line); }
+.me-form .slot > b { font-size: .82rem; color: var(--muted); }
+.me-form .step { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 6px; }
+.me-form .link-row { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 6px; }
+.me-form .private { border-style: dashed; background: transparent; }
+.me-form > .form-actions { position: sticky; bottom: 0; z-index: 1; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--line); }
+.me-who { display: flex; flex-direction: column; gap: 2px; }
+.me-who b { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+.me-who span { color: var(--muted); font-size: .9rem; }
+@media (max-width: 560px) {
+  .me-form .step, .me-form .link-row { grid-template-columns: 1fr; }
 }

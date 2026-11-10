@@ -5,12 +5,17 @@ rules_version = '2';
 // config/admins { uids }             관리자 계정 목록. 누구나 읽음(계정 번호뿐). 관리자만 고침, 마지막 한 분은 못 뺌
 //                                     처음 한 번: 아직 없을 때 로그인한 사람이 자기 하나만 넣어 만들 수 있음 (admin/ 처음 설정)
 // config/signup { code }             가입 코드. 관리자만
-// roster/{메일}                      명단 { name, dept, group, status, at }. 관리자, 그리고 그 메일로 로그인한 본인만 읽음
+// roster/{메일}                      명단 { name, dept, group, status, at, profile? }. 관리자, 그리고 그 메일로 로그인한 본인만 읽음
+//                                     profile = 연구실 둘러보기 프로필 번호. 관리자가 이어 주고, 이 연결로 본인이 그 프로필을 고칠 수 있음
 // members/{uid}                      회원 { email, name, dept, group, active, joinCode, at }
 //                                     본인 가입: 명단에 있고(사용 중), 가입 코드가 맞고, 이름·교실·구분이 명단과 같을 때만
 // events/{행사}                      친목회 { title, date, time, place, mapUrl, deadline, note, audience, closed, at, by }
 // events/{행사}/rsvps/{uid}          참석 { status, name, comment, at }. 본인 것만, 마감 전에만
 // adminLog/{자동}                    관리 작업 기록. 관리자만 읽고 더하기만 (고치기·지우기 없음)
+// profiles/{번호}                    연구실 둘러보기 프로필. 누구나 읽음
+//                                     관리자: { name, dept, group, rank, hidden }
+//                                     본인: { rank, line, question, keywords, topics, axes, timeline, resources, links }, 저장하면 확인(confirmedAt, by)
+// profiles/{번호}/private/info       { seeking, now, contact, at } 찾는 것·요즘 한 줄·연락처. 회원만 읽음, 본인만 씀
 // posts/{글}                         자유 게시판 { title, body, by, name, at, editedAt }. 회원만 읽음. 쓴 사람만 고침, 쓴 사람·관리자가 지움
 // posts/{글}/comments/{댓글}         댓글 { body, by, name, at }. 회원만 읽음. 고치기 없음, 쓴 사람·관리자가 지움 (글을 지울 때는 글쓴이도)
 service cloud.firestore {
@@ -47,7 +52,8 @@ service cloud.firestore {
     // ---------- 명단 ----------
     function rosterOk(email, d) {
       return email == email.lower() && email.matches('[^@ ]+@[^@ ]+[.][^@ ]+')
-        && d.keys().hasOnly(['name', 'dept', 'group', 'status', 'at'])
+        && d.keys().hasOnly(['name', 'dept', 'group', 'status', 'at', 'profile'])
+        && (!('profile' in d) || (d.profile is string && d.profile.matches('[a-z2-9]{6}')))
         && filled(d.name, 20) && text(d.dept, 30) && isGroup(d.group)
         && d.status in ['active', 'inactive']
         && d.at is timestamp;
@@ -121,6 +127,52 @@ service cloud.firestore {
           && text(request.resource.data.comment, 60)
           && request.resource.data.at == request.time;
         allow delete: if isAdmin() || (isMember() && request.auth.uid == uid && isOpen(ev()));
+      }
+    }
+
+    // ---------- 연구실 둘러보기 프로필 ----------
+    // 본인 = 회원이고, 내 명단 줄(roster/{내 메일})의 profile이 이 번호
+    // 관리자도 남의 소개 칸은 못 써요: 소개는 본인이 쓰거나 확인한 것만 (DESIGN §10)
+    // 목록 칸(키워드·주제·연구 축·발자취·링크)은 개수만 여기서 보고, 한 줄씩의 길이는 화면(people-core.js PROFILE_MAX)이 봐요
+    function ownsProfile(pid) {
+      return isMember() && get(/databases/$(database)/documents/roster/$(me().email)).data.get('profile', '') == pid;
+    }
+    function link(v) { return v is string && v.size() <= 300 && (v == '' || v.matches('https?://[^ ]+')); }
+    function profileBaseOk(d) {
+      return filled(d.name, 20) && text(d.dept, 30) && isGroup(d.group) && text(d.rank, 20) && d.hidden is bool;
+    }
+    function profileContentOk(d) {
+      let r = d.resources;
+      return text(d.line, 160) && text(d.question, 600)
+        && d.keywords is list && d.keywords.size() <= 10
+        && d.topics is list && d.topics.size() <= 8
+        && d.links is list && d.links.size() <= 4
+        && d.axes is list && d.axes.size() <= 3
+        && d.timeline is list && d.timeline.size() <= 4
+        && r is map && r.keys().hasOnly(['models', 'samples', 'equipment', 'data', 'techniques'])
+        && text(r.get('models', ''), 300) && text(r.get('samples', ''), 300) && text(r.get('equipment', ''), 300)
+        && text(r.get('data', ''), 300) && text(r.get('techniques', ''), 300)
+        && d.confirmedAt == request.time && d.by == request.auth.uid;
+    }
+    match /profiles/{pid} {
+      allow read: if true;
+      allow create: if isAdmin() && pid.matches('[a-z2-9]{6}')
+        && request.resource.data.keys().hasOnly(['name', 'dept', 'group', 'rank', 'hidden'])
+        && profileBaseOk(request.resource.data);
+      allow update: if (isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'dept', 'group', 'rank', 'hidden'])
+          && profileBaseOk(request.resource.data))
+        || (ownsProfile(pid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rank', 'line', 'question', 'keywords', 'topics', 'axes', 'timeline', 'resources', 'links', 'confirmedAt', 'by'])
+          && profileBaseOk(request.resource.data) && profileContentOk(request.resource.data));
+      allow delete: if isAdmin();
+
+      match /private/{doc} {
+        allow read: if isMember() || isAdmin();
+        allow create, update: if doc == 'info' && ownsProfile(pid)
+          && request.resource.data.keys().hasOnly(['seeking', 'now', 'contact', 'at'])
+          && text(request.resource.data.seeking, 300) && text(request.resource.data.now, 160)
+          && text(request.resource.data.contact, 200) && request.resource.data.at == request.time;
       }
     }
 

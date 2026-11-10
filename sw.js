@@ -11,7 +11,8 @@ const SHELL = [
   'login/', 'login/login.js',
   'events/', 'events/events.css', 'events/events-core.js', 'events/events-db.js', 'events/events.js',
   'board/', 'board/board.css', 'board/board-core.js', 'board/board-db.js', 'board/board.js',
-  'people/', 'people/people.css', 'people/people-core.js', 'people/people.js', 'data/people.json',
+  'people/', 'people/people.css', 'people/people-core.js', 'people/profile-db.js', 'people/people.js', 'data/people.json',
+  'people/me/', 'people/me/me.js',
   'admin/', 'admin/admin.css', 'admin/admin-db.js', 'admin/admin.js',
 ];
 

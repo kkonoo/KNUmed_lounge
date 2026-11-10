@@ -62,3 +62,97 @@ test('공개 데이터(data/people.json)에 메일·연락처가 없음', () => 
     if (p.photo) assert.equal(p.photo, `photos/${p.id}.jpg`);
   }
 });
+
+// ---------- 프로필 ----------
+const BOOK = [
+  { id: 'aaaaaa', name: '홍길동', rank: '교수', dept: '가짜학교실', line: '이름북 소개', keywords: ['가짜'], topics: ['brain'], links: [['https://example.com/a', '교수 소개 페이지']], photo: 'photos/aaaaaa.jpg', status: 'namebook' },
+  { id: 'bbbbbb', name: '김철수', rank: '부교수', dept: '예시학교실', line: '다른 소개', keywords: [], topics: [], links: [], photo: 'photos/bbbbbb.jpg', status: 'namebook' },
+];
+
+test('공개 목록 합치기: 본인 저장 → 그 내용, 아직 → 이름북, 이름북에 없으면 이름·교실만, 숨김은 빼기', () => {
+  const docs = [
+    { id: 'aaaaaa', name: '홍길동', dept: '가짜학교실', group: '기초', rank: '교수', hidden: false, line: '본인이 쓴 소개', question: '질문', keywords: ['새'], topics: [], axes: [{ name: '축', text: '설명', papers: [] }], timeline: [], resources: { models: '마우스' }, links: [{ url: 'https://example.com/lab', label: '연구실' }], confirmedAt: 1000 },
+    { id: 'bbbbbb', name: '김철수', dept: '바뀐교실', group: '기초', rank: '', hidden: true },
+    { id: 'cccccc', name: '이영희', dept: '예시학교실', group: '기초', rank: '', hidden: false },
+  ];
+  const m = new Map(P.mergeProfiles(BOOK, docs).map(p => [p.id, p]));
+  assert.equal(m.size, 2);
+  assert.equal(m.get('aaaaaa').status, 'confirmed');
+  assert.equal(m.get('aaaaaa').line, '본인이 쓴 소개');
+  assert.equal(m.get('aaaaaa').photo, 'photos/aaaaaa.jpg');
+  assert.deepEqual(m.get('aaaaaa').links, [['https://example.com/lab', '연구실']]);
+  assert.equal(m.has('bbbbbb'), false);
+  assert.equal(m.get('cccccc').status, 'listed');
+  assert.equal(m.get('cccccc').line, '');
+  const before = P.mergeProfiles(BOOK, [{ id: 'bbbbbb', name: '김철수', dept: '바뀐교실', group: '기초', rank: '', hidden: false }]);
+  assert.equal(before.find(p => p.id === 'bbbbbb').line, '다른 소개'); // 확인 전엔 이름북 소개 그대로
+  assert.equal(before.find(p => p.id === 'bbbbbb').dept, '바뀐교실'); // 교실은 관리자가 고친 값
+  assert.equal(before.find(p => p.id === 'bbbbbb').rank, '부교수');
+});
+
+test('찾기: 본인이 쓴 연구 축·보유 자원도 찾음', () => {
+  const p = { name: '홍길동', dept: '', line: '', axes: [{ name: '지질 신호', text: '' }], resources: { equipment: '공초점 현미경' } };
+  assert.equal(P.matches(p, '공초점'), true);
+  assert.equal(P.matches(p, '지질신호'), true);
+});
+
+test('1년 넘게 확인 안 한 프로필', () => {
+  const now = Date.UTC(2026, 10, 10);
+  assert.equal(P.isStale(now - 400 * 864e5, now), true);
+  assert.equal(P.isStale(now - 30 * 864e5, now), false);
+  assert.equal(P.isStale(null, now), false);
+});
+
+test('고치기 칸: 처음엔 이름북에서, 저장한 뒤엔 내 값. 축 3칸·발자취 4칸·링크 4칸', () => {
+  const f = P.profileForm(null, BOOK[0]);
+  assert.equal(f.line, '이름북 소개');
+  assert.equal(f.keywords, '가짜');
+  assert.deepEqual(f.topics, ['brain']);
+  assert.equal(f.axes.length, 3);
+  assert.equal(f.timeline.length, 4);
+  assert.equal(f.links.length, 4);
+  assert.deepEqual(f.links[0], { url: 'https://example.com/a', label: '교수 소개 페이지' });
+  const g = P.profileForm({ confirmedAt: 1, rank: '교수', line: '내 소개', keywords: ['a', 'b'], topics: [], axes: [{ name: '축', text: '설명', papers: [{ label: 'Brain 2023', url: 'https://example.com/p' }] }], timeline: [{ years: '2010–2015', text: '시작' }], resources: { data: '코호트' }, links: [] }, BOOK[0]);
+  assert.equal(g.line, '내 소개');
+  assert.equal(g.keywords, 'a, b');
+  assert.equal(g.axes[0].papers, 'Brain 2023 https://example.com/p');
+  assert.equal(g.resources.data, '코호트');
+  assert.equal(g.resources.models, '');
+});
+
+test('저장 값 다듬기와 확인', () => {
+  const v = P.profileForm(null, BOOK[0]);
+  v.keywords = '노화, RNA, 노화,  ';
+  v.axes[0] = { name: '세포 노화', text: '어떻게 시작될까', papers: 'Brain 2023 https://example.com/p1\nhttps://example.com/p2' };
+  v.timeline[1] = { years: '2016–2020', text: '부임' };
+  v.links[1] = { url: 'https://scholar.google.com/citations?user=x', label: '' };
+  const c = P.cleanProfile(v);
+  assert.deepEqual(c.keywords, ['노화', 'RNA']);
+  assert.equal(c.axes.length, 1);
+  assert.deepEqual(c.axes[0].papers, [{ label: 'Brain 2023', url: 'https://example.com/p1' }, { label: '논문', url: 'https://example.com/p2' }]);
+  assert.deepEqual(c.timeline, [{ years: '2016–2020', text: '부임' }]);
+  assert.equal(c.links[1].label, 'Google Scholar');
+  assert.equal(P.profileProblem(c), '');
+  assert.equal(P.profileProblem({ ...c, line: '' }), '한 줄 소개를 넣어 주세요');
+  assert.equal(P.profileProblem({ ...c, axes: [{ name: '', text: '설명만', papers: [] }] }), '연구 축 1의 이름을 넣어 주세요');
+  assert.equal(P.profileProblem({ ...c, axes: [{ name: '축', text: '', papers: [{ label: 'a', url: 'https://x.y/1' }, { label: 'b', url: 'https://x.y/2' }, { label: 'c', url: 'https://x.y/3' }] }] }), '대표 논문은 축마다 2편까지예요');
+  assert.equal(P.profileProblem({ ...c, timeline: [{ years: '2010', text: '' }] }), '연구 발자취는 기간과 한 줄을 같이 넣어 주세요');
+  assert.equal(P.profileProblem({ ...c, links: [{ url: 'javascript:alert(1)', label: 'x' }] }), '링크 주소는 https://로 시작해요');
+  assert.equal(P.profileProblem({ ...c, keywords: Array.from({ length: 11 }, (_, i) => `k${i}`) }), '키워드는 10개까지예요');
+});
+
+test('관리자: 이름이 같은 이름북 프로필 잇기 제안 (동명이인·이미 쓰는 번호는 빼기)', () => {
+  const roster = [
+    { email: 'hong@example.com', name: '홍길동' },
+    { email: 'kim1@example.com', name: '김철수' }, { email: 'kim2@example.com', name: '김철수' },
+    { email: 'lee@example.com', name: '이영희' },
+    { email: 'park@example.com', name: '박가짜', profile: 'aaaaaa' },
+  ];
+  assert.deepEqual(P.nameLinks(roster, BOOK, new Set()).map(x => [x.row.email, x.person.id]), [['hong@example.com', 'aaaaaa']]);
+  assert.deepEqual(P.nameLinks(roster, BOOK, new Set(['aaaaaa'])), []);
+  // 새 번호: 이미 있는 번호면 다시 뽑음 (첫 6글자 'aaaaaa'는 있어서 다음 'bbbbbb')
+  const seq = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1].map(n => (n + 0.01) / 31);
+  let i = 0;
+  assert.equal(P.newProfileId(new Set(['aaaaaa']), () => seq[i++]), 'bbbbbb');
+  assert.match(P.newProfileId(new Set()), /^[a-z2-9]{6}$/);
+});

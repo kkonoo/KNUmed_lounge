@@ -1,5 +1,5 @@
 'use strict';
-// 관리자 데이터 (Firestore): 처음 설정 · 명단 · 회원 · 관리자 · 가입 코드 · 작업 기록
+// 관리자 데이터 (Firestore): 처음 설정 · 명단 · 회원 · 관리자 · 가입 코드 · 작업 기록 · 명단과 연구실 둘러보기 프로필 잇기
 // 연결은 js/session.js의 fb(), 누가 무엇을 할 수 있는지는 firestore.rules
 // 계정 자체(로그인 정보)를 지우거나 남의 PIN을 바꾸는 건 브라우저에선 못 해요 → Worker 연결 전까지는 Firebase 콘솔 › Authentication
 
@@ -33,21 +33,47 @@ const adminDb = {
     await this.log('처음 설정', email);
   },
 
-  // 한꺼번에 읽기: 명단 · 회원 · 관리자 · 가입 코드
+  // 한꺼번에 읽기: 명단 · 회원 · 관리자 · 가입 코드 · 프로필(Firestore) · 이름북(data/people.json)
   async loadAll() {
     const { F, db } = await fb();
-    const [r, m, a, c] = await Promise.all([
+    const [r, m, a, c, p, book] = await Promise.all([
       F.getDocs(F.collection(db, 'roster')),
       F.getDocs(F.collection(db, 'members')),
       F.getDoc(F.doc(db, 'config', 'admins')),
       F.getDoc(F.doc(db, 'config', 'signup')),
+      F.getDocs(F.collection(db, 'profiles')),
+      fetch(`${LOUNGE_ROOT}data/people.json`, { cache: 'no-cache' }).then(res => res.json()).catch(() => ({ people: [] })),
     ]);
     return {
       roster: r.docs.map(d => ({ email: d.id, ...d.data() })),
       members: m.docs.map(d => ({ uid: d.id, ...d.data(), at: millis(d.data().at) })),
       admins: a.exists() ? a.data().uids || [] : [],
       code: c.exists() ? c.data().code : '',
+      profiles: p.docs.map(d => ({ id: d.id, ...d.data() })),
+      book: book.people || [],
     };
+  },
+
+  // 명단 줄과 프로필 잇기: [{ email, pid, base: { name, dept, group, rank, hidden }, exists }]
+  //   명단에 번호를 적고, 프로필이 아직 없으면 기본 칸(이름·교실·구분·직위·숨김)으로 만듦. 있으면 이름·교실·구분·숨김만 맞춤
+  async linkProfiles(links, label) {
+    const { F, db } = await fb();
+    for (let i = 0; i < links.length; i += 200) {
+      const b = F.writeBatch(db);
+      for (const { email, pid, base, exists } of links.slice(i, i + 200)) {
+        b.update(F.doc(db, 'roster', email), { profile: pid, at: F.serverTimestamp() });
+        const ref = F.doc(db, 'profiles', pid);
+        if (exists) b.update(ref, { name: base.name, dept: base.dept, group: base.group, hidden: base.hidden });
+        else b.set(ref, base);
+      }
+      await b.commit();
+    }
+    await this.log('프로필 잇기', label);
+  },
+  async unlinkProfile(email, name) {
+    const { F, db } = await fb();
+    await F.updateDoc(F.doc(db, 'roster', email), { profile: F.deleteField(), at: F.serverTimestamp() });
+    await this.log('프로필 연결 끊기', `${name} (${email})`);
   },
 
   // 명단에 넣기: 새 분은 그대로, 이미 있는 분은 이름·교실만 고침(교실이 비어 있으면 그대로). 500개씩 나눠 씀
@@ -75,32 +101,36 @@ const adminDb = {
     return { added, changed };
   },
 
-  // 이름·교실·구분 고치기: 명단과, 그 메일로 가입한 회원 문서를 같이
-  async editRoster(email, patch, mems) {
+  // 이름·교실·구분 고치기: 명단과, 그 메일로 가입한 회원 문서, 이어진 프로필을 같이
+  async editRoster(email, patch, mems, pid) {
     const { F, db } = await fb();
     const b = F.writeBatch(db);
     b.update(F.doc(db, 'roster', email), { ...patch, at: F.serverTimestamp() });
     for (const m of mems) b.update(F.doc(db, 'members', m.uid), patch);
+    if (pid) b.update(F.doc(db, 'profiles', pid), patch);
     await b.commit();
     await this.log('명단 고침', `${patch.name} (${email})`);
   },
 
-  // 멈추기·다시 쓰기: 명단 상태와 회원 활성을 같이. 멈추면 그 순간부터 로그인해도 아무것도 못 봄
-  async setActive(email, active, mems, name) {
+  // 멈추기·다시 쓰기: 명단 상태와 회원 활성, 프로필 숨김을 같이. 멈추면 그 순간부터 로그인해도 아무것도 못 보고, 연구실 둘러보기에서도 숨겨요
+  async setActive(email, active, mems, name, pid) {
     const { F, db } = await fb();
     const b = F.writeBatch(db);
     b.update(F.doc(db, 'roster', email), { status: active ? 'active' : 'inactive', at: F.serverTimestamp() });
     for (const m of mems) b.update(F.doc(db, 'members', m.uid), { active });
+    if (pid) b.update(F.doc(db, 'profiles', pid), { hidden: !active });
     await b.commit();
     await this.log(active ? '다시 쓰기' : '멈추기', `${name} (${email})`);
   },
 
-  // 명단에서 지우기: 명단과 회원 문서. (로그인 계정은 Firebase 콘솔에서 따로 지워야 다시 가입할 때 새 PIN을 정할 수 있음)
-  async removeRoster(email, mems, name) {
+  // 명단에서 지우기: 명단과 회원 문서, 이어진 프로필은 숨김 (다시 이을 수 있게 지우지는 않음)
+  // (로그인 계정은 Firebase 콘솔에서 따로 지워야 다시 가입할 때 새 PIN을 정할 수 있음)
+  async removeRoster(email, mems, name, pid) {
     const { F, db } = await fb();
     const b = F.writeBatch(db);
     b.delete(F.doc(db, 'roster', email));
     for (const m of mems) b.delete(F.doc(db, 'members', m.uid));
+    if (pid) b.update(F.doc(db, 'profiles', pid), { hidden: true });
     await b.commit();
     await this.log('명단에서 지움', `${name} (${email})`);
   },
