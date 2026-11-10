@@ -88,6 +88,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.getByRole('button', { name: '가입하고 들어가기' }).click();
     await P.waitForURL(/\/events\/$/);
     await P.getByText('다음 친목회가 아직 안 올라왔어요').waitFor();
+    assert.equal(await P.locator('#myProfileBtn').count(), 0); // 친목회 화면엔 '내 프로필' 없음
   });
 
   await t.test('관리자가 친목회를 올림', async () => {
@@ -118,10 +119,45 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('.t-row.yet b', { hasText: '아직 64' }).waitFor(); // 관리자 화면: 김철수가 빠짐
   });
 
+  await t.test('식당 메뉴 미리 고르기: 관리자가 메뉴를 적으면 참석 체크 때 하나', async () => {
+    await A.locator('.ev').getByRole('button', { name: '고치기' }).click();
+    await A.getByLabel('식당 메뉴 미리 받기').fill('김치찌개\n된장찌개');
+    await A.locator('dialog').getByRole('button', { name: '저장' }).click();
+    await toast(A, '고쳤어요');
+    const pick = P.locator('.ev-meal').getByRole('button', { name: '된장찌개' });
+    await pick.click();
+    await P.locator('.ev-meals .t-row', { hasText: '된장찌개 1' }).getByText(PROF.name).waitFor();
+    await A.locator('.ev-meals .t-row', { hasText: '된장찌개 1' }).waitFor(); // 관리자 화면에도 바로
+    await pick.click(); // 한 번 더 누르면 풀림
+    await P.locator('.ev-meals .t-row', { hasText: '된장찌개 0' }).waitFor();
+  });
+
+  await t.test('주문판: 카페 메뉴를 적고, 두 폰에서 ＋ 하면 같이 쌓임', async () => {
+    await P.locator('.ev-orders').getByRole('link', { name: '카페 주문' }).click();
+    await P.getByRole('heading', { name: '카페 주문' }).waitFor();
+    await P.getByLabel('메뉴').fill('아메리카노 HOT/ICE\n자몽에이드');
+    await P.getByRole('button', { name: '주문 받기 시작' }).click();
+    await P.getByRole('button', { name: '아이스 아메리카노 하나 추가' }).click();
+    await P.getByText('모두 1잔').waitFor();
+    await A.goto(P.url());
+    await A.getByText('모두 1잔').waitFor();
+    await A.getByRole('button', { name: '자몽에이드 하나 추가' }).click();
+    await P.getByText('모두 2잔').waitFor(); // 다른 폰에서 누른 것도 바로
+    await P.getByRole('button', { name: '아이스 아메리카노 하나 취소' }).click();
+    await P.getByText('모두 1잔').waitFor();
+    await P.getByPlaceholder('메뉴에 없는 것 주문하기').fill('밀크티');
+    await P.getByRole('button', { name: '＋ 넣기' }).click();
+    await P.getByText('모두 2잔').waitFor();
+    await P.getByRole('button', { name: '식당 주문' }).click(); // 판 바꾸기
+    await P.getByRole('heading', { name: '식당 주문' }).waitFor();
+    await P.getByLabel('메뉴').waitFor();
+    await P.goto(`${site.url}events/`);
+  });
+
   await t.test('홈: 다음 친목회 한 줄에 내 체크', async () => {
     await P.goto(site.url);
     await P.locator('#nextEvent:not([hidden])', { hasText: '미정' }).waitFor();
-    assert.equal(await P.locator('.topbar #myProfileBtn').getAttribute('href'), `${site.url}people/me/`); // 계정 단추 옆 '내 프로필'
+    assert.equal(await P.locator('.topbar #myProfileBtn').getAttribute('href'), `${site.url}people/me/`); // 계정 단추 옆 '내 프로필' (대문·연구실 둘러보기에만)
   });
 
   await t.test('내 프로필: 고치고 저장하면 연구실 둘러보기에 보임, 로그인 칸은 교수님만', async () => {
@@ -130,7 +166,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await G.getByPlaceholder('이름·교실·키워드로 찾기').fill(PROF.name);
     await G.locator('a.prof', { hasText: PROF.name }).getByText('아직 소개를 준비하고 있어요').waitFor(); // 이름·교실만
     await P.goto(`${site.url}login/`);
-    await P.getByRole('link', { name: '내 프로필' }).click();
+    await P.locator('main').getByRole('link', { name: '내 프로필' }).click();
     await P.waitForURL(/\/people\/me\/$/);
     await P.getByText('아직 확인 전이에요').waitFor();
     await P.getByLabel('직위').fill('부교수');

@@ -10,7 +10,8 @@
 
 | 화면 | 누가 | 하는 일 |
 |---|---|---|
-| 기초친목회 | 교수님 | 다가오는 친목회 날짜·장소, 참석·미정·불참 체크와 한마디(고른 것을 한 번 더 누르면 취소), 누가 오는지. 관리자는 만들기·고치기·마감·공지 문구 복사, 아직 체크 안 한 분 보기 |
+| 기초친목회 | 교수님 | 다가오는 친목회 날짜·장소, 참석·미정·불참 체크와 한마디(고른 것을 한 번 더 누르면 취소), 식당 메뉴 미리 고르기(관리자가 메뉴를 적었을 때), 누가 오는지. 관리자는 만들기·고치기·마감·공지 문구 복사, 아직 체크 안 한 분 보기 |
+| 주문 모으기 | 교수님 | 친목회마다 카페·식당 주문판. 메뉴마다 ＋/−, 바를 정, 아이스·따뜻한, 주문 복사. 각자 폰으로 눌러도 폰 한 대를 돌려도 같이 쌓여요. 지난번 메뉴가 미리 채워져요 |
 | 자유 게시판 | 교수님 | 글과 댓글. 이름은 실명. 내 글은 고치고 지우고, 관리자는 아무 글·댓글이나 지워요. 홈 카드에 지난번 본 뒤 올라온 새 글 수가 보여요 |
 | 연구실 둘러보기 | 누구나 | 교수님별 연구 소개와 키워드. 카드를 누르면 연구 질문·연구 축·발자취·보유 자원이 자세히 보여요(찾는 것·연락처는 로그인한 교수님만). 이름·교실·키워드로 찾고 교실·주제로 걸러요(고른 칩을 한 번 더 누르면 풀려요). 거른 상태는 주소 `#` 뒤에 남아 링크로 보낼 수 있어요(예: `people/#dept=생리학교실`) |
 | 내 프로필 | 교수님 | 연구실 둘러보기에 보이는 내 소개를 고쳐요. 저장하면 본인 확인이 돼요. 계정 화면의 ‘내 프로필’ |
@@ -48,6 +49,7 @@ PIN을 잊으신 분은 관리자 화면 명단의 ‘PIN 초기화’가 순서
 | 가입한 교수님 | Firestore `members/{uid}` | 교수님 |
 | 관리자 목록 · 가입 코드 | Firestore `config/admins` · `config/signup` | 누구나(계정 번호뿐) · 관리자 |
 | 친목회 · 참석 체크 | Firestore `events/{행사}` · `events/{행사}/rsvps/{uid}` | 교수님 |
+| 주문판 · 지난번 메뉴 | Firestore `events/{행사}/orders/{cafe·meal}` · `menus/{cafe·meal}` | 교수님 |
 | 자유 게시판 · 댓글 | Firestore `posts/{글}` · `posts/{글}/comments/{댓글}` | 교수님 |
 | 관리 작업 기록 | Firestore `adminLog/` | 관리자 |
 | 화면 밝기·글씨 크기, 설치 배너 닫음, 게시판 마지막으로 본 때 | 이 기기 localStorage `lounge-prefs`, `lounge-app`, `lounge-board` | 이 기기 |
@@ -84,6 +86,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 |---|---|
 | `index.html` | 홈: 다음 친목회 한 줄, 입구 카드(게시판 새 글 수), 앱 설치 배너 |
 | `events/` | 기초친목회: `events.js`(화면) · `events-core.js`(계산) · `events-db.js`(Firestore) · `events.css` |
+| `order/` | 주문 모으기: `order.js` · `order-core.js`(계산, 장난감 상자에서) · `order-db.js` · `order.css` |
 | `board/` | 자유 게시판: `board.js` · `board-core.js` · `board-db.js` · `board.css` |
 | `people/` | 연구실 둘러보기(목록·자세히): `people.js` · `people-core.js`(계산) · `profile-db.js`(Firestore) · `people.css`. `people/me/`는 내 프로필 고치기 |
 | `login/` | 로그인 · 처음 가입 · PIN 바꾸기 |
@@ -104,7 +107,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 
 ## 함께 쓰는 것
 
-- 화면 부품(`ui.js`·`theme.js`·`pwa.js`)과 서비스 워커는 [toy_box](https://github.com/kkonoo/toy_box)에서 가져와 공통 규칙에 맞췄어요.
+- 화면 부품(`ui.js`·`theme.js`·`pwa.js`)과 서비스 워커는 [toy_box](https://github.com/kkonoo/toy_box)에서 가져와 공통 규칙에 맞췄어요. 주문 모으기(`order/`)도 장난감 상자의 주문 모으기를 가져와 Firestore로 같이 쌓이게 바꿨어요.
 - 연구 소개는 [Biomed_KNUmed 이름북](https://github.com/kkonoo/Biomed_KNUmed)에서 시작해요.
 - 강조색은 [HaLab 슬라이드 갤러리](https://kkonoo.github.io/slide-gallery/)의 crimson이에요.
 - 앱 아이콘과 화면 아이콘은 [Lucide](https://lucide.dev) (ISC)예요. 이모지는 주제 거르기와 참석 체크에만 써요.

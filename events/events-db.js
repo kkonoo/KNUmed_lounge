@@ -29,7 +29,7 @@ const eventsDb = {
     const { F, db } = await fb();
     const data = {
       title: d.title.trim(), date: d.date, time: d.time || '', place: d.place.trim(), mapUrl: d.mapUrl.trim(),
-      deadline: d.deadline == null ? null : F.Timestamp.fromMillis(d.deadline), note: d.note.trim(), audience: d.audience,
+      deadline: d.deadline == null ? null : F.Timestamp.fromMillis(d.deadline), note: d.note.trim(), audience: d.audience, meals: d.meals || [],
     };
     if (eid) await F.updateDoc(F.doc(db, 'events', eid), data);
     else await F.addDoc(F.collection(db, 'events'), { ...data, closed: false, at: F.serverTimestamp(), by: uid });
@@ -48,9 +48,9 @@ const eventsDb = {
     await b.commit();
   },
 
-  async rsvp(eid, uid, { status, name, comment }) {
+  async rsvp(eid, uid, { status, name, comment, meal = '' }) {
     const { F, db } = await fb();
-    await F.setDoc(F.doc(db, 'events', eid, 'rsvps', uid), { status, name, comment: (comment || '').trim().slice(0, 60), at: F.serverTimestamp() });
+    await F.setDoc(F.doc(db, 'events', eid, 'rsvps', uid), { status, name, comment: (comment || '').trim().slice(0, 60), meal, at: F.serverTimestamp() });
   },
   async unrsvp(eid, uid) {
     const { F, db } = await fb();

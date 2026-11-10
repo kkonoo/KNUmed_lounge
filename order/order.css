@@ -1,0 +1,56 @@
+/* 주문 모으기: 폰을 넘겨 가며 누르기 좋은 큼직한 메뉴 줄, 개수는 바를 정(正) + 숫자 (장난감 상자와 같은 모양) */
+main { display: flex; flex-direction: column; gap: .8rem; }
+/* 아이스는 파랑, 따뜻한은 주황 (빨강·초록으로 나누지 않음. 글자도 같이 붙임) */
+:root { --ice: #2563C9; --hot: #C2531F; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ice: #7FA8FF; --hot: #FF9B61; } }
+:root[data-theme="dark"] { --ice: #7FA8FF; --hot: #FF9B61; }
+.order-event { margin: 0; color: var(--muted); font-size: .9rem; }
+.order-event b { color: var(--text); font-weight: 600; }
+.order-kinds button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.order-panel { gap: .8rem; }
+.order-panel h2 { margin: 0; font-size: 1.05rem; }
+.order-panel > .hint { margin: 0; line-height: 1.55; }
+.order-panel > .big { align-self: center; padding: 11px 26px; font-size: 1rem; }
+
+/* 세기 */
+.order-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; }
+.order-total { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.order-list { display: flex; flex-direction: column; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.order-row {
+  display: flex; flex-direction: column; gap: .35rem;
+  padding: .7rem .8rem .7rem 1rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+  transition: border-color .15s, background-color .15s;
+}
+.order-row.has { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: color-mix(in srgb, var(--accent-soft) 50%, var(--surface)); }
+.order-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.order-name { min-width: 0; font-size: 1.05rem; font-weight: 600; overflow-wrap: anywhere; }
+.order-n { min-width: 2ch; font-size: 1.5rem; font-weight: 700; line-height: 1; text-align: right; font-variant-numeric: tabular-nums; color: var(--faint); }
+.order-row.has .order-n { color: var(--accent); }
+/* 세는 칸: [아이스] 7 · 正正 · − 취소 ＋ 추가 (좁은 폰에선 나눈 칸의 正은 아랫줄로) */
+.order-line { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .5rem; }
+.order-line > .tally { flex: 1; min-width: 0; }
+.order-line + .order-line { padding-top: .35rem; border-top: 1px dashed var(--line); }
+.order-sub { min-width: 1.5ch; font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--faint); }
+.order-line.has .order-sub { color: var(--text); }
+.temp { display: inline-flex; flex: none; align-items: center; gap: 4px; padding: .15rem .55rem; border-radius: 99px; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+.temp .lc { width: 14px; height: 14px; }
+.ice > .temp { color: var(--ice); background: color-mix(in srgb, var(--ice) 13%, var(--surface)); }
+.hot > .temp { color: var(--hot); background: color-mix(in srgb, var(--hot) 13%, var(--surface)); }
+.order-btns { display: flex; flex: none; gap: .35rem; margin-left: auto; }
+.order-btns .btn { padding: .55rem .85rem; }
+@media (max-width: 480px) {
+  .ice > .tally, .hot > .tally { order: 1; flex-basis: 100%; }
+  .ice > .tally:empty, .hot > .tally:empty { display: none; }
+  .order-btns .btn { padding-inline: .7rem; }
+}
+.order-empty { padding: 1.5rem 1rem; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; }
+
+/* 바를 정: 正 한 자 = 다섯 개. 새로 그은 획은 그려지듯 */
+.tally { display: flex; flex-wrap: wrap; gap: .2rem; min-height: 1.6rem; }
+.tally svg { width: 1.6rem; height: 1.6rem; fill: none; stroke: var(--text); stroke-width: 2; stroke-linecap: round; }
+.tally .new { stroke-dasharray: 1; animation: stroke .25s ease-out both; }
+@keyframes stroke { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+.order-adder { display: flex; gap: .4rem; }
+.order-adder .text-input { flex: 1; min-width: 0; }
+@media (prefers-reduced-motion: reduce) { .tally .new { animation: none; } .order-row { transition: none; } }

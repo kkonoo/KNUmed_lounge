@@ -14,7 +14,7 @@ NAMES = [
     'chevron-left', 'x', 'plus', 'copy', 'search', 'user', 'eye', 'eye-off', 'dices',
     'sun-moon', 'sun', 'moon', 'smartphone',
     'utensils', 'microscope', 'handshake', 'map-pin', 'clock', 'coffee',
-    'messages-square', 'message-square',
+    'messages-square', 'message-square', 'snowflake', 'flame', 'camera',
 ]
 src = Path(sys.argv[1])
 icons, version = {}, ''

@@ -86,6 +86,20 @@ function eventProblem(d) {
   return '';
 }
 
+// 식당 메뉴 미리 받기: 한 줄에 메뉴 하나 (20개까지, 이름 40자까지, 같은 것은 한 번만). 비우면 안 받음
+const parseMeals = text => [...new Set(String(text || '').split('\n').map(l => l.trim().slice(0, 40)).filter(Boolean))].slice(0, 20);
+
+// 메뉴별로 고른 분 (참석·미정인 분만, 메뉴 순서): [{ meal, names: [] }]
+function mealTally(meals, rsvps) {
+  const picked = rsvps.filter(r => r.status !== 'no' && r.meal && meals.includes(r.meal));
+  return meals.map(meal => ({ meal, names: picked.filter(r => r.meal === meal).map(r => r.name).sort((a, b) => a.localeCompare(b, 'ko')) }));
+}
+// 식당에 알릴 글: 고른 메뉴만, 모두 몇 개
+function mealText(title, tally) {
+  const rows = tally.filter(t => t.names.length);
+  return [`${title} 식당 메뉴 (모두 ${rows.reduce((n, t) => n + t.names.length, 0)}개)`, ...rows.map(t => `${t.meal} ${t.names.length}`)].join('\n');
+}
+
 // 공지 메일에 붙일 글
 function announceText(e, url, now) {
   const lines = [`[${e.title}]`, `일시: ${whenText(e, now)}`];

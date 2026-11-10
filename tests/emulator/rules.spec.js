@@ -7,7 +7,7 @@ const { test, before, after, beforeEach } = require('node:test');
 const { initializeTestEnvironment, assertSucceeds, assertFails } = require('@firebase/rules-unit-testing');
 const {
   doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, collection, writeBatch, query, orderBy, limit, where,
-  serverTimestamp, Timestamp,
+  serverTimestamp, Timestamp, increment, FieldPath,
 } = require('firebase/firestore');
 
 const RULES = fs.readFileSync(path.join(__dirname, '../../firestore.rules'), 'utf8');
@@ -390,4 +390,43 @@ test('프로필 로그인 칸: 회원만 읽고 본인만 씀', async () => {
   await assertFails(setDoc(ref(as(PROF)), priv({ seeking: 'ㄱ'.repeat(301) })));
   await assertFails(setDoc(doc(as(PROF), 'profiles/abc234/private/other'), priv()));
   await assertFails(deleteDoc(ref(as(PROF))));
+});
+
+// ---------- 주문 모으기 ----------
+test('식당 메뉴 미리 고르기: 친목회 meals 중 하나만', async () => {
+  await withEvent({ meals: ['김치찌개', '된장찌개'] });
+  const db = as(PROF);
+  await assertSucceeds(setDoc(doc(db, 'events/e1/rsvps', PROF.uid), rsvp(PROF, { meal: '김치찌개' })));
+  await assertSucceeds(setDoc(doc(db, 'events/e1/rsvps', PROF.uid), rsvp(PROF, { meal: '' })));
+  await assertFails(setDoc(doc(db, 'events/e1/rsvps', PROF.uid), rsvp(PROF, { meal: '스테이크' })));
+  await assertSucceeds(updateDoc(doc(as(ADMIN), 'events/e1'), { meals: ['김치찌개', '된장찌개', '비빔밥'] }));
+  await assertFails(updateDoc(doc(as(ADMIN), 'events/e1'), { meals: Array.from({ length: 21 }, (_, i) => `메뉴${i}`) }));
+  await assertFails(updateDoc(doc(as(PROF), 'events/e1'), { meals: ['몰래'] }));
+});
+
+test('주문판: 교수님 누구나 메뉴를 적고 ＋/−, 관리자만 지움', async () => {
+  await withEvent();
+  const db = as(PROF), ref = doc(db, 'events/e1/orders/cafe');
+  await assertSucceeds(setDoc(ref, { menu: ['아메리카노 (아이스/따뜻한)', '자몽에이드'], counts: {}, at: serverTimestamp() }));
+  await assertSucceeds(updateDoc(ref, new FieldPath('counts', '아이스 아메리카노'), increment(1), 'at', serverTimestamp()));
+  await assertSucceeds(updateDoc(doc(as(ADMIN), 'events/e1/orders/cafe'), new FieldPath('counts', '아이스 아메리카노'), increment(-1), 'at', serverTimestamp()));
+  await assertSucceeds(getDoc(doc(as(ADMIN), 'events/e1/orders/cafe')));
+  await assertFails(updateDoc(ref, new FieldPath('counts', '자몽에이드'), increment(1))); // 시각 없이
+  await assertFails(setDoc(doc(db, 'events/e1/orders/bar'), { menu: [], counts: {}, at: serverTimestamp() }));
+  await assertFails(setDoc(doc(db, 'events/none/orders/cafe'), { menu: [], counts: {}, at: serverTimestamp() }));
+  await assertFails(setDoc(ref, { menu: Array.from({ length: 81 }, (_, i) => `메뉴${i}`), counts: {}, at: serverTimestamp() }));
+  await assertFails(getDoc(doc(as(OTHER), 'events/e1/orders/cafe'))); // 가입 전
+  await assertFails(getDoc(doc(anon(), 'events/e1/orders/cafe')));
+  await assertFails(deleteDoc(ref));
+  await assertSucceeds(deleteDoc(doc(as(ADMIN), 'events/e1/orders/cafe')));
+});
+
+test('지난 메뉴: 교수님 누구나 읽고 씀', async () => {
+  await base();
+  await assertSucceeds(setDoc(doc(as(PROF), 'menus/cafe'), { text: '아메리카노\n라떼', at: serverTimestamp() }));
+  await assertSucceeds(getDoc(doc(as(ADMIN), 'menus/cafe')));
+  await assertFails(getDoc(doc(anon(), 'menus/cafe')));
+  await assertFails(setDoc(doc(as(OTHER), 'menus/cafe'), { text: 'x', at: serverTimestamp() }));
+  await assertFails(setDoc(doc(as(PROF), 'menus/other'), { text: 'x', at: serverTimestamp() }));
+  await assertFails(deleteDoc(doc(as(PROF), 'menus/cafe')));
 });

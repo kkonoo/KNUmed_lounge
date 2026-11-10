@@ -1,9 +1,9 @@
 'use strict';
-// 친목회 화면: 다가오는 친목회마다 참석·미정·불참 체크와 한마디, 누가 오는지. 관리자는 만들기·고치기·마감·공지 문구 복사
+// 친목회 화면: 다가오는 친목회마다 참석·미정·불참 체크와 한마디(식당 메뉴를 받으면 메뉴 하나), 누가 오는지,
+// 카페·식당 주문판(order/) 입구. 관리자는 만들기·고치기·마감·공지 문구 복사
 // 데이터는 events-db.js, 계산은 events-core.js, 입력 부품은 js/form.js
 
 const app = $('app');
-const ORDER_URL = 'https://kkonoo.github.io/toy_box/games/order/';
 let S = null, members = [], roster = [], events = [];
 const cards = new Map(); // 행사 id → { el, stop, paint }
 
@@ -90,20 +90,34 @@ function eventCard(e) {
   comment.addEventListener('keydown', ev => { if (ev.key === 'Enter') saveC.click(); });
   const crow = h('div', 'inline');
   crow.append(comment, saveC);
+  // 식당 메뉴 미리 고르기 (관리자가 메뉴를 적은 친목회만). 고른 것을 한 번 더 누르면 풀림
+  const mealBox = h('div', 'ev-meal');
+  const mealPills = h('div', 'pills');
+  mealBox.append(h('span', 'label', '식당 메뉴'), mealPills);
   const closedNote = h('p', 'hint');
-  me.append(seg, crow, closedNote);
+  me.append(seg, mealBox, crow, closedNote);
 
   const tallyBox = h('div', 'ev-tally');
   const adminBox = h('div', 'form-actions');
-  const order = withIcon(h('a', 'hint order-link', '식당에서 주문 모으기 (장난감 상자)'), 'coffee');
-  Object.assign(order, { href: ORDER_URL, target: '_blank', rel: 'noopener' });
+  // 주문판: 그 자리에서 각자 폰으로, 또는 폰 한 대를 돌리며
+  const orders = h('div', 'ev-orders');
+  for (const [k, b] of Object.entries(BOARDS)) {
+    const a = withIcon(h('a', 'btn small', b.label), b.icon);
+    a.href = `${LOUNGE_ROOT}order/?e=${encodeURIComponent(e.id)}&k=${k}`;
+    orders.append(a);
+  }
 
-  el.append(top, title, place, note, due, me, tallyBox, adminBox, order);
+  el.append(top, title, place, note, due, me, tallyBox, orders, adminBox);
 
   const myRsvp = () => c.rsvps.find(r => r.uid === S.user.uid);
-  async function answer(status) {
+  async function answer(status, meal = myRsvp()?.meal || '') {
     if (!S.member) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
-    try { await eventsDb.rsvp(c.e.id, S.user.uid, { status, name: S.member.name, comment: comment.value }); toast('체크했어요'); } catch (err) { fail('체크하지 못했어요', err); }
+    try { await eventsDb.rsvp(c.e.id, S.user.uid, { status, name: S.member.name, comment: comment.value, meal }); toast('체크했어요'); } catch (err) { fail('체크하지 못했어요', err); }
+  }
+  function pickMeal(meal) {
+    const mine = myRsvp();
+    if (!mine || mine.status === 'no') return toast('참석이나 미정을 먼저 골라 주세요');
+    answer(mine.status, mine.meal === meal ? '' : meal);
   }
   async function cancel() {
     try { await eventsDb.unrsvp(c.e.id, S.user.uid); toast('체크를 취소했어요'); } catch (err) { fail('취소하지 못했어요', err); }
@@ -133,6 +147,14 @@ function eventCard(e) {
       b.disabled = !open;
     }
     comment.disabled = saveC.disabled = !open;
+    const meals = e.meals || [];
+    mealBox.hidden = !meals.length;
+    mealPills.replaceChildren(...meals.map(m => {
+      const b = button(m, () => pickMeal(m), mine?.meal === m ? 'on' : '');
+      b.setAttribute('aria-pressed', String(mine?.meal === m));
+      b.disabled = !open;
+      return b;
+    }));
     if (document.activeElement !== comment) comment.value = mine?.comment || '';
     closedNote.textContent = open ? '' : '마감됐어요. 바꾸실 일이 있으면 관리자에게 알려 주세요.';
     closedNote.hidden = open;
@@ -150,6 +172,17 @@ function eventCard(e) {
       row.append(names);
       return row;
     }));
+    if (meals.length) {
+      const mt = mealTally(meals, c.rsvps);
+      const box = h('div', 'ev-meals');
+      for (const { meal, names } of mt) {
+        const row = h('div', 't-row');
+        row.append(h('b', '', `${meal} ${names.length}`), h('span', 'names', names.join(' · ')));
+        box.append(row);
+      }
+      if (mt.some(t => t.names.length)) box.append(withIcon(button('식당 메뉴 복사', () => copyText(mealText(e.title, mt)), 'btn small'), 'copy'));
+      tallyBox.append(box);
+    }
     if (S.isAdmin) {
       const yet = notYet(roster, c.rsvps, members, e.audience);
       if (yet.length) {
@@ -197,6 +230,8 @@ function openForm(e) {
   const note = h('textarea');
   Object.assign(note, { rows: 3, maxLength: 1000, value: e?.note || '', placeholder: '회비, 주차, 메뉴 등' });
   const audience = select([['기초', '기초교실'], ['전체', '전체 (기초·임상)'], ['임상', '임상교실']], e?.audience || '기초');
+  const meals = h('textarea');
+  Object.assign(meals, { rows: 3, value: (e?.meals || []).join('\n'), placeholder: '한 줄에 메뉴 하나\n예: 김치찌개' });
   let titleTouched = !!e;
   title.addEventListener('input', () => { titleTouched = true; });
   const autoTitle = () => { if (!titleTouched) title.value = defaultTitle(date.value, audience.value); };
@@ -213,11 +248,11 @@ function openForm(e) {
     h('h2', '', e ? '친목회 고치기' : '새 친목회'),
     two, field('제목', title), field('장소', place), field('지도 링크', mapUrl, '없어도 돼요'),
     field('참석 체크 마감', deadline, '비워 두면 직접 ‘마감’을 누를 때까지 받아요'),
-    field('메모', note), field('대상', audience), msg, acts,
+    field('메모', note), field('식당 메뉴 미리 받기', meals, '적으면 참석 체크 때 메뉴를 하나씩 골라요. 비우면 안 받아요'), field('대상', audience), msg, acts,
   );
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
-    const d = { title: title.value, date: date.value, time: time.value, place: place.value, mapUrl: mapUrl.value.trim(), deadline: fromLocalInput(deadline.value), note: note.value, audience: audience.value };
+    const d = { title: title.value, date: date.value, time: time.value, place: place.value, mapUrl: mapUrl.value.trim(), deadline: fromLocalInput(deadline.value), note: note.value, audience: audience.value, meals: parseMeals(meals.value) };
     say(msg, eventProblem(d));
     if (!msg.hidden) return;
     try { await busy(save, '저장 중…', () => eventsDb.save(e?.id || null, d, S.user.uid)); dlg.close(); toast(e ? '고쳤어요' : '올렸어요'); } catch (err) { say(msg, authMessage(err)); }
