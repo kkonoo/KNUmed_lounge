@@ -16,7 +16,7 @@
 | 관리자 | 관리자 | 명단 붙여 넣기·고치기·멈추기·지우기, 관리자 지정·해제, 가입 코드, 작업 기록 |
 | 공동연구 찾기 | 회원 | 준비 중이에요 |
 
-머리 줄 🌗에서 화면 밝기(자동·밝게·어둡게)와 글씨 크기(작게·보통·크게·아주 크게)를 골라요.
+머리 줄 오른쪽 끝 해·달 단추에서 화면 밝기(자동·밝게·어둡게)와 글씨 크기(작게·보통·크게·아주 크게)를 골라요.
 
 ## 처음 쓸 때
 
@@ -63,6 +63,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 - 확인(테스트): 저장소 맨 위에서 `node --test`. 계정·명단 붙여 넣기·친목회·찾기 계산과, 공개 데이터에 메일·연락처가 없는지 확인해요.
 - 연구 소개 다시 만들기: 이름북 저장소를 받아 두고 `python3 pipeline/from_namebook.py ../Biomed_KNUmed` (Pillow 필요). 이미 있는 분은 같은 번호를 그대로 써요.
 - 앱 아이콘 다시 그리기: `icons/icon.svg`를 고치고 `python3 tools/make-icons.py` (Playwright 필요).
+- 화면 아이콘 더하기: `tools/make-icon-set.py`의 `NAMES`에 Lucide 이름을 넣고, `npm i lucide-static` 한 폴더의 `node_modules/lucide-static/icons`를 넘겨 다시 돌려요.
 - 화면 파일을 더하면 `sw.js`의 `SHELL`에도 적어요(오프라인).
 - PIN은 사이트가 앞뒤에 정해진 글자를 붙여 Firebase 비밀번호로 써요(`js/account-core.js` `pinToPassword`). 이 모양을 바꾸면 모든 PIN이 안 맞게 되니 바꾸지 마세요.
 
@@ -80,12 +81,13 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 | `js/account-core.js` | PIN·메일·가입 코드·명단 붙여 넣기 계산 |
 | `js/form.js` · `js/ui.js` | 입력 부품 · 화면 만들기·토스트 |
 | `js/theme.js` · `js/pwa.js` | 화면 밝기·글씨 크기 · 앱 설치 배너 |
+| `js/icons.js` | 쓰는 Lucide 아이콘만 모은 것. `icon('map-pin')` 또는 HTML `<span data-icon="map-pin">` |
 | `js/firebase-config.js` | Firebase 설정 (공개돼도 되는 값) |
 | `firestore.rules` | Firestore 보안 규칙 (콘솔에 붙여 넣음) |
 | `manifest.webmanifest` · `sw.js` · `icons/` | 앱 설치·오프라인·아이콘 |
 | `data/people.json` · `photos/` | 연구 소개 데이터와 사진 |
 | `pipeline/from_namebook.py` | 이름북 → 연구 소개 데이터 |
-| `tools/serve.ps1` · `tools/make-icons.py` | 로컬 서버 · 앱 아이콘 그리기 |
+| `tools/serve.ps1` · `tools/make-icons.py` · `tools/make-icon-set.py` | 로컬 서버 · 앱 아이콘 그리기 · 화면 아이콘 모으기 |
 | `tests/` | `node --test` |
 
 ## 함께 쓰는 것
@@ -93,4 +95,4 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 - 화면 부품(`ui.js`·`theme.js`·`pwa.js`)과 서비스 워커는 [toy_box](https://github.com/kkonoo/toy_box)에서 가져와 공통 규칙에 맞췄어요.
 - 연구 소개는 [Biomed_KNUmed 이름북](https://github.com/kkonoo/Biomed_KNUmed)에서 시작해요.
 - 강조색은 [HaLab 슬라이드 갤러리](https://kkonoo.github.io/slide-gallery/)의 crimson이에요.
-- 앱 아이콘은 [Lucide](https://lucide.dev) `sofa` (ISC)예요.
+- 앱 아이콘과 화면 아이콘은 [Lucide](https://lucide.dev) (ISC)예요. 이모지는 주제 거르기와 참석 체크에만 써요.

@@ -29,7 +29,7 @@
   const input = h('input', 'text-input');
   Object.assign(input, { type: 'search', value: f.q, placeholder: '이름·교실·키워드로 찾기', autocomplete: 'off' });
   input.setAttribute('aria-label', '교수님 찾기');
-  search.append(input);
+  search.append(icon('search', 'search-icon'), input);
 
   const deptPills = h('div', 'pills');
   const topicPills = h('div', 'pills');
@@ -67,7 +67,8 @@
       photo = h('img', 'photo');
       Object.assign(photo, { src: `../${p.photo}`, alt: '', loading: 'lazy', decoding: 'async', width: 96, height: 128 });
     } else {
-      photo = h('div', 'photo empty', '👤');
+      photo = h('div', 'photo empty');
+      photo.append(icon('user'));
     }
     const body = h('div', '');
     const name = h('h3', '', p.name);

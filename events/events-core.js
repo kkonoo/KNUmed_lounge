@@ -88,9 +88,9 @@ function eventProblem(d) {
 
 // 공지 메일에 붙일 글
 function announceText(e, url, now) {
-  const lines = [`[${e.title}]`, `📅 ${whenText(e, now)}`];
-  if (e.place) lines.push(`📍 ${e.place}${e.mapUrl ? ` (${e.mapUrl})` : ''}`);
-  if (e.deadline != null) lines.push(`⏰ ${fmtStamp(e.deadline, now)}까지 참석 체크해 주세요`);
+  const lines = [`[${e.title}]`, `일시: ${whenText(e, now)}`];
+  if (e.place) lines.push(`장소: ${e.place}${e.mapUrl ? ` (${e.mapUrl})` : ''}`);
+  if (e.deadline != null) lines.push(`참석 체크 마감: ${fmtStamp(e.deadline, now)}`);
   if (e.note) lines.push('', e.note);
   lines.push('', `참석 체크: ${url}`);
   return lines.join('\n');

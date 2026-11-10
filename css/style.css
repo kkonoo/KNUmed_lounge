@@ -1,6 +1,6 @@
 /* 경북의대 라운지 공통 스타일: kkonoo 웹앱 공통 토큰(my-webapp-stack base.css) + 라운지 강조색 + 공용 부품
    강조색은 학교색 크림슨 (HaLab 슬라이드 갤러리 crimson #B0283C, 옅은 면 #F7EAEC, 어두운 화면은 35% 단계 #CC7380)
-   글씨 크기는 --fs 배율 하나 (머리 줄 🌗 메뉴 › 글씨 크기). 화면마다 따로인 모양은 <화면>/<화면>.css */
+   글씨 크기는 --fs 배율 하나 (머리 줄 밝기 단추 메뉴 › 글씨 크기). 아이콘은 Lucide 선 아이콘(js/icons.js), 이모지는 주제 거르기·참석 체크에만. 화면마다 따로인 모양은 <화면>/<화면>.css */
 
 :root {
   --bg: #F5F4F0;
@@ -63,7 +63,7 @@ body {
 button, input, select, textarea { font: inherit; color: inherit; }
 a { color: inherit; }
 
-/* ---------- 상단 바: ‹ · 화면 이름 · (단추들) 계정 🌗 ---------- */
+/* ---------- 상단 바: ‹ · 화면 이름 · (단추들) 계정 · 밝기 ---------- */
 .topbar {
   display: flex; flex-wrap: wrap; align-items: center;
   gap: 10px; padding: 18px max(24px, calc((100% - 1200px) / 2 + 24px)) 14px;
@@ -177,10 +177,10 @@ dialog::backdrop { background: rgba(20, 20, 25, .35); backdrop-filter: blur(2px)
 dialog h2 { margin: 4px 0 10px; font-size: 1.05rem; }
 dialog h2 + .hint { margin-top: 0; line-height: 1.5; }
 .dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-top: 16px; }
-/* 🌗 화면 밝기·글씨 크기 메뉴 (js/theme.js) */
+/* 화면 밝기·글씨 크기 메뉴 (js/theme.js) */
 .theme-menu { position: fixed; inset: auto; margin: 0; padding: 5px; min-width: 12rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text); box-shadow: 0 12px 32px rgba(0, 0, 0, .18); }
 .theme-menu .menu-label { padding: 6px 10px 2px; font-size: .75rem; color: var(--muted); }
-.theme-menu button { display: block; width: 100%; padding: 8px 12px; border: none; border-radius: 8px; background: transparent; font-size: .92rem; text-align: left; cursor: pointer; }
+.theme-menu button { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; border: none; border-radius: 8px; background: transparent; font-size: .92rem; text-align: left; cursor: pointer; }
 .theme-menu button:hover { background: var(--surface-2); }
 .theme-menu button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 .theme-menu hr { margin: 4px 0; border: none; border-top: 1px solid var(--line); }
@@ -193,6 +193,13 @@ dialog h2 + .hint { margin-top: 0; line-height: 1.5; }
   white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s ease-out;
 }
 .toast.show { opacity: 1; }
+
+/* ---------- Lucide 아이콘 (js/icons.js): 글자색을 따라가고 글자 크기에 맞춤 ---------- */
+.lc { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; }
+.icon-btn .lc { width: 20px; height: 20px; }
+.icon-btn.small .lc { width: 16px; height: 16px; }
+.btn .lc { width: 1.05em; height: 1.05em; }
+.btn.icon-only { padding-inline: 10px; }
 
 /* ---------- 키보드 포커스·숫자 ---------- */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -210,18 +217,19 @@ dialog h2 + .hint { margin-top: 0; line-height: 1.5; }
   transition: border-color .15s ease-out, background-color .15s ease-out;
 }
 a.door:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
-.door .emoji { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 8px; border-radius: 10px; background: var(--bg); font-size: 1.8rem; line-height: 1; }
+.door .door-icon { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 8px; border-radius: 10px; background: var(--bg); color: var(--text); }
+.door .door-icon .lc { width: 26px; height: 26px; }
 .door b { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
 .door span { color: var(--muted); font-size: .9rem; }
 .door small { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 12px; font-size: .8rem; color: var(--muted); }
 a.door small::after { content: "→"; font-size: 1rem; color: var(--faint); transition: color .15s ease-out; }
 a.door:hover small::after { color: var(--accent); }
 .door.soon { background: transparent; border-style: dashed; }
-.door.soon .emoji { filter: grayscale(1); opacity: .6; }
+.door.soon .door-icon { color: var(--faint); }
 .door.soon b { color: var(--muted); }
 #nextEvent { margin-bottom: 14px; }
 .next-event { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: var(--radius); background: var(--accent-soft); text-decoration: none; }
-.next-event .emoji { font-size: 1.6rem; line-height: 1; }
+.next-event .ne-icon { width: 26px; height: 26px; color: var(--accent); }
 .ne-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .ne-text b { font-size: 1.05rem; font-weight: 700; }
 .ne-text span { font-size: .88rem; color: var(--muted); }
@@ -230,6 +238,7 @@ a.door:hover small::after { color: var(--accent); }
 .install-banner { display: flex; align-items: center; gap: 6px; margin: 0 0 14px; padding: 4px 6px 4px 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .banner-go { flex: 1; padding: 8px 10px; border: none; background: transparent; text-align: left; font-size: .95rem; font-weight: 600; }
 button.banner-go { cursor: pointer; }
+.banner-go .lc { margin-right: 6px; color: var(--accent); }
 .home-foot { padding: 20px max(24px, calc((100% - 1200px) / 2 + 24px)) 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
 .home-foot a { color: var(--muted); }
 
@@ -242,7 +251,7 @@ button.banner-go { cursor: pointer; }
 @media (max-width: 560px) {
   .door-cards { gap: 10px; }
   .door { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 2px 14px; padding: 16px; }
-  .door .emoji { grid-row: span 3; width: 46px; height: 46px; margin: 0; font-size: 1.6rem; }
+  .door .door-icon { grid-row: span 3; width: 46px; height: 46px; margin: 0; }
   .door small { padding-top: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

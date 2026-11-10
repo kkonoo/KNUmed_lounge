@@ -24,7 +24,7 @@ async function start() {
     return;
   }
   if (S.isAdmin) {
-    const add = button('＋ 새 친목회', () => openForm(null), 'btn small primary');
+    const add = withIcon(button('새 친목회', () => openForm(null), 'btn small primary'), 'plus');
     document.querySelector('.head-end').prepend(add);
   }
   if (S.isAdmin) {
@@ -74,7 +74,7 @@ function eventCard(e) {
   const title = h('h2');
   const place = h('p', 'ev-place');
   const note = h('p', 'ev-note');
-  const due = h('p', 'hint');
+  const due = h('p', 'hint due');
 
   // 내 응답
   const me = h('div', 'ev-me');
@@ -96,7 +96,7 @@ function eventCard(e) {
 
   const tallyBox = h('div', 'ev-tally');
   const adminBox = h('div', 'form-actions');
-  const order = h('a', 'hint order-link', '☕ 식당에서 주문 모으기 (장난감 상자)');
+  const order = withIcon(h('a', 'hint order-link', '식당에서 주문 모으기 (장난감 상자)'), 'coffee');
   Object.assign(order, { href: ORDER_URL, target: '_blank', rel: 'noopener' });
 
   el.append(top, title, place, note, due, me, tallyBox, adminBox, order);
@@ -115,13 +115,13 @@ function eventCard(e) {
     title.textContent = e.title;
     place.replaceChildren();
     if (e.place) {
-      place.append(`📍 ${e.place}`);
+      place.append(icon('map-pin'), e.place);
       if (e.mapUrl) { const a = h('a', '', '지도'); Object.assign(a, { href: e.mapUrl, target: '_blank', rel: 'noopener' }); place.append(' ', a); }
     }
     place.hidden = !e.place;
     note.textContent = e.note || '';
     note.hidden = !e.note;
-    due.textContent = e.deadline != null ? `⏰ ${fmtStamp(e.deadline)}까지 체크해 주세요` : '';
+    due.replaceChildren(...(e.deadline != null ? [icon('clock'), `${fmtStamp(e.deadline)}까지 체크해 주세요`] : []));
     due.hidden = e.deadline == null || !open;
 
     for (const b of segBtns) {
@@ -135,9 +135,9 @@ function eventCard(e) {
     else if (mine) closedNote.append(clear);
 
     const t = tally(c.rsvps);
-    tallyBox.replaceChildren(...STATUS.map(([k, label, icon]) => {
+    tallyBox.replaceChildren(...STATUS.map(([k, label]) => {
       const row = h('div', 't-row');
-      row.append(h('b', '', `${icon} ${label} ${t[k].length}`));
+      row.append(h('b', '', `${label} ${t[k].length}`));
       const names = h('span', 'names');
       t[k].forEach((r, i) => {
         if (i) names.append(' · ');
@@ -151,8 +151,8 @@ function eventCard(e) {
       const yet = notYet(roster, c.rsvps, members, e.audience);
       if (yet.length) {
         const row = h('div', 't-row yet');
-        row.append(h('b', '', `⏳ 아직 ${yet.length}`), h('span', 'names', yet.map(m => m.name).join(' · ')));
-        row.append(button('메일 복사', () => copyText(yet.map(m => m.email).join(', '), `${yet.length}분 메일을 복사했어요`), 'btn small'));
+        row.append(h('b', '', `아직 ${yet.length}`), h('span', 'names', yet.map(m => m.name).join(' · ')));
+        row.append(withIcon(button('메일 복사', () => copyText(yet.map(m => m.email).join(', '), `${yet.length}분 메일을 복사했어요`), 'btn small'), 'copy'));
         tallyBox.append(row);
       }
     }
@@ -163,7 +163,7 @@ function eventCard(e) {
       adminBox.append(
         button('고치기', () => openForm(c.e), 'btn small'),
         button(e.closed ? '다시 열기' : '마감', async () => { try { await eventsDb.setClosed(e.id, !e.closed); } catch (err) { fail('바꾸지 못했어요', err); } }, 'btn small'),
-        button('📋 공지 문구', () => copyText(announceText(e, `${LOUNGE_ROOT}events/`)), 'btn small'),
+        withIcon(button('공지 문구', () => copyText(announceText(e, `${LOUNGE_ROOT}events/`)), 'btn small'), 'copy'),
         button('지우기', () => removeEvent(e), 'btn small danger'),
       );
     }

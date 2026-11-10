@@ -6,7 +6,7 @@ const CACHE = 'lounge-v1';
 const SHELL = [
   './', 'manifest.webmanifest',
   'css/style.css',
-  'js/ui.js', 'js/theme.js', 'js/pwa.js', 'js/firebase-config.js', 'js/account-core.js', 'js/session.js', 'js/form.js', 'js/home.js',
+  'js/ui.js', 'js/icons.js', 'js/theme.js', 'js/pwa.js', 'js/firebase-config.js', 'js/account-core.js', 'js/session.js', 'js/form.js', 'js/home.js',
   'icons/icon.svg', 'icons/app-192.png', 'icons/app-512.png', 'icons/app-maskable-192.png', 'icons/app-maskable-512.png', 'icons/apple-touch-icon.png',
   'login/', 'login/login.js',
   'events/', 'events/events.css', 'events/events-core.js', 'events/events-db.js', 'events/events.js',

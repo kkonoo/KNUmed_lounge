@@ -76,5 +76,5 @@ test('만들기 확인과 공지 글', () => {
   assert.equal(E.defaultTitle('2026-11-24'), '11월 기초친목회');
   assert.equal(E.defaultTitle('2026-12-01', '전체'), '12월 친목회');
   const text = E.announceText({ ...d, deadline: new Date(2026, 10, 20, 18, 0).getTime(), note: '회비 3만 원' }, 'https://x/events/', NOW);
-  assert.equal(text, '[11월 기초친목회]\n📅 11월 24일 (화) 오후 6:30\n📍 복현동 ○○식당\n⏰ 11월 20일 (금) 오후 6:00까지 참석 체크해 주세요\n\n회비 3만 원\n\n참석 체크: https://x/events/');
+  assert.equal(text, '[11월 기초친목회]\n일시: 11월 24일 (화) 오후 6:30\n장소: 복현동 ○○식당\n참석 체크 마감: 11월 20일 (금) 오후 6:00\n\n회비 3만 원\n\n참석 체크: https://x/events/');
 });

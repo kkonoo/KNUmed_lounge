@@ -66,7 +66,7 @@ function renderSetup() {
 // ---------- 틀 ----------
 function render() {
   const tabs = h('div', 'seg tabs');
-  for (const [t, label] of [['roster', '👥 명단'], ['admins', '🔧 관리자'], ['code', '🔑 가입 코드'], ['log', '📜 기록']]) {
+  for (const [t, label] of [['roster', '명단'], ['admins', '관리자'], ['code', '가입 코드'], ['log', '기록']]) {
     tabs.append(button(label, () => { tab = t; render(); }, t === tab ? 'on' : ''));
   }
   const body = h('div', '');
@@ -82,13 +82,13 @@ function renderRoster(body) {
   const n = (label, v) => { const s = h('span'); s.append(`${label} `, h('b', '', v)); return s; };
   summary.append(n('명단', count.all), n('가입', count.joined), n('아직', count.waiting), n('멈춤', count.stopped));
   if (count.waiting) {
-    summary.append(button('📋 아직 안 한 분 메일 복사', () => copyText(rows.filter(r => r.state === 'waiting').map(r => r.email).join(', '), `${count.waiting}분 메일을 복사했어요`), 'btn small'));
+    summary.append(withIcon(button('아직 안 한 분 메일 복사', () => copyText(rows.filter(r => r.state === 'waiting').map(r => r.email).join(', '), `${count.waiting}분 메일을 복사했어요`), 'btn small'), 'copy'));
   }
 
   // 붙여 넣어 넣기
   const paste = h('details', 'paste');
   if (D.roster.length <= 1) paste.open = true; // 처음(관리자 한 분뿐)엔 열어 둠
-  paste.append(h('summary', '', '＋ 명단 붙여 넣기'));
+  paste.append(h('summary', '', '명단 붙여 넣기'));
   const pform = h('div', 'form');
   const ta = h('textarea');
   ta.rows = 5;
@@ -216,7 +216,7 @@ function pinResetHelp(r) {
   const go = h('a', 'btn primary', 'Firebase 콘솔 열기');
   Object.assign(go, { href: CONSOLE_USERS, target: '_blank', rel: 'noopener' });
   const acts = h('div', 'dialog-actions');
-  acts.append(button('메일 복사', () => copyText(r.email), 'btn'), go, button('닫기', () => dlg.close(), 'btn'));
+  acts.append(withIcon(button('메일 복사', () => copyText(r.email), 'btn'), 'copy'), go, button('닫기', () => dlg.close(), 'btn'));
   dlg.append(ol, acts);
   dlg.addEventListener('close', () => dlg.remove());
   document.body.append(dlg);
@@ -271,10 +271,10 @@ function renderAdmins(body) {
 function renderCode(body) {
   const wrap = h('div', 'stack');
   const now = h('div', 'code-now');
-  now.append(h('b', '', D.code || '(없음)'), button('복사', () => copyText(D.code), 'btn small'));
+  now.append(h('b', '', D.code || '(없음)'), withIcon(button('복사', () => copyText(D.code), 'btn small'), 'copy'));
 
   const input = textInput('text', { placeholder: '새 코드', autocapitalize: 'off', spellcheck: false });
-  const dice = button('🎲', () => { input.value = suggestCode(); }, 'btn');
+  const dice = withIcon(button('', () => { input.value = suggestCode(); }, 'btn icon-only'), 'dices');
   dice.title = '아무 코드나 만들기';
   const save = button('바꾸기', async () => {
     const p = codeProblem(input.value);
@@ -293,7 +293,7 @@ function renderCode(body) {
     block('공지 메일에 붙일 문구', pre),
   );
   const acts = h('div', 'form-actions');
-  acts.append(button('📋 문구 복사', () => copyText(notice), 'btn'));
+  acts.append(withIcon(button('문구 복사', () => copyText(notice), 'btn'), 'copy'));
   wrap.append(acts);
   body.append(wrap);
 }

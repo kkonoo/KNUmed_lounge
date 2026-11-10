@@ -5,6 +5,8 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .ev-date { font-size: .95rem; font-weight: 600; }
 .ev h2 { margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
 .ev-place, .ev-note { margin: 0; font-size: .95rem; }
+.ev-place { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.ev-place .lc, .ev .due .lc { color: var(--muted); }
 .ev-place a { margin-left: .2rem; }
 .ev-note { white-space: pre-wrap; color: var(--muted); }
 .ev .hint { margin: 0; }
@@ -21,7 +23,7 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .t-row .names { flex: 1; min-width: 10rem; }
 .t-row .names small { color: var(--muted); }
 .t-row.yet { padding-top: .35rem; border-top: 1px dashed var(--line); color: var(--muted); }
-.order-link { color: var(--muted); text-decoration: none; }
+.order-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none; }
 .order-link:hover { color: var(--accent); }
 
 details.past summary { cursor: pointer; color: var(--muted); font-weight: 600; }

@@ -19,11 +19,12 @@ function textInput(type, opts = {}) {
   Object.assign(i, { type, ...opts });
   return i;
 }
-// PIN 칸: 가려서 쓰고 👁로 잠깐 보기
+// PIN 칸: 가려서 쓰고 눈 단추로 잠깐 보기
 function pinInput(autocomplete) {
   const wrap = h('div', 'pin-wrap');
   const i = textInput('password', { autocomplete, maxLength: PIN_MAX, placeholder: '예: 1234' });
-  const eye = button('👁', () => { i.type = i.type === 'password' ? 'text' : 'password'; }, 'icon-btn small');
+  const eye = button('', () => { i.type = i.type === 'password' ? 'text' : 'password'; eye.replaceChildren(icon(i.type === 'password' ? 'eye' : 'eye-off')); }, 'icon-btn small');
+  eye.append(icon('eye'));
   eye.title = 'PIN 보기';
   wrap.append(i, eye);
   return { wrap, input: i };

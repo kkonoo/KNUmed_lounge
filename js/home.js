@@ -18,7 +18,7 @@
     a.href = 'events/';
     const text = h('span', 'ne-text');
     text.append(h('b', '', e.title), h('span', '', [whenText(e), e.place].filter(Boolean).join(' · ')));
-    a.append(h('span', 'emoji', '🍽️'), text, h('span', `ne-me${st ? ' done' : ''}`, st ? `${st[2]} ${st[1]}` : isOpen(e) ? '체크하기 →' : '마감'));
+    a.append(icon('utensils', 'ne-icon'), text, h('span', `ne-me${st ? ' done' : ''}`, st ? `${st[2]} ${st[1]}` : isOpen(e) ? '체크하기 →' : '마감'));
     slot.replaceChildren(a);
     slot.hidden = false;
   } catch (e) { console.error(e); }

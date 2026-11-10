@@ -123,7 +123,7 @@ function renderSignedIn(s) {
   const home = h('a', 'btn primary', '라운지로');
   home.href = nextUrl();
   actions.append(home, button('PIN 바꾸기', () => { pinBox.hidden = !pinBox.hidden; if (!pinBox.hidden) oldPin.input.focus(); }, 'btn'));
-  if (s.isAdmin) { const ad = h('a', 'btn', '🔧 관리자'); ad.href = `${LOUNGE_ROOT}admin/`; actions.append(ad); }
+  if (s.isAdmin) { const ad = h('a', 'btn', '관리자'); ad.href = `${LOUNGE_ROOT}admin/`; actions.append(ad); }
   actions.append(out);
   panel.append(actions, pinBox);
   app.replaceChildren(panel);

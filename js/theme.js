@@ -1,10 +1,10 @@
 'use strict';
-// 화면 밝기(🌗 자동 · ☀️ 밝게 · 🌙 어둡게)와 글씨 크기(--fs 배율). 모든 페이지가 <head>에서 읽음
+// 화면 밝기(자동 · 밝게 · 어둡게)와 글씨 크기(--fs 배율). 모든 페이지가 <head>에서 읽음
 // 이 기기 localStorage 'lounge-prefs' { theme, fs }. 그리기 전에 붙여서 어두운 화면이 밝게 번쩍이지 않음
-// 머리 줄(.topbar) 끝에 🌗 단추를 넣고, 누르면 고르는 작은 메뉴 (toy_box js/theme.js에서 가져와 글씨 크기를 더함)
+// 머리 줄(.topbar) 끝에 밝기 단추(Lucide 해·달)를 넣고, 누르면 고르는 작은 메뉴 (toy_box js/theme.js에서 가져와 글씨 크기를 더함)
 (() => {
   const KEY = 'lounge-prefs', root = document.documentElement;
-  const THEMES = [['auto', '🌗', '자동 (기기 설정)'], ['light', '☀️', '밝게'], ['dark', '🌙', '어둡게']];
+  const THEMES = [['auto', 'sun-moon', '자동 (기기 설정)'], ['light', 'sun', '밝게'], ['dark', 'moon', '어둡게']];
   const SIZES = [[0.9, '작게'], [1, '보통'], [1.15, '크게'], [1.3, '아주 크게']];
   let prefs = { theme: 'auto', fs: 1 };
   try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(KEY)) }; } catch { /* 처음이거나 못 읽음 */ }
@@ -32,7 +32,7 @@
   function paint() {
     if (!btn) return;
     const [, icon, label] = THEMES.find(t => t[0] === prefs.theme);
-    btn.textContent = icon;
+    btn.replaceChildren(window.icon ? window.icon(icon) : '◐');
     btn.title = `화면: ${label} · 글씨: ${SIZES.find(s => s[0] === prefs.fs)[1]}`;
     btn.setAttribute('aria-label', btn.title);
     for (const b of menu?.querySelectorAll('button') || []) {
@@ -62,7 +62,7 @@
         return b;
       };
       menu.append(label('화면 밝기'));
-      for (const [t, icon, text] of THEMES) menu.append(item(`${icon} ${text}`, { theme: t }, () => { set({ theme: t }); menu.hidePopover(); }));
+      for (const [t, ic, text] of THEMES) { const b = item(text, { theme: t }, () => { set({ theme: t }); menu.hidePopover(); }); b.prepend(icon(ic)); menu.append(b); }
       menu.append(document.createElement('hr'), label('글씨 크기'));
       for (const [fs, text] of SIZES) menu.append(item(text, { fs }, () => set({ fs })));
       menu.addEventListener('beforetoggle', e => { // 단추 바로 아래, 오른쪽 끝을 맞춰서

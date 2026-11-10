@@ -6,7 +6,7 @@ const normEmail = s => String(s || '').trim().toLowerCase();
 const isEmail = s => /^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(s);
 
 // PIN → Firebase 비밀번호. 규칙 없음(숫자 4자리도 됨). Firebase가 6자 이상만 받아서 앞뒤에 정해진 글자를 붙임
-// ⚠️ 이 모양을 바꾸면 모든 교수님의 PIN이 안 맞게 돼요. 바꾸지 마세요 (worker/에서도 같은 계산)
+// 주의: 이 모양을 바꾸면 모든 교수님의 PIN이 안 맞게 돼요. 바꾸지 마세요 (worker/에서도 같은 계산)
 const PIN_MAX = 40;
 const cleanPin = s => String(s ?? '').trim();
 const pinToPassword = pin => `lounge:${cleanPin(pin)}:knumed`;

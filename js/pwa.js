@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
 
 // 크롬·엣지가 설치할 수 있다고 알려 주면(안드로이드·PC, 이미 설치했으면 안 옴) 홈 위에 '앱으로 설치하기' 배너.
 // 아이폰은 이 알림이 없어서 '공유 › 홈 화면에 추가' 안내를 대신 띄움 (홈 화면에서 열었거나, 홈 화면에 추가가 없는 카톡 등 앱 안 브라우저면 안 띄움)
-// ✕로 닫으면 이 기기에선 다시 안 띄우고 브라우저 기본 안내에 맡김
+// ✕(닫기)를 누르면 이 기기에선 다시 안 띄우고 브라우저 기본 안내에 맡김
 (() => {
   const KEY = 'lounge-app', banner = document.getElementById('installBanner');
   const closed = () => { try { return !!JSON.parse(localStorage.getItem(KEY))?.installClosed; } catch { return false; } };
@@ -28,13 +28,14 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     go.className = 'banner-go';
     if (installEvt) {
       go.type = 'button';
-      go.textContent = '📲 라운지를 앱으로 설치하기 (폰 홈 화면에 아이콘)';
+      go.textContent = '라운지를 앱으로 설치하기 (폰 홈 화면에 아이콘)';
       go.addEventListener('click', () => { installEvt.prompt(); installEvt = null; render(); }); // 브라우저 설치 창. 한 번만 쓸 수 있음
-    } else go.textContent = '📲 앱으로 쓰려면 공유 › ‘홈 화면에 추가’ (공유가 안 보이면 ··· 안에)';
+    } else go.textContent = '앱으로 쓰려면 공유 › ‘홈 화면에 추가’ (공유가 안 보이면 ··· 안에)';
+    go.prepend(icon('smartphone'));
     x.type = 'button';
     x.className = 'icon-btn small';
     x.title = '닫기 (이 기기에선 다시 안 떠요)';
-    x.textContent = '✕';
+    x.append(icon('x'));
     x.addEventListener('click', () => {
       try { localStorage.setItem(KEY, JSON.stringify({ installClosed: true })); } catch { /* 못 씀 */ }
       installEvt = null;
