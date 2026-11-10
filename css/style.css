@@ -68,8 +68,10 @@ a { color: inherit; }
   display: flex; flex-wrap: wrap; align-items: center;
   gap: 10px; padding: 18px max(24px, calc((100% - 1200px) / 2 + 24px)) 14px;
 }
-.topbar h1 { flex: 1; min-width: 0; margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
-.topbar .head-end { display: flex; align-items: center; gap: 6px; }
+.topbar h1 { flex: 1 0 auto; margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+.topbar .head-end { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+/* 제목은 꺾지 않고, 자리가 모자라면 단추 줄이 제목 아래로 (오른쪽 끝). 폰에서 '내 프로필'은 아이콘만 */
+@media (max-width: 480px) { .my-profile span { display: none; } }
 main { width: 100%; max-width: 1200px; margin: 0 auto; padding: 4px 24px 32px; flex: 1; }
 .phone .topbar { padding-inline: max(16px, calc((100% - 560px) / 2 + 16px)); }
 .phone main { max-width: 560px; padding-inline: 16px; }

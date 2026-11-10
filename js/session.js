@@ -113,11 +113,23 @@ function accountButton(s) {
   a.title = s.member ? `${s.member.name} 교수님 · 내 계정` : a.textContent;
   return a;
 }
+// 그 옆 '내 프로필'(가입을 마친 교수님만, 내 프로필 화면에서는 빼고)
+function myProfileButton() {
+  const a = h('a', 'btn small my-profile');
+  a.id = 'myProfileBtn';
+  a.href = `${LOUNGE_ROOT}people/me/`;
+  a.title = '내 프로필';
+  a.setAttribute('aria-label', '내 프로필');
+  a.append(icon('user'), h('span', '', '내 프로필'));
+  return a;
+}
 function mountAccountChip(s) {
   const head = document.querySelector('.topbar');
   if (!head) return;
   let end = head.querySelector('.head-end');
   if (!end) { end = h('span', 'head-end'); head.append(end); }
   end.querySelector('#accountBtn')?.remove();
+  end.querySelector('#myProfileBtn')?.remove();
   end.prepend(accountButton(s));
+  if (isActiveMember(s) && !location.pathname.endsWith('/people/me/')) end.prepend(myProfileButton());
 }

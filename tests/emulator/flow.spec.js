@@ -121,6 +121,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
   await t.test('홈: 다음 친목회 한 줄에 내 체크', async () => {
     await P.goto(site.url);
     await P.locator('#nextEvent:not([hidden])', { hasText: '미정' }).waitFor();
+    assert.equal(await P.locator('.topbar #myProfileBtn').getAttribute('href'), `${site.url}people/me/`); // 계정 단추 옆 '내 프로필'
   });
 
   await t.test('내 프로필: 고치고 저장하면 연구실 둘러보기에 보임, 로그인 칸은 교수님만', async () => {

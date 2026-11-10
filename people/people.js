@@ -247,11 +247,6 @@
     mountAccountChip(S);
     if (isActiveMember(S)) {
       try { myPid = await profileDb.myId(S.user.email); } catch (e) { console.error(e); }
-      if (myPid) {
-        const mine = withIcon(h('a', 'btn small', '내 프로필'), 'user');
-        mine.href = 'me/';
-        document.querySelector('.head-end').prepend(mine);
-      }
     }
   } else console.error(s.reason);
   if (docs.status === 'fulfilled') people = mergeProfiles(data.people, docs.value);
