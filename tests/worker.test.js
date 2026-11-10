@@ -29,7 +29,9 @@ function kv() {
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...headers } });
 
 test.before(async () => {
-  W = await import(pathToFileURL(path.join(__dirname, '..', 'worker', 'worker.js')).href);
+  const mod = await import(pathToFileURL(path.join(__dirname, '..', 'worker', 'worker.js')).href);
+  assert.deepEqual(Object.keys(mod), ['default']); // Workers 런타임은 다른 export가 있으면 시작하지 않음
+  W = { ...mod.default, default: mod.default };
   keys = await crypto.subtle.generateKey({ name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
   jwk = { ...(await crypto.subtle.exportKey('jwk', keys.publicKey)), kid: 'k1', use: 'sig', alg: 'RS256' };
   globalThis.fetch = async (url, opts = {}) => {

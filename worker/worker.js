@@ -15,13 +15,13 @@
 const PROJECT = 'knumed-lounge';
 const ORIGINS = ['https://kkonoo.github.io', 'http://localhost:8767'];
 const MODEL = 'claude-opus-5-5';
-export const LIMITS = { perUser: 20, all: 300 }; // 하루 (한국 시간)
+const LIMITS = { perUser: 20, all: 300 }; // 하루 (한국 시간)
 const PHOTO_MAX = 6, PHOTO_CHARS = 4_000_000; // 사진 수, 사진 한 장 base64 글자 수 (화면이 긴 쪽 2000px로 줄여 보냄)
 const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const KEY = 'anthropic-key';
 
 // ---------- 메뉴판 읽기: Claude에게 보내는 글과 받을 모양 (장난감 상자 주문 모으기와 같음) ----------
-export const MENU_PROMPT = `이 사진은 카페나 식당의 메뉴판이에요. 주문할 수 있는 메뉴를 모두 뽑아 items에 넣어 주세요.
+const MENU_PROMPT = `이 사진은 카페나 식당의 메뉴판이에요. 주문할 수 있는 메뉴를 모두 뽑아 items에 넣어 주세요.
 - 메뉴판에 보이는 순서대로, 같은 메뉴는 한 번만
 - name은 메뉴판에 적힌 이름 그대로. 한국어와 영어가 같이 적혀 있으면 한국어 이름만
 - 가격, 용량, 설명, HOT/ICE 표시, 분류 제목(예: COFFEE, 음료, 디저트)은 name에 넣지 않기
@@ -31,7 +31,7 @@ export const MENU_PROMPT = `이 사진은 카페나 식당의 메뉴판이에요
   - hot: HOT ONLY, 따뜻한 것만처럼 따뜻하게만 된다고 적혀 있거나, HOT에만 가격이 있는 음료
   - none: 표시 없이 원래 차갑게만 마시는 에이드·스무디·프라페·주스, 이름에 이미 아이스·핫이 들어간 음료, 디저트·음식
 - 메뉴판이 아니거나 읽을 수 있는 메뉴가 없으면 빈 목록`;
-export const MENU_SCHEMA = {
+const MENU_SCHEMA = {
   type: 'object',
   properties: {
     items: {
@@ -66,7 +66,7 @@ async function googleKeys() {
   return jwks.keys;
 }
 
-export async function verifyIdToken(token, projectId, getKeys = googleKeys, now = Date.now() / 1000) {
+async function verifyIdToken(token, projectId, getKeys = googleKeys, now = Date.now() / 1000) {
   const bad = new Fail(401, '다시 로그인해 주세요');
   const parts = String(token || '').split('.');
   if (parts.length !== 3) throw bad;
@@ -107,7 +107,7 @@ async function who(req, projectId) {
 }
 
 // ---------- 하루 한도 (한국 시간 날짜) ----------
-export const today = (now = Date.now()) => new Date(now + 9 * 3600e3).toISOString().slice(0, 10);
+const today = (now = Date.now()) => new Date(now + 9 * 3600e3).toISOString().slice(0, 10);
 async function used(kv, uid) {
   const d = today();
   const [mine, all] = await Promise.all([kv.get(`use:${d}:${uid}`), kv.get(`use:${d}:all`)]);
@@ -152,7 +152,7 @@ async function askMenu(apiKey, images) {
   return menuItems(body.content?.filter(b => b.type === 'text').at(-1)?.text || '');
 }
 // Claude 답 → 메뉴 목록 (모양이 다른 것은 빼고)
-export function menuItems(text) {
+function menuItems(text) {
   try {
     const items = JSON.parse(text)?.items;
     if (!Array.isArray(items)) return [];
@@ -231,4 +231,6 @@ export default {
       return reply(500, { error: '잠시 문제가 생겼어요. 다시 해 주세요' });
     }
   },
+  // 검사용 (tests/worker.test.js). Workers 런타임은 default 말고 다른 export(글자·객체)가 있으면 시작하지 않아서 여기에 둠
+  LIMITS, MENU_PROMPT, MENU_SCHEMA, verifyIdToken, today, menuItems,
 };

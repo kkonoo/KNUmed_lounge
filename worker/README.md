@@ -16,14 +16,14 @@
 
 ## 처음 배포 (한 번)
 
-Cloudflare 무료 요금제로 돼요.
+Cloudflare 무료 요금제로 돼요. Worker를 GitHub 저장소에 이어 두면, main에 올릴 때마다 Cloudflare가 저장소 맨 위의 `wrangler.jsonc`를 보고 `worker/worker.js`를 저절로 배포해요. 대시보드에 코드를 붙여 넣지 않아요.
 
 1. [Cloudflare 대시보드](https://dash.cloudflare.com)에 가입하고 로그인해요.
-2. **Storage & Databases › KV › Create**에서 이름을 `lounge`로 만들어요.
-3. **Workers & Pages › Create › Worker**에서 이름을 `knumed-lounge`로 정하고 **Deploy**를 눌러요.
-4. **Edit code**를 누르고, 처음 들어 있는 코드를 지운 뒤 이 폴더의 `worker.js`를 통째로 붙여 넣고 **Deploy**를 눌러요.
-5. 그 Worker의 **Settings › Bindings › Add › KV namespace**에서 Variable name은 `LOUNGE`, KV namespace는 `lounge`로 정해 저장해요.
-6. Worker 주소(`https://knumed-lounge.<계정 이름>.workers.dev`)를 복사해요. 저장소의 `js/worker-config.js`에서 `WORKER_URL`에 넣고 커밋해요. Claude에게 주소만 알려 줘도 돼요.
+2. **Workers & Pages › Create › Import a repository**에서 이 저장소를 고르고, 이름을 `knumed-lounge`로 정해 **Deploy**를 눌러요. 이때는 아직 사이트 파일만 올라가요.
+3. **Storage & databases › Workers KV › Create**에서 이름을 `lounge`로 만들고, 그 **ID**를 복사해요.
+4. 저장소 맨 위 `wrangler.jsonc`의 `kv_namespaces`에 그 ID를 넣고 main에 올려요. Claude에게 ID만 알려 줘도 돼요. KV ID는 비밀 값이 아니에요(계정에 로그인해야 쓸 수 있어요).
+5. 올리면 Worker의 **Deployments**에 새 배포가 생겨요. 끝나면 주소(`https://knumed-lounge.<계정 하위 도메인>.workers.dev`)가 켜져요(`workers_dev: true`).
+6. 그 주소를 `js/worker-config.js`의 `WORKER_URL`에 넣고 커밋해요. 이 주소는 사이트 코드에 그대로 보여요.
 7. 사이트의 **관리자 › Claude 키**에서 키를 넣어요.
    - 키는 [Claude Console](https://console.anthropic.com)에서 만들어요.
    - 크레딧은 Claude 구독과 따로 그곳에서 충전해요.
@@ -31,8 +31,9 @@ Cloudflare 무료 요금제로 돼요.
 
 ## 고칠 때
 
-- `worker.js`를 고치면 4번처럼 다시 붙여 넣고 **Deploy**를 눌러요.
+- `worker.js`를 고쳐 main에 올리면 저절로 다시 배포돼요. 결과는 Worker의 **Deployments**에서 봐요.
 - 확인: 저장소 맨 위에서 `node --test`를 돌려요. `tests/worker.test.js`가 Cloudflare 없이 토큰 확인, 관리자 키, 메뉴판 읽기 요청 모양, 하루 한도를 봐요.
+- `worker.js`는 `export default` 하나만 내보내요. Workers 런타임은 다른 export(글자·객체)가 있으면 시작하지 않아요. 검사에 쓰는 값은 default 안에 둬요(검사가 확인해요).
 - 다른 주소에서 부르려면 `worker.js`의 `ORIGINS`에 더하거나, Worker의 **Settings › Variables**에 `ALLOWED_ORIGINS`(쉼표로 나눔)를 넣어요.
 
 ## 아직 안 하는 것
