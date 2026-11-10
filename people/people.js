@@ -258,7 +258,7 @@
       try { myPid = await profileDb.myId(S.user.email); } catch (e) { console.error(e); }
     }
   } else console.error(s.reason);
-  if (docs.status === 'fulfilled') people = mergeProfiles(data.people, docs.value);
+  if (docs.status === 'fulfilled') people = mergeProfiles(data.people, docs.value, data.photos);
   else console.error(docs.reason);
   route();
 })();

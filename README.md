@@ -77,6 +77,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
   - 사이트 코드는 그대로 두고 검사할 때만 설정을 가짜 프로젝트(`demo-lounge`)로 바꿔서, 실제 Firebase에는 닿지 않아요. 이름·메일은 모두 가짜예요.
   - `firestore.rules`를 고치면 이 검사를 돌리고, Firebase 콘솔 › Firestore › 규칙에 다시 붙여 넣어요.
 - 연구 소개 다시 만들기: 이름북 저장소를 받아 두고 `python3 pipeline/from_namebook.py ../Biomed_KNUmed` (Pillow 필요). 이미 있는 분은 같은 번호를 그대로 써요.
+- 이름북에 없는 분 사진: `python3 pipeline/school_photos.py`. 공개 프로필을 학교 홈페이지 교수소개와 이름·교실로 맞춰 사진만 가져와요. 교수님을 새로 더한 뒤 다시 돌려요.
 - 앱 아이콘 다시 그리기: `icons/icon.svg`를 고치고 `python3 tools/make-icons.py` (Playwright 필요).
 - 화면 아이콘 더하기: `tools/make-icon-set.py`의 `NAMES`에 Lucide 이름을 넣고, `npm i lucide-static` 한 폴더의 `node_modules/lucide-static/icons`를 넘겨 다시 돌려요.
 - 화면 파일을 더하면 `sw.js`의 `SHELL`에도 적어요(오프라인).
@@ -104,6 +105,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 | `manifest.webmanifest` · `sw.js` · `icons/` | 앱 설치·오프라인·아이콘 |
 | `data/people.json` · `photos/` | 연구 소개 데이터와 사진 |
 | `pipeline/from_namebook.py` | 이름북 → 연구 소개 데이터 |
+| `pipeline/school_photos.py` | 이름북에 없는 분 사진 (학교 홈페이지 교수소개) |
 | `tools/serve.ps1` · `tools/make-icons.py` · `tools/make-icon-set.py` | 로컬 서버 · 앱 아이콘 그리기 · 화면 아이콘 모으기 |
 | `worker/` | Cloudflare Worker: `worker.js`(메뉴판 읽기 · 관리자 Claude 키), 배포 안내 `README.md` |
 | `js/worker-config.js` | Worker 주소 (배포한 뒤 넣음, 비어 있으면 사진 읽기 단추가 안 보임) |

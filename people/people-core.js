@@ -74,12 +74,13 @@ const isUrl = s => /^https?:\/\/\S+$/.test(s);
 
 // 공개 목록: 이름북(people.json) 위에 Firestore 프로필을 얹음
 //   본인이 저장했으면(confirmedAt) 그 내용 · 아직이면 이름북 소개, 이름북에도 없으면 이름·교실만(status 'listed') · 숨김이면 빼기
-function mergeProfiles(base, docs) {
+//   photos: 이름북에 없는 분의 사진 { 번호: 'photos/번호.jpg' } (people.json의 photos, 학교 홈페이지 교수소개에서)
+function mergeProfiles(base, docs, photos = {}) {
   const out = new Map(base.map(p => [p.id, p]));
   for (const d of docs) {
     const old = out.get(d.id);
     if (d.hidden) { out.delete(d.id); continue; }
-    const head = { id: d.id, name: d.name, dept: d.dept || old?.dept || '', group: d.group || '기초', rank: d.rank || old?.rank || '', photo: old?.photo || '' };
+    const head = { id: d.id, name: d.name, dept: d.dept || old?.dept || '', group: d.group || '기초', rank: d.rank || old?.rank || '', photo: old?.photo || photos[d.id] || '' };
     if (d.confirmedAt) {
       out.set(d.id, {
         ...head, line: d.line || '', question: d.question || '', keywords: d.keywords || [], topics: d.topics || [],

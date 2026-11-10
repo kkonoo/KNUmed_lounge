@@ -32,9 +32,11 @@ def main(namebook):
     profs = json.loads((nb / 'data' / 'profs.json').read_text(encoding='utf-8'))['profs']
     quiz = json.loads((nb / 'data' / 'quiz.json').read_text(encoding='utf-8'))
 
-    old = {}
+    old, photos = {}, {}
     if OUT.exists():
-        for p in json.loads(OUT.read_text(encoding='utf-8'))['people']:
+        prev = json.loads(OUT.read_text(encoding='utf-8'))
+        photos = prev.get('photos', {})  # 이름북에 없는 분 사진 (pipeline/school_photos.py)
+        for p in prev['people']:
             old[(p['name'], p['dept'])] = p['id']
     taken = set(old.values())
 
@@ -78,6 +80,7 @@ def main(namebook):
         },
         'topics': [{'key': k, 'emoji': e, 'label': label} for k, e, label in quiz['topics']],
         'people': people,
+        'photos': photos,
     }
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1) + '\n', encoding='utf-8')
