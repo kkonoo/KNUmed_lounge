@@ -337,5 +337,7 @@ test('PIN 초기화: 관리자만, 명단에 있고 가입한 분만, 서비스 
     const bad = await reset('admin', 'kim@example.com');
     assert.equal(bad.status, 502);
     assert.equal(bad.body.error, 'PIN을 바꾸지 못했어요 (update 400 PASSWORD_DOES_NOT_MEET_REQUIREMENTS)');
+    state.authFail = { lookup: 'INSUFFICIENT_PERMISSION' }; // 서비스 계정에 역할이 없음
+    assert.match((await reset('admin', 'kim@example.com')).body.error, /Firebase Authentication Admin 역할이 없어요.*INSUFFICIENT_PERMISSION/);
   } finally { console.error = err; state.authFail = null; }
 });

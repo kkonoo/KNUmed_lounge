@@ -40,7 +40,8 @@ Cloudflare 무료 요금제로 돼요. Worker를 GitHub 저장소에 이어 두�
 
 1. [Google Cloud 콘솔 › 서비스 계정](https://console.cloud.google.com/iam-admin/serviceaccounts?project=knumed-lounge)에서 **서비스 계정 만들기**를 눌러요.
    - 이름: `lounge-pin-reset`
-   - 역할: **Firebase Authentication Admin** (역할 ID `roles/firebaseauth.admin`)
+   - 역할: **Firebase Authentication Admin** (역할 ID `roles/firebaseauth.admin`). 만들기 두 번째 단계 '프로젝트 액세스 권한 부여'는 선택사항으로 나와서 건너뛰기 쉬워요. 꼭 골라요.
+   - 건너뛰었으면 [IAM](https://console.cloud.google.com/iam-admin/iam?project=knumed-lounge) › **액세스 권한 부여**에서 새 주 구성원에 서비스 계정 메일(`lounge-pin-reset@knumed-lounge.iam.gserviceaccount.com`)을 넣고 같은 역할을 골라요. 키는 다시 만들 필요 없어요. 역할이 없으면 PIN 초기화가 `lookup 400 INSUFFICIENT_PERMISSION`으로 막혀요.
 2. 만든 계정을 열고 **키 › 키 추가 › 새 키 만들기 › JSON**을 눌러요. JSON 파일이 내려받아져요.
 3. [Cloudflare 대시보드](https://dash.cloudflare.com) › **Workers & Pages › `knumed-lounge` › Settings › Variables and Secrets › Add**에서 넣어요.
    - Type: **Secret**

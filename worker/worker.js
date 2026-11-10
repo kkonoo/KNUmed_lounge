@@ -171,7 +171,9 @@ async function resetPin(projectId, sa, email) {
     // Google이 준 이유(예: CONFIGURATION_NOT_FOUND)를 같이 보여 줘요. 메일·키는 들어 있지 않아요. 전체는 Workers 로그에
     const why = String((await res.json().catch(() => null))?.error?.message || '').slice(0, 160);
     console.error('identitytoolkit', what, res.status, why);
-    if (res.status === 403) throw new Fail(502, `서비스 계정에 Firebase Authentication 관리 권한이 없어요. worker/README.md를 봐 주세요 (${why || 403})`);
+    if (res.status === 403 || /PERMISSION/.test(why)) { // 역할이 없으면 Identity Toolkit은 400 INSUFFICIENT_PERMISSION으로 답해요
+      throw new Fail(502, `서비스 계정에 Firebase Authentication Admin 역할이 없어요. Google Cloud 콘솔 IAM에서 역할을 붙여 주세요 (${why || 403})`);
+    }
     throw new Fail(502, `PIN을 바꾸지 못했어요 (${what} ${res.status}${why ? ` ${why}` : ''})`);
   };
   const uid = (await auth('lookup', { email: [email] })).users?.[0]?.localId;
