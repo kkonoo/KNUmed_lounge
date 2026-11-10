@@ -16,13 +16,14 @@ async function shrinkPhoto(file) {
   return url.slice(url.indexOf(',') + 1); // base64만
 }
 
-// getText·setText: 메뉴 칸 글을 읽고 바꾸는 함수. 돌려주는 것: 단추와 안내 한 줄이 든 칸 (또는 null)
+// getText·setText: 메뉴 칸 글을 읽고 바꾸는 함수. 돌려주는 것: 단추와 결과 한 줄이 든 칸 (또는 null)
 function menuPhotoButton(getText, setText) {
   if (typeof WORKER_URL === 'undefined' || !WORKER_URL) return null;
   const box = h('div', 'photo-read');
   const input = h('input');
   Object.assign(input, { type: 'file', accept: 'image/*', multiple: true, hidden: true });
-  const note = h('p', 'hint', '사진은 메뉴 이름을 읽는 데만 Claude(Anthropic)로 보내고 저장하지 않아요.');
+  const note = h('p', 'hint'); // 읽은 결과·오류 한 줄 (처음엔 숨김)
+  note.hidden = true;
   const btn = withIcon(button('메뉴판 사진으로 읽기', () => input.click(), 'btn small'), 'camera');
   input.addEventListener('change', async () => {
     const all = [...input.files], files = all.slice(0, PHOTO_MAX);
@@ -30,6 +31,7 @@ function menuPhotoButton(getText, setText) {
     if (!files.length) return;
     if (all.length > PHOTO_MAX) toast(`사진은 한 번에 ${PHOTO_MAX}장까지 읽어요`);
     note.className = 'hint';
+    note.hidden = true;
     const label = btn.lastChild, was = label.textContent;
     btn.disabled = true;
     label.textContent = '메뉴판 읽는 중…';
@@ -38,10 +40,12 @@ function menuPhotoButton(getText, setText) {
       const before = parseMenu(getText()).length, after = addNames(getText(), items || []);
       setText(after);
       const added = parseMenu(after).length - before;
+      note.hidden = false;
       note.textContent = !items?.length ? '메뉴를 찾지 못했어요. 메뉴판이 잘 보이게 다시 찍어 보세요.'
         : added ? `메뉴 ${added}개를 넣었어요. 틀린 이름은 고쳐 주세요.` : '읽은 메뉴가 이미 다 있어요.';
     } catch (e) {
       note.textContent = e.message;
+      note.hidden = false;
       note.className = 'hint err';
     } finally {
       btn.disabled = false;

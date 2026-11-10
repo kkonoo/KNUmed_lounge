@@ -6,7 +6,7 @@
  "topics": [
   {
    "key": "cancer",
-   "emoji": "🎗",
+   "emoji": "🎗️",
    "label": "암"
   },
   {
@@ -16,7 +16,7 @@
   },
   {
    "key": "immune",
-   "emoji": "🛡",
+   "emoji": "🛡️",
    "label": "면역·염증·알레르기"
   },
   {
@@ -41,7 +41,7 @@
   },
   {
    "key": "sense",
-   "emoji": "👁",
+   "emoji": "👁️",
    "label": "눈·귀"
   }
  ],

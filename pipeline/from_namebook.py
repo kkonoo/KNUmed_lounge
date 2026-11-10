@@ -27,6 +27,14 @@ def new_id(taken):
             return pid
 
 
+# 글자 모양(선)으로 그려지기 쉬운 이모지(🎗 🛡 👁)는 이모지 표시(U+FE0F)를 붙여 다른 주제처럼 색 이모지로
+TEXT_STYLE = {'\U0001F397', '\U0001F6E1', '\U0001F441'}
+
+
+def emoji(e):
+    return e + '\ufe0f' if e in TEXT_STYLE else e
+
+
 def main(namebook):
     nb = Path(namebook) / 'namebook'
     profs = json.loads((nb / 'data' / 'profs.json').read_text(encoding='utf-8'))['profs']
@@ -78,7 +86,7 @@ def main(namebook):
             'from': 'Biomed_KNUmed namebook (의과학과 교수진 소개, 학부생용)',
             'note': '공개 파일이에요. 메일·연락처를 넣지 않아요.',
         },
-        'topics': [{'key': k, 'emoji': e, 'label': label} for k, e, label in quiz['topics']],
+        'topics': [{'key': k, 'emoji': emoji(e), 'label': label} for k, e, label in quiz['topics']],
         'people': people,
         'photos': photos,
     }
