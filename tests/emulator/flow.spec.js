@@ -232,6 +232,15 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('#boardFoot', { hasText: '새 글 1' }).waitFor();
     await A.goto(`${site.url}board/`);
     await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).locator('.badge.new').waitFor();
+    await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).locator('.badge.cat', { hasText: '기타' }).waitFor(); // 말머리는 처음에 기타
+    const chips = A.locator('.board-cats');
+    await chips.getByRole('button', { name: '번개' }).click();
+    await A.waitForURL(/#cat=meet$/);
+    await A.getByText('아직 번개 글이 없어요.').waitFor();
+    await chips.getByRole('button', { name: '기타' }).click();
+    await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).waitFor();
+    await chips.getByRole('button', { name: '기타' }).click(); // 한 번 더 누르면 전체
+    await chips.getByRole('button', { name: '전체', pressed: true }).waitFor();
     await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).click();
     await A.getByLabel('댓글').fill('저요');
     await A.getByRole('button', { name: '달기' }).click();
@@ -245,9 +254,11 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
 
     await P.getByRole('button', { name: '고치기' }).click();
     await P.getByLabel('제목').fill('원심분리기 나눠요 (끝)');
+    await P.locator('dialog .seg').getByRole('button', { name: '소식' }).click();
     await P.getByRole('button', { name: '저장' }).click();
     await toast(P, '고쳤어요');
     await P.getByRole('heading', { name: '원심분리기 나눠요 (끝)' }).waitFor();
+    await P.locator('.post h2 .badge.cat', { hasText: '소식' }).waitFor();
     await P.locator('.post-meta', { hasText: '고침' }).waitFor();
     await P.locator('.post .form-actions').getByRole('button', { name: '지우기' }).click();
     await toast(P, '지웠어요');
@@ -272,6 +283,9 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.waitForURL(/#page=2$/);
     await A.locator('.post-list.pinned .post-item', { hasText: '가짜 글 3' }).getByText('공지').waitFor();
     assert.equal(await A.locator('.post-list:not(.pinned) .post-item').count(), 4); // 공지는 페이지에서 빠짐
+    await A.evaluate(() => { location.hash = 'cat=etc'; }); // 말머리 전에 쓴 글은 전체에서만, 공지는 늘 맨 위
+    await A.getByText('아직 기타 글이 없어요.').waitFor();
+    await A.locator('.post-list.pinned .post-item', { hasText: '가짜 글 3' }).waitFor();
     await P.goto(`${site.url}board/`);
     await P.locator('.post-list.pinned .post-item', { hasText: '가짜 글 3' }).waitFor(); // 교수님 화면에도 맨 위
     assert.equal(await P.getByRole('button', { name: '공지로 올리기' }).count(), 0);

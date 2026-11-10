@@ -276,6 +276,18 @@ test('게시판: 회원만 읽고 씀, 이름은 회원 이름 그대로', async
   await assertFails(addDoc(collection(as(PROF), 'posts'), noEdited));
 });
 
+test('게시판 말머리: 넷 중 하나이거나 없음(예전 글), 글쓴이만 바꿈, 말머리로 거르기', async () => {
+  await withPost(); // p1은 말머리 없는 예전 글
+  for (const cat of ['news', 'meet', 'daily', 'etc']) await assertSucceeds(addDoc(collection(as(PROF), 'posts'), post(PROF, { cat })));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { cat: 'free' })));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { cat: 1 })));
+  await assertSucceeds(updateDoc(doc(as(PROF), 'posts/p1'), { title: '장비 나눔', body: '나눠요', cat: 'etc', editedAt: serverTimestamp() })); // 예전 글에 붙이기
+  await assertSucceeds(updateDoc(doc(as(PROF), 'posts/p1'), { title: '장비 나눔', body: '나눠요', cat: 'news', editedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(as(PROF), 'posts/p1'), { title: '장비 나눔', body: '나눠요', cat: 'free', editedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(as(ADMIN), 'posts/p1'), { cat: 'meet' })); // 관리자는 공지만
+  await assertSucceeds(getDocs(query(collection(as(PROF), 'posts'), where('cat', '==', 'meet'), orderBy('at', 'desc'), limit(25))));
+});
+
 test('게시판: 고치기는 쓴 사람만, 제목·내용만', async () => {
   await withPost();
   await assertSucceeds(updateDoc(doc(as(PROF), 'posts/p1'), { title: '장비 나눔 (끝)', body: '가져가셨어요', editedAt: serverTimestamp() }));

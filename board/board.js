@@ -1,12 +1,12 @@
 'use strict';
-// 자유 게시판 화면: 글 목록(#, #page=2 …, 맨 위에 공지) · 글 하나와 댓글(#p=글번호) · 글쓰기·고치기 창
+// 자유 게시판 화면: 글 목록(#, #page=2, #cat=meet&page=2 …, 맨 위에 공지, 말머리로 거르기) · 글 하나와 댓글(#p=글번호) · 글쓰기·고치기 창
 // 데이터는 board-db.js, 계산은 board-core.js, 입력 부품은 js/form.js
 // 회원만 봐요. 공동연구 찾기(AI)의 문맥에는 넣지 않아요
 
 const app = $('app');
 const seen = store('board', { seen: 0 }); // 이 기기 localStorage 'lounge-board': 목록에서 본 가장 새 글 시각 (홈의 '새 글' 수)
 const back = document.querySelector('.topbar a.icon-btn');
-let S = null, me = null, posts = [], pinned = [], total = 0, page = 1, counts = {}, lastSeen = 0, fromList = false;
+let S = null, me = null, posts = [], pinned = [], total = 0, page = 1, cat = '', counts = {}, lastSeen = 0, fromList = false;
 let stopList = null, view = 0, stops = [];
 
 const fail = (msg, e) => { console.error(e); toast(`${msg}: ${authMessage(e)}`, 3500); };
@@ -35,22 +35,22 @@ async function start() {
   back.addEventListener('click', e => { if (postId()) { e.preventDefault(); toList(); } });
   addEventListener('hashchange', route);
   boardDb.watchPinned(list => { pinned = list; if (!postId()) { renderList(); loadCounts(false); } }, e => fail('공지를 읽지 못했어요', e));
-  page = readPage(location.hash);
+  ({ page, cat } = readList(location.hash));
   listen();
   route();
 }
 
-// 지금 페이지까지의 글을 지켜봄 (공지는 따로 빼고 셈). 글이 바뀌면 글 수도 다시 셈 (페이지 번호)
+// 지금 페이지까지의 글을 지켜봄 (공지는 따로 빼고 셈, 말머리를 고르면 그 글만). 글이 바뀌면 글 수도 다시 셈 (페이지 번호)
 function listen() {
   stopList?.();
   stopList = null;
-  const p = page;
-  boardDb.watchPosts(p * BOARD_PAGE + pinned.length + 5, list => {
-    if (p !== page) return;
+  const p = page, c = cat, now = () => p === page && c === cat;
+  boardDb.watchPosts(p * BOARD_PAGE + pinned.length + 5, c, list => {
+    if (!now()) return;
     posts = list;
-    boardDb.count().then(n => { total = n; if (!postId()) renderList(); }).catch(e => console.error(e));
+    boardDb.count(c).then(n => { if (!now()) return; total = n; if (!postId()) renderList(); }).catch(e => console.error(e));
     if (!postId()) { renderList(); loadCounts(false); }
-  }, e => fail('글을 읽지 못했어요', e)).then(s => { if (p === page) stopList = s; else s(); });
+  }, e => fail('글을 읽지 못했어요', e)).then(s => { if (now()) stopList = s; else s(); });
 }
 
 function route() {
@@ -62,8 +62,9 @@ function route() {
   back.setAttribute('aria-label', back.title);
   if (id) return showPost(id);
   fromList = false;
-  const p = readPage(location.hash);
-  if (p !== page) { page = p; listen(); scrollTo(0, 0); }
+  const l = readList(location.hash);
+  if (l.cat !== cat) { posts = null; total = 0; } // 다른 말머리 글이 오기 전까지 '불러오는 중'
+  if (l.page !== page || l.cat !== cat) { ({ page, cat } = l); listen(); scrollTo(0, 0); }
   renderList();
   loadCounts(true);
 }
@@ -75,7 +76,7 @@ function toList() {
 }
 
 // ---------- 목록 ----------
-const shownPosts = () => [...pinned, ...pagePosts(posts, page)];
+const shownPosts = () => [...pinned, ...pagePosts(posts || [], page)];
 async function loadCounts(all) {
   const ids = shownPosts().map(p => p.id).filter(id => all || !(id in counts));
   if (!ids.length) return;
@@ -83,13 +84,14 @@ async function loadCounts(all) {
   if (!postId()) renderList();
 }
 
-// 목록 한 줄: [공지] [새] 제목 / 글쓴이 · 시각 · 댓글 수
+// 목록 한 줄: [공지] [말머리] [새] 제목 / 글쓴이 · 시각 · 댓글 수
 function postItem(p) {
   const a = h('a', 'post-item');
   a.href = `#p=${p.id}`;
   a.addEventListener('click', () => { fromList = true; });
   const title = h('span', 'pi-title', p.title);
   if (p.at > lastSeen && !isMine(p)) title.prepend(h('span', 'badge new', '새'));
+  if (catLabel(p.cat)) title.prepend(h('span', 'badge cat', catLabel(p.cat)));
   if (p.pinned) title.prepend(h('span', 'badge notice', '공지'));
   const meta = h('span', 'pi-meta', `${p.name} · ${fmtWhen(p.at)}`);
   if (counts[p.id]) {
@@ -104,27 +106,42 @@ function postItem(p) {
   return li;
 }
 
+// 공지는 말머리를 골라도 늘 맨 위에 보여요
 function renderList() {
   if (!S) return;
-  const list = pagePosts(posts, page);
-  if (!list.length && !pinned.length) {
-    app.replaceChildren(h('p', 'empty-note', page > 1 ? '이 페이지에는 글이 없어요.' : '아직 글이 없어요. 위의 글쓰기로 처음 글을 올려 주세요.'));
-    return;
-  }
-  const nodes = [];
+  const nodes = [catChips()];
   if (pinned.length) { const ul = h('ul', 'post-list pinned'); ul.append(...pinned.map(postItem)); nodes.push(ul); }
+  if (!posts) { nodes.push(h('p', 'hint', '불러오는 중…')); app.replaceChildren(...nodes); return; }
+  const list = pagePosts(posts, page);
   if (list.length) { const ul = h('ul', 'post-list'); ul.append(...list.map(postItem)); nodes.push(ul); }
-  const pages = pageCount(total, pinned.length);
+  else if (cat || !pinned.length) {
+    nodes.push(h('p', 'empty-note', page > 1 ? '이 페이지에는 글이 없어요.' : cat ? `아직 ${catLabel(cat)} 글이 없어요.` : '아직 글이 없어요. 위의 글쓰기로 처음 글을 올려 주세요.'));
+  }
+  const pages = pageCount(total, cat ? pinned.filter(p => p.cat === cat).length : pinned.length);
   if (pages > 1) nodes.push(pager(pages));
   app.replaceChildren(...nodes);
+  if (cat) return; // 홈의 '새 글' 수는 전체 목록을 봤을 때만 줄여요 (거른 목록은 다른 말머리 새 글을 못 봐서)
   const newest = Math.max(0, ...shownPosts().map(p => p.at || 0));
   if (newest > seen.get().seen) seen.set({ seen: newest });
+}
+// 말머리 거르기: 전체 · 소식 · 번개 · 일상 · 기타. 고른 칩을 한 번 더 누르면 전체로 (주소 #cat=…에 남음)
+function catChips() {
+  const row = h('div', 'pills board-cats');
+  row.setAttribute('aria-label', '말머리');
+  const chip = (k, label) => {
+    const on = cat === k;
+    const b = button(label, () => { location.hash = writeList({ cat: on ? '' : k }); }, on ? 'on' : '');
+    b.setAttribute('aria-pressed', String(on));
+    return b;
+  };
+  row.append(chip('', '전체'), ...BOARD_CATS.map(([k, label]) => chip(k, label)));
+  return row;
 }
 // 페이지 번호: ‹ 1 2 3 4 5 › (주소 #page=N에 남아서 글을 보고 돌아와도 그 페이지)
 function pager(pages) {
   const nav = h('nav', 'pager');
   nav.setAttribute('aria-label', '페이지');
-  const go = n => { location.hash = n > 1 ? `page=${n}` : ''; };
+  const go = n => { location.hash = writeList({ cat, page: n }); };
   const step = (label, n, name) => { const b = button(label, () => go(n), 'btn small'); b.disabled = n < 1 || n > pages; b.setAttribute('aria-label', name); return b; };
   nav.append(step('‹', page - 1, '앞 페이지'));
   for (const n of pageNumbers(page, pages)) {
@@ -168,7 +185,7 @@ function showPost(id) {
   keep(v, boardDb.watchPost(id, p => {
     if (!p) { app.replaceChildren(h('p', 'empty-note', '지워졌거나 없는 글이에요.')); return; }
     if (!art.isConnected) app.replaceChildren(art, sec);
-    title.replaceChildren(...(p.pinned ? [h('span', 'badge notice', '공지'), ' '] : []), p.title);
+    title.replaceChildren(...(p.pinned ? [h('span', 'badge notice', '공지'), ' '] : []), ...(catLabel(p.cat) ? [h('span', 'badge cat', catLabel(p.cat)), ' '] : []), p.title);
     meta.textContent = [p.name, fmtWhen(p.at), p.editedAt ? '고침' : ''].filter(Boolean).join(' · ');
     body.replaceChildren(...linkNodes(p.body));
     acts.replaceChildren();
@@ -233,23 +250,31 @@ function openForm(p) {
   Object.assign(body, { rows: 8, maxLength: POST_MAX.body, value: p?.body || '' });
   const save = h('button', 'btn primary', p ? '저장' : '올리기');
   save.type = 'submit';
+  // 말머리: 넷 중 하나 (처음엔 기타, 말머리 전에 쓴 글을 고칠 때도 기타)
+  const cat0 = catLabel(p?.cat) ? p.cat : BOARD_CAT_DEFAULT;
+  let pick = cat0;
+  const seg = h('div', 'seg wide');
+  const segBtns = BOARD_CATS.map(([k, label]) => button(label, () => { pick = k; paintSeg(); }, ''));
+  const paintSeg = () => segBtns.forEach((b, i) => { const on = BOARD_CATS[i][0] === pick; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
+  seg.append(...segBtns);
+  paintSeg();
   const notice = h('input');
   notice.type = 'checkbox';
   const noticeRow = h('label', 'check');
   noticeRow.append(notice, '공지로 올리기 (목록 맨 위)');
   // 쓰던 글을 실수로 닫지 않게 (Esc·취소)
-  const dirty = () => title.value !== (p?.title || '') || body.value !== (p?.body || '');
+  const dirty = () => title.value !== (p?.title || '') || body.value !== (p?.body || '') || pick !== cat0;
   const leave = () => !dirty() || confirmBox('쓰던 글을 버릴까요?');
   const acts = h('div', 'form-actions');
   acts.append(save, button('취소', () => { if (leave()) dlg.close(); }, 'btn'));
   form.append(
     h('h2', '', p ? '글 고치기' : '글쓰기'),
     h('p', 'hint', '교수님들만 봐요. 미출판 결과, 환자 정보, 남의 연구에 대한 평가는 올리지 말아 주세요.'),
-    field('제목', title), field('내용', body), ...(!p && S.isAdmin ? [noticeRow] : []), msg, acts,
+    block('말머리', seg), field('제목', title), field('내용', body), ...(!p && S.isAdmin ? [noticeRow] : []), msg, acts,
   );
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const d = { title: title.value, body: body.value };
+    const d = { title: title.value, body: body.value, cat: pick };
     say(msg, postProblem(d));
     if (!msg.hidden) return;
     try {

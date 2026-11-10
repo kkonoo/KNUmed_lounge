@@ -49,8 +49,24 @@ test('목록 페이지: 공지는 빼고 20개씩, 번호 단추는 가운데에
   assert.deepEqual(B.pageNumbers(6, 12), [4, 5, 6, 7, 8]);
   assert.deepEqual(B.pageNumbers(12, 12), [8, 9, 10, 11, 12]);
   assert.deepEqual(B.pageNumbers(1, 12), [1, 2, 3, 4, 5]);
-  assert.equal(B.readPage('#page=3'), 3);
-  assert.equal(B.readPage(''), 1);
-  assert.equal(B.readPage('#page=0'), 1);
-  assert.equal(B.readPage('#p=abc'), 1);
+  assert.deepEqual(B.readList('#page=3'), { cat: '', page: 3 });
+  assert.deepEqual(B.readList(''), { cat: '', page: 1 });
+  assert.deepEqual(B.readList('#page=0'), { cat: '', page: 1 });
+  assert.deepEqual(B.readList('#page=abc'), { cat: '', page: 1 });
+  assert.deepEqual(B.readList('#p=abc'), { cat: '', page: 1 });
+});
+
+test('말머리: 넷 중 하나, 주소에 남아요 (#cat=meet&page=2)', () => {
+  assert.deepEqual(B.BOARD_CATS.map(([, label]) => label), ['소식', '번개', '일상', '기타']);
+  assert.equal(B.catLabel(B.BOARD_CAT_DEFAULT), '기타');
+  assert.equal(B.catLabel('meet'), '번개');
+  assert.equal(B.catLabel(undefined), ''); // 말머리 전에 쓴 글
+  assert.equal(B.catLabel('toString'), '');
+  assert.deepEqual(B.readList('#cat=meet&page=2'), { cat: 'meet', page: 2 });
+  assert.deepEqual(B.readList('#cat=bad'), { cat: '', page: 1 });
+  assert.equal(B.writeList({ cat: 'meet', page: 2 }), '#cat=meet&page=2');
+  assert.equal(B.writeList({ cat: 'daily' }), '#cat=daily');
+  assert.equal(B.writeList({ page: 3 }), '#page=3');
+  assert.equal(B.writeList({ cat: '', page: 1 }), '');
+  for (const s of [{ cat: 'news', page: 4 }, { cat: '', page: 2 }]) assert.deepEqual(B.readList(B.writeList(s)), s);
 });

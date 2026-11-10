@@ -1,6 +1,13 @@
 'use strict';
 // 자유 게시판 계산 (화면 없음): board.js·홈이 쓰고, tests/board.test.js 가 Node에서 확인
-// 글 = { id, title, body, by, name, at: ms, editedAt: ms | null } · 댓글 = { id, body, by, name, at: ms }
+// 글 = { id, title, body, cat, by, name, at: ms, editedAt: ms | null } · 댓글 = { id, body, by, name, at: ms }
+
+// 말머리: 글마다 하나, 키로 저장 (이름을 바꿔도 글은 그대로). 글쓰기 창에서는 처음에 기타가 골라져 있어요
+//   말머리를 만들기 전에 쓴 글은 cat이 없어서 말머리 없이 전체에서만 보여요 (고쳐 저장하면 붙음)
+//   키 목록은 firestore.rules의 postOk와 같음
+const BOARD_CATS = [['news', '소식'], ['meet', '번개'], ['daily', '일상'], ['etc', '기타']];
+const BOARD_CAT_DEFAULT = 'etc';
+const catLabel = k => (BOARD_CATS.find(([c]) => c === k) || [])[1] || '';
 
 // 글자 수 한도 (firestore.rules와 같음)
 const POST_MAX = { title: 80, body: 4000, comment: 1000 };
@@ -53,5 +60,16 @@ function pageNumbers(cur, pages, span = 5) {
   const start = Math.max(1, Math.min(cur - Math.floor(span / 2), pages - span + 1));
   return Array.from({ length: Math.min(span, pages) }, (_, i) => start + i);
 }
-// 주소 # → 페이지 (#page=3). 없거나 이상하면 1
-const readPage = hash => Math.max(1, Number((/^#page=(\d{1,4})$/.exec(hash || '') || [])[1]) || 1);
+// 주소 # ↔ 목록 상태: 말머리와 페이지 (#cat=meet&page=2). 없거나 이상하면 전체·1페이지
+function readList(hash) {
+  const s = new URLSearchParams(String(hash || '').replace(/^#/, ''));
+  const page = /^\d{1,4}$/.test(s.get('page') || '') ? Math.max(1, Number(s.get('page'))) : 1;
+  return { cat: catLabel(s.get('cat')) ? s.get('cat') : '', page };
+}
+function writeList({ cat = '', page = 1 }) {
+  const s = new URLSearchParams();
+  if (cat) s.set('cat', cat);
+  if (page > 1) s.set('page', String(page));
+  const t = s.toString();
+  return t ? `#${t}` : '';
+}

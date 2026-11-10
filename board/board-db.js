@@ -6,10 +6,12 @@ const boardMs = t => (t ? t.toMillis() : null);
 const postOf = d => { const x = d.data({ serverTimestamps: 'estimate' }); return { id: d.id, ...x, at: boardMs(x.at), editedAt: boardMs(x.editedAt) }; };
 
 const boardDb = {
-  // 최근 글 n개(새것부터)를 지켜봄. 돌려준 함수로 그만 보기
-  async watchPosts(n, onPosts, onError) {
+  // 최근 글 n개(새것부터)를 지켜봄. cat을 주면 그 말머리 글만. 돌려준 함수로 그만 보기
+  //   말머리로 거르기는 Firestore 복합 색인(posts: cat 오름차순 + at 내림차순)이 있어야 돼요 (README '처음 쓸 때')
+  async watchPosts(n, cat, onPosts, onError) {
     const { F, db } = await fb();
-    return F.onSnapshot(F.query(F.collection(db, 'posts'), F.orderBy('at', 'desc'), F.limit(n)), s => onPosts(s.docs.map(postOf)), onError);
+    const by = cat ? [F.where('cat', '==', cat)] : [];
+    return F.onSnapshot(F.query(F.collection(db, 'posts'), ...by, F.orderBy('at', 'desc'), F.limit(n)), s => onPosts(s.docs.map(postOf)), onError);
   },
   // 공지 (많지 않아서 순서는 화면이 새것부터로)
   async watchPinned(onPosts, onError) {
@@ -17,10 +19,11 @@ const boardDb = {
     return F.onSnapshot(F.query(F.collection(db, 'posts'), F.where('pinned', '==', true)),
       s => onPosts(s.docs.map(postOf).sort((a, b) => (b.at || 0) - (a.at || 0))), onError);
   },
-  // 글 수 (페이지 번호용)
-  async count() {
+  // 글 수 (페이지 번호용). cat을 주면 그 말머리 글만
+  async count(cat) {
     const { F, db } = await fb();
-    return (await F.getCountFromServer(F.collection(db, 'posts'))).data().count;
+    const col = F.collection(db, 'posts');
+    return (await F.getCountFromServer(cat ? F.query(col, F.where('cat', '==', cat)) : col)).data().count;
   },
   async setPinned(id, pinned) {
     const { F, db } = await fb();
@@ -47,14 +50,14 @@ const boardDb = {
     return (await F.getDocs(q)).docs.map(postOf);
   },
 
-  async add({ title, body }, me, pinned = false) {
+  async add({ title, body, cat }, me, pinned = false) {
     const { F, db } = await fb();
-    const ref = await F.addDoc(F.collection(db, 'posts'), { title: title.trim(), body: body.trim(), by: me.uid, name: me.name, at: F.serverTimestamp(), editedAt: null, ...(pinned ? { pinned: true } : {}) }); // 공지일 때만 칸을 씀 (예전 규칙에서도 보통 글은 올라가게)
+    const ref = await F.addDoc(F.collection(db, 'posts'), { title: title.trim(), body: body.trim(), cat, by: me.uid, name: me.name, at: F.serverTimestamp(), editedAt: null, ...(pinned ? { pinned: true } : {}) }); // 공지일 때만 칸을 씀 (예전 규칙에서도 보통 글은 올라가게)
     return ref.id;
   },
-  async edit(id, { title, body }) {
+  async edit(id, { title, body, cat }) {
     const { F, db } = await fb();
-    await F.updateDoc(F.doc(db, 'posts', id), { title: title.trim(), body: body.trim(), editedAt: F.serverTimestamp() });
+    await F.updateDoc(F.doc(db, 'posts', id), { title: title.trim(), body: body.trim(), cat, editedAt: F.serverTimestamp() });
   },
   // 지우기: 댓글부터 지우고 글 (Firestore는 아래 문서를 같이 지워 주지 않음)
   async remove(id) {
