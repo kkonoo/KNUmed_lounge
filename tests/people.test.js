@@ -1,4 +1,4 @@
-// 교수 디렉터리 계산 확인: node --test (저장소 맨 위에서)
+// 연구실 둘러보기 계산 확인: node --test (저장소 맨 위에서)
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');

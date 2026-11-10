@@ -1,5 +1,5 @@
 'use strict';
-// 교수 디렉터리 계산 (화면 없음): people.js가 쓰고, tests/people.test.js 가 Node에서 확인
+// 연구실 둘러보기 계산 (화면 없음): people.js가 쓰고, tests/people.test.js 가 Node에서 확인
 // 사람 = { id, name, rank, dept, group, line, keywords: [], topics: [], links: [[주소, 글자]], photo, source, status }
 
 // 찾기용 글자: 띄어쓰기·대소문자·가운뎃점 무시 ('생화학 세포' = '생화학·세포')

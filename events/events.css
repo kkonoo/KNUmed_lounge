@@ -1,0 +1,35 @@
+/* 친목회 */
+main { display: flex; flex-direction: column; gap: 1rem; }
+.ev { gap: .55rem; }
+.ev-top { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.ev-date { font-size: .95rem; font-weight: 600; }
+.ev h2 { margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+.ev-place, .ev-note { margin: 0; font-size: .95rem; }
+.ev-place a { margin-left: .2rem; }
+.ev-note { white-space: pre-wrap; color: var(--muted); }
+.ev .hint { margin: 0; }
+
+.ev-me { display: flex; flex-direction: column; gap: .5rem; margin-top: .3rem; padding: .8rem; border-radius: 12px; background: var(--surface-2); }
+.ev-seg { display: flex; background: var(--surface); }
+.ev-seg button { padding: .65rem .4rem; font-size: 1rem; }
+.ev-seg button.on { background: var(--accent); color: var(--on-accent); }
+.ev-seg button:disabled { cursor: default; opacity: .6; }
+
+.ev-tally { display: flex; flex-direction: column; gap: .35rem; margin-top: .2rem; }
+.t-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; font-size: .9rem; }
+.t-row b { flex: none; min-width: 5.2rem; font-variant-numeric: tabular-nums; }
+.t-row .names { flex: 1; min-width: 10rem; }
+.t-row .names small { color: var(--muted); }
+.t-row.yet { padding-top: .35rem; border-top: 1px dashed var(--line); color: var(--muted); }
+.order-link { color: var(--muted); text-decoration: none; }
+.order-link:hover { color: var(--accent); }
+
+details.past summary { cursor: pointer; color: var(--muted); font-weight: 600; }
+.past-list { margin: .5rem 0 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.past-list li { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .7rem; padding: .55rem .8rem; border-top: 1px solid var(--line); font-size: .9rem; }
+.past-list li:first-child { border-top: none; }
+.past-list .when, .past-list .where { color: var(--muted); }
+.past-list .btn { margin-left: auto; }
+
+dialog.event-form { width: min(440px, calc(100vw - 24px)); max-height: 92dvh; overflow: auto; }
+dialog.event-form h2 { margin: 0 0 .2rem; }

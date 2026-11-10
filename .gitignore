@@ -1,0 +1,5 @@
+.claude/
+CLAUDE.md
+lounge-*.json
+__pycache__/
+node_modules/

@@ -5,29 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>경북의대 라운지</title>
 <meta name="description" content="경북대학교 의과대학 기초교실 교수님들의 친목회 공지와 연구 소개, 공동연구 찾기">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛋️</text></svg>">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="라운지">
 <meta name="theme-color" content="#F5F4F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#121214" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/style.css">
 <script src="js/theme.js"></script>
 </head>
 <body>
-<header class="game-head">
-  <h1>🛋️ 경북의대 라운지</h1>
+<header class="topbar">
+  <h1 class="brand"><img src="icons/icon.svg" alt="" width="28" height="28">경북의대 라운지</h1>
 </header>
 <main>
+  <div class="install-banner" id="installBanner" hidden></div>
   <p class="home-intro">기초교실 교수님들의 친목회 소식과 연구 소개를 한곳에 모았어요.</p>
+  <div id="nextEvent" hidden></div>
   <!-- 입구 추가: <화면>/ 폴더를 만들고 여기에 카드 하나. 아직 안 연 곳은 <div class="door soon"> -->
   <nav class="door-cards">
-    <div class="door soon" aria-disabled="true">
+    <a class="door" href="events/">
       <span class="emoji">🍽️</span><b>기초친목회</b><span>이번 달 날짜·장소를 보고 참석을 체크해요. 누가 오는지도 보여요</span>
-      <small><span class="tag">준비 중</span>로그인</small>
-    </div>
+      <small>로그인</small>
+    </a>
     <a class="door" href="people/">
-      <span class="emoji">🔬</span><b>교수 디렉터리</b><span>교수님별 연구 소개와 키워드. 이름·교실·주제로 찾아요</span>
+      <span class="emoji">🔬</span><b>연구실 둘러보기</b><span>교수님별 연구와 키워드. 이름·교실·주제로 찾아요</span>
       <small>누구나</small>
     </a>
     <div class="door soon" aria-disabled="true">
@@ -37,7 +41,14 @@
   </nav>
 </main>
 <footer class="home-foot">
-  🛋️ 경북의대 라운지 · 기초친목회 · <a href="https://github.com/kkonoo/KNUmed_lounge/blob/main/DESIGN.md">만드는 중인 설계</a>
+  경북의대 라운지 · 기초친목회 · <a href="https://github.com/kkonoo/KNUmed_lounge/blob/main/DESIGN.md">만드는 중인 설계</a>
 </footer>
+<script src="js/ui.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/account-core.js"></script>
+<script src="js/session.js"></script>
+<script src="events/events-core.js"></script>
+<script src="js/home.js"></script>
+<script src="js/pwa.js"></script>
 </body>
 </html>

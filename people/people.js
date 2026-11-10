@@ -1,5 +1,5 @@
 'use strict';
-// 교수 디렉터리 화면: data/people.json을 읽어 찾기·교실·주제로 거르고 교실별로 보여 줌
+// 연구실 둘러보기 화면: data/people.json을 읽어 찾기·교실·주제로 거르고 교실별로 보여 줌
 // 계산은 people-core.js, 공용 부품(h, button)은 js/ui.js
 
 (async () => {
@@ -27,7 +27,7 @@
   const finder = h('section', 'finder');
   const search = h('div', 'search');
   const input = h('input', 'text-input');
-  Object.assign(input, { type: 'search', value: f.q, placeholder: '이름 · 교실 · 키워드 · 소개로 찾기 (예: 미토콘드리아)', autocomplete: 'off' });
+  Object.assign(input, { type: 'search', value: f.q, placeholder: '이름·교실·키워드로 찾기', autocomplete: 'off' });
   input.setAttribute('aria-label', '교수님 찾기');
   search.append(input);
 

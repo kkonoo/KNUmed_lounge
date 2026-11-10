@@ -1,0 +1,22 @@
+{
+  "id": "/KNUmed_lounge/",
+  "name": "경북의대 라운지",
+  "short_name": "라운지",
+  "description": "경북대학교 의과대학 기초교실 교수님들의 친목회 공지·참석 체크와 연구실 둘러보기",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F5F4F0",
+  "theme_color": "#F5F4F0",
+  "icons": [
+    { "src": "icons/app-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/app-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/app-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/app-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "기초친목회", "short_name": "친목회", "url": "events/" },
+    { "name": "연구실 둘러보기", "short_name": "연구실", "url": "people/" }
+  ]
+}

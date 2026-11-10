@@ -1,0 +1,35 @@
+/* 관리자 화면 */
+.tabs { display: flex; width: 100%; overflow-x: auto; margin-bottom: 1rem; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.summary { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; margin-bottom: .8rem; font-size: .9rem; color: var(--muted); }
+.summary b { color: var(--text); font-variant-numeric: tabular-nums; }
+.summary .btn { margin-left: auto; }
+
+details.paste { margin-bottom: 1rem; }
+details.paste > summary { cursor: pointer; font-weight: 600; padding: .3rem 0; }
+details.paste .form { margin-top: .6rem; }
+.preview { font-size: .85rem; color: var(--muted); }
+.preview b { color: var(--text); }
+.preview .bad { margin: .3rem 0 0; padding-left: 1.1rem; color: var(--bad); }
+
+.rows { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.r-row { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; padding: .7rem .9rem; border-top: 1px solid var(--line); }
+.r-row:first-child { border-top: none; }
+.r-who { display: flex; flex-direction: column; min-width: 12rem; flex: 1; }
+.r-who b { font-size: .98rem; }
+.r-who b small { margin-left: .35rem; font-weight: 500; font-size: .8rem; color: var(--muted); }
+.r-who span { font-size: .8rem; color: var(--muted); overflow-wrap: anywhere; }
+.r-acts { display: flex; flex-wrap: wrap; gap: .3rem; }
+.r-row.editing { background: var(--surface-2); }
+.r-row.editing .form { flex: 1; }
+
+.code-now { display: flex; align-items: center; gap: .6rem; }
+.code-now b { padding: .3rem .8rem; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--line); font-size: 1.4rem; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+pre.notice { margin: 0; padding: .8rem; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); white-space: pre-wrap; font: inherit; font-size: .88rem; }
+.log-row { display: grid; grid-template-columns: 8.5rem 5rem minmax(0, 1fr); gap: .6rem; padding: .5rem .9rem; border-top: 1px solid var(--line); font-size: .85rem; }
+.log-row:first-child { border-top: none; }
+.log-row time, .log-row .by { color: var(--muted); }
+@media (max-width: 560px) {
+  .log-row { grid-template-columns: 1fr; gap: .1rem; }
+  .summary .btn { margin-left: 0; }
+}

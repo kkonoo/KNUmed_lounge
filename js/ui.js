@@ -29,10 +29,10 @@ function stepper(value, min, max, onSet) {
   return box;
 }
 
-// ---------- 이 기기에만 저장 (화면마다 localStorage 'lounge:<화면>') ----------
+// ---------- 이 기기에만 저장 (화면마다 localStorage 'lounge-<화면>') ----------
 // 저장을 못 하는 브라우저(사생활 보호 모드 등)면 기억만 못 하고 게임은 그대로 됨
 function store(key, defaults) {
-  const k = `lounge:${key}`;
+  const k = `lounge-${key}`;
   let v = { ...defaults };
   try { v = { ...defaults, ...JSON.parse(localStorage.getItem(k)) }; } catch { /* 처음 또는 못 읽음 */ }
   return {
@@ -48,7 +48,7 @@ function store(key, defaults) {
 let toastTimer;
 function toast(text, ms = 2000) {
   let t = $('toast');
-  if (!t) { t = h('div', 'toast'); t.id = 'toast'; document.body.append(t); }
+  if (!t) { t = h('div', 'toast'); t.id = 'toast'; t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite'); document.body.append(t); }
   t.textContent = text;
   t.classList.add('show');
   clearTimeout(toastTimer);
