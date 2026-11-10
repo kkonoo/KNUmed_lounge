@@ -28,14 +28,14 @@ a.prof:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
 .prof .photo.empty .lc { width: 40%; height: 40%; }
 .prof h3 { display: flex; align-items: baseline; flex-wrap: wrap; gap: .1rem .4rem; margin: 0; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
 .prof h3 small { font-size: .8rem; font-weight: 500; color: var(--muted); }
-.prof .dept { margin: .1rem 0 .5rem; font-size: .8rem; color: var(--muted); }
-/* 연구실 위치: 교실 바로 아래 한 줄 */
+.prof .dept { display: flex; align-items: center; gap: .55rem; min-width: 0; margin: .1rem 0 .5rem; font-size: .8rem; color: var(--muted); white-space: nowrap; }
+.prof .dept .d { flex: none; }
+/* 연구실 위치. 카드는 교실 옆 한 줄(넘치면 …), 자세히는 교실 아래 */
 .room { display: flex; align-items: center; gap: .3rem; min-width: 0; color: var(--muted); }
 .room .lc { width: 1em; height: 1em; color: var(--faint); }
 .room .k { flex: none; color: var(--faint); }
 .room .v { min-width: 0; overflow-wrap: anywhere; }
-.prof .room { margin: -.35rem 0 .5rem; font-size: .8rem; }
-.prof .room .v { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prof .room .v { overflow: hidden; text-overflow: ellipsis; }
 .prof .line {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
   min-height: calc(1.55em * 3); margin: 0 0 .6rem; font-size: .9rem; line-height: 1.55;
