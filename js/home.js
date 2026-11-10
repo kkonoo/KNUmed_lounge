@@ -4,7 +4,7 @@
   const slot = $('nextEvent');
   let s;
   try { s = await session(); } catch { return; } // 연결이 안 되면 홈은 그냥 카드만
-  mountAccountChip(s);
+  mountAccountChip(s, { myProfile: true });
   if (!(s.isAdmin || isActiveMember(s))) return;
   boardNews(s);
   try {

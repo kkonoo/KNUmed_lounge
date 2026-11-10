@@ -244,7 +244,7 @@
   const [s, docs] = await Promise.allSettled([session(), profileDb.all()]);
   if (s.status === 'fulfilled') {
     S = s.value;
-    mountAccountChip(S);
+    mountAccountChip(S, { myProfile: true });
     if (isActiveMember(S)) {
       try { myPid = await profileDb.myId(S.user.email); } catch (e) { console.error(e); }
     }

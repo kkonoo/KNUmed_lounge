@@ -113,7 +113,7 @@ function accountButton(s) {
   a.title = s.member ? `${s.member.name} 교수님 · 내 계정` : a.textContent;
   return a;
 }
-// 그 옆 '내 프로필'(가입을 마친 교수님만, 내 프로필 화면에서는 빼고)
+// 그 옆 '내 프로필': 대문과 연구실 둘러보기에서만 (mountAccountChip(s, { myProfile: true })), 가입을 마친 교수님만
 function myProfileButton() {
   const a = h('a', 'btn small my-profile');
   a.id = 'myProfileBtn';
@@ -123,7 +123,7 @@ function myProfileButton() {
   a.append(icon('user'), h('span', '', '내 프로필'));
   return a;
 }
-function mountAccountChip(s) {
+function mountAccountChip(s, { myProfile = false } = {}) {
   const head = document.querySelector('.topbar');
   if (!head) return;
   let end = head.querySelector('.head-end');
@@ -131,5 +131,5 @@ function mountAccountChip(s) {
   end.querySelector('#accountBtn')?.remove();
   end.querySelector('#myProfileBtn')?.remove();
   end.prepend(accountButton(s));
-  if (isActiveMember(s) && !location.pathname.endsWith('/people/me/')) end.prepend(myProfileButton());
+  if (myProfile && isActiveMember(s)) end.prepend(myProfileButton());
 }
