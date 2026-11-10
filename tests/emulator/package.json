@@ -1,0 +1,14 @@
+{
+  "name": "lounge-emulator-tests",
+  "private": true,
+  "description": "firestore.rules와 화면 흐름을 Firebase 에뮬레이터에서 확인해요. 사이트에는 안 들어가요",
+  "scripts": {
+    "test": "firebase emulators:exec --only auth,firestore --project demo-lounge \"node --test --test-concurrency=1 rules.spec.js flow.spec.js\"",
+    "rules": "firebase emulators:exec --only auth,firestore --project demo-lounge \"node --test rules.spec.js\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
+    "firebase": "12.19.0",
+    "firebase-tools": "15.35.0"
+  }
+}

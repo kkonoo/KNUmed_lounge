@@ -80,7 +80,7 @@ function eventCard(e) {
   const me = h('div', 'ev-me');
   const seg = h('div', 'seg ev-seg');
   const segBtns = STATUS.map(([k, label, icon]) => {
-    const b = button(`${icon} ${label}`, () => answer(k), '');
+    const b = button(`${icon} ${label}`, () => (myRsvp()?.status === k ? cancel() : answer(k)), ''); // 고른 것을 한 번 더 누르면 취소
     b.dataset.k = k;
     seg.append(b);
     return b;
@@ -90,7 +90,6 @@ function eventCard(e) {
   comment.addEventListener('keydown', ev => { if (ev.key === 'Enter') saveC.click(); });
   const crow = h('div', 'inline');
   crow.append(comment, saveC);
-  const clear = button('체크 지우기', async () => { try { await eventsDb.unrsvp(c.e.id, S.user.uid); } catch (err) { fail('지우지 못했어요', err); } }, 'btn small');
   const closedNote = h('p', 'hint');
   me.append(seg, crow, closedNote);
 
@@ -105,6 +104,9 @@ function eventCard(e) {
   async function answer(status) {
     if (!S.member) return toast('관리자 계정이 회원 명단에 없어요');
     try { await eventsDb.rsvp(c.e.id, S.user.uid, { status, name: S.member.name, comment: comment.value }); toast('체크했어요'); } catch (err) { fail('체크하지 못했어요', err); }
+  }
+  async function cancel() {
+    try { await eventsDb.unrsvp(c.e.id, S.user.uid); toast('체크를 취소했어요'); } catch (err) { fail('취소하지 못했어요', err); }
   }
 
   function paint() {
@@ -126,13 +128,14 @@ function eventCard(e) {
 
     for (const b of segBtns) {
       b.classList.toggle('on', mine?.status === b.dataset.k);
+      b.setAttribute('aria-pressed', String(mine?.status === b.dataset.k));
+      b.title = open && mine?.status === b.dataset.k ? '한 번 더 누르면 취소돼요' : '';
       b.disabled = !open;
     }
     comment.disabled = saveC.disabled = !open;
     if (document.activeElement !== comment) comment.value = mine?.comment || '';
-    closedNote.replaceChildren();
-    if (!open) closedNote.append('마감됐어요. 바꾸실 일이 있으면 관리자에게 알려 주세요.');
-    else if (mine) closedNote.append(clear);
+    closedNote.textContent = open ? '' : '마감됐어요. 바꾸실 일이 있으면 관리자에게 알려 주세요.';
+    closedNote.hidden = open;
 
     const t = tally(c.rsvps);
     tallyBox.replaceChildren(...STATUS.map(([k, label]) => {
