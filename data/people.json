@@ -1046,6 +1046,396 @@
   "y5ytfd": "photos/y5ytfd.jpg"
  },
  "drafts": {
+  "4eu32d": {
+   "question": "말라리아 원충이 치료약에 내성을 얻고 사람의 면역을 피해 가는 과정을, 유행지 환자에서 얻은 원충 유전자의 변이로 읽어낼 수 있을까요? 또 전통 약용식물과 기존 약물에서 새로운 항원충 치료 후보를 찾고, Acanthamoeba가 약이 잘 듣지 않는 포낭으로 변하는 과정을 막을 수 있을지 물어요.",
+   "axes": [
+    {
+     "name": "말라리아 약물내성·백신 후보 항원의 분자감시",
+     "text": "가봉·파키스탄·베트남·미얀마·국내 임상 분리주에서 pfcrt, pfmdr1, pvdhfr, pvdhps 내성 표지와 vir, MSP-1, CelTOS 등 백신 후보 항원의 유전다양성 및 자연선택 양상, 프리마퀸 투여와 연관된 G6PD 변이 분포 규명",
+     "papers": [
+      {
+       "label": "Acta Trop 2026 · 가봉 pfcrt·pfmdr1 변이",
+       "url": "https://doi.org/10.1016/j.actatropica.2026.108153"
+      },
+      {
+       "label": "Malar J 2023 · 가봉 항엽산제 내성 다형성",
+       "url": "https://doi.org/10.1186/s12936-023-04615-1"
+      }
+     ]
+    },
+    {
+     "name": "천연물·기존 약물 기반 항원충 치료 후보 탐색",
+     "text": "Ranunculus, Petasites 등 약용식물 추출물의 클로로퀸 감수성·내성 P. falciparum 억제와 P. berghei 감염 마우스 효능 평가, 혈소판 활성 억제 기전 분석, 아르테수네이트의 Babesia 억제 효과 확인",
+     "papers": [
+      {
+       "label": "Phytomedicine 2022 · 머위 추출물 항말라리아",
+       "url": "https://doi.org/10.1016/j.phymed.2022.154167"
+      },
+      {
+       "label": "Parasitol Int 2010 · 아르테수네이트 항바베시아",
+       "url": "https://doi.org/10.1016/j.parint.2010.06.004"
+      }
+     ]
+    },
+    {
+     "name": "Acanthamoeba 포낭형성 조절과 유전자 조작 도구",
+     "text": "Sir2 유사 단백질, PRMT5, M17 류신아미노펩티데이스, 시스테인단백분해효소 등 포낭형성 관련 인자의 기능 규명과 억제제·자가포식 저해제 병용 평가, Cre/loxP 기반 유전자 조작 및 약물 스크리닝 플랫폼 구축",
+     "papers": [
+      {
+       "label": "Parasit Vectors 2020 · AcSir2와 포낭형성",
+       "url": "https://doi.org/10.1186/s13071-020-04237-5"
+      },
+      {
+       "label": "PHD 2025 · 아칸트아메바 Cre/loxP 도구",
+       "url": "https://doi.org/10.3347/PHD.24078"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2008–2014",
+     "text": "Babesia gibsoni 진단 항원(P12, P22, TRAP) 발굴과 ELISA 평가, 침입 기전 및 아르테수네이트 항바베시아 효과 검증"
+    },
+    {
+     "years": "2014–2019",
+     "text": "Acanthamoeba 포낭형성 효소·조절인자 규명과 자가포식 저해제 병용 치료 탐색, LAMP·PCR 기반 원충 진단법 구축"
+    },
+    {
+     "years": "2016–2021",
+     "text": "국내외 P. vivax vir 유전자군과 MSP-1 다형성 분석, VIR 항원에 대한 자연획득 체액·세포 면역반응 평가"
+    },
+    {
+     "years": "2021–",
+     "text": "약용식물 유래 항말라리아 후보 효능 검증과 유행지 약물내성 표지·백신 후보 항원·G6PD 변이 분자감시 확대"
+    }
+   ],
+   "resources": {
+    "techniques": "Sanger 시퀀싱 기반 유전형 분석과 집단유전학 분석(DnaSP, Tajima's D, 계통수, STR 자료 공유 플랫폼), nested·multiplex PCR, LAMP, pyrosequencing, 재조합 단백질 발현과 ELISA·western blot·IFAT, in vitro P. falciparum 배양 및 IC50 측정, 4일 억제시험, siRNA knockdown, Cre/loxP 상동재조합 형질전환, HPLC 프로파일링, 투과전자현미경, G6PD 활성 측정",
+    "models": "P. falciparum 3D7·Dd2 적혈구 배양, P. berghei 감염 마우스, Babesia gibsoni·B. bovis 배양, Acanthamoeba castellanii 영양형·포낭과 AcSir2 과발현·tdTomato 형질전환주, 사람 각막상피세포, 고콜레스테롤 식이 Sprague Dawley 랫드, LDLr 결손 마우스, 유행지(가봉·파키스탄·베트남·미얀마·국내) 임상 분리주 혈액시료"
+   }
+  },
+  "79trtz": {
+   "question": "살아 있는 조직이 약물이나 염증에 어떻게 반응하는지를 동물실험 없이 정량적으로 읽어낼 수 있을까요? 장 오가노이드, 개구리 배아, 적혈구 같은 작은 생체 시료를 칩 안에 담고, 빛의 흡수와 형광 이미지만으로 손상·기형·응집을 가려내는 방법을 찾고 있어요.",
+   "axes": [
+    {
+     "name": "장 오가노이드 이미지 기반 표현형 분석",
+     "text": "Lgr5-EGFP 마우스 유래 장 오가노이드에 DSS 염증을 유도하고 computational clearing 영상의 형태 지표로 상피 손상을 판별하는 이미지 트레이싱 워크플로 설계",
+     "papers": [
+      {
+       "label": "Nanomaterials 2026 · 오가노이드 이미지 트레이싱",
+       "url": "https://doi.org/10.3390/nano16100629"
+      }
+     ]
+    },
+    {
+     "name": "3D 미세유체 칩과 광학 흡광도 진단",
+     "text": "3D 프린팅 마이크로트랩 칩과 광학 밀도(OD)·UV-Vis 분석으로 적혈구 응집을 판별하고, 나노임프린트 LSPR 센서로 사이토카인을 검출하는 진단 플랫폼 설계",
+     "papers": [
+      {
+       "label": "Biosensors 2023 · 3D 마이크로트랩 칩 혈구응집",
+       "url": "https://doi.org/10.3390/bios13070733"
+      },
+      {
+       "label": "Methods 2025 · 거시·미시 흡광도 혈구응집 분석",
+       "url": "https://doi.org/10.1016/j.ymeth.2025.09.011"
+      }
+     ]
+    },
+    {
+     "name": "Xenopus 배아 기반 발생독성 평가",
+     "text": "FETAX로 소염진통제의 배아 기형 유발을 장기 표지 유전자 발현과 연결하고, 단일 난자 포획·체외수정·배양이 가능한 Xenopus 칩 설계",
+     "papers": [
+      {
+       "label": "BBRC 2021 · 제노퍼스 단일 난자 포획 칩",
+       "url": "https://doi.org/10.1016/j.bbrc.2021.06.049"
+      },
+      {
+       "label": "BBRC 2024 · 이부프로펜 배아 기형 유발",
+       "url": "https://doi.org/10.1016/j.bbrc.2024.149565"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2017–2021",
+     "text": "CIGS 광전극·태양전지 소재의 결함 부동화와 안정성 분석, 수소 발생 촉매 공동연구"
+    },
+    {
+     "years": "2018–2024",
+     "text": "Xenopus 배아 발생독성 평가(FETAX)와 단일 난자 포획 칩 제작"
+    },
+    {
+     "years": "2020–2025",
+     "text": "LSPR 센서와 3D 마이크로트랩 칩 기반 광학 진단 개발, 영상 조영제 나노입자 공동연구"
+    },
+    {
+     "years": "2025–",
+     "text": "염증성 장 오가노이드 이미지 분석과 장·신장 손상 모델 공동연구"
+    }
+   ],
+   "resources": {
+    "techniques": "3D 프린팅 미세유체 칩 제작, 광학 밀도(OD)·UV-Vis 분광 측정, 롤투롤 나노임프린팅·금 나노입자 LSPR 면역분석, 장 오가노이드 배양(ENR)과 DSS 염증 유도, 광시야 형광 영상의 computational clearing·분할·형태 정량, RNA-seq, FETAX, 실시간 정량 PCR, H&E 조직 분석",
+    "models": "Lgr5-EGFP 리포터 마우스 유래 장 오가노이드, Xenopus laevis 배아, HUVEC·10T1/2 공배양, U87MG 종양 이식 마우스(공동연구)"
+   }
+  },
+  "7kuh88": {
+   "question": "사람의 조직은 3차원 구조와 숨쉬기 같은 기계적 자극 속에서 살아가는데, 평면 배양으로는 이런 조건을 담기 어려워요. 바이오프린팅으로 만든 피부·폐 체외모델이 실제 조직의 반응을 얼마나 재현하고, 레이저·고주파 같은 시술이나 약물의 효과를 어떻게 평가할 수 있는지를 묻고 있어요.",
+   "axes": [
+    {
+     "name": "바이오프린팅 피부 모델과 에너지 기반 시술 평가",
+     "text": "콜라겐 기반 3D 진피 구조체로 고주파·비박피 프랙셔널 레이저가 섬유아세포 전사, 콜라겐 재형성, 조직 강성에 미치는 영향 규명",
+     "papers": [
+      {
+       "label": "Lasers Med Sci 2026 · 바이오프린팅 피부와 고주파",
+       "url": "https://doi.org/10.1007/s10103-026-04908-2"
+      },
+      {
+       "label": "CCID 2026 · 레이저 펄스와 섬유아세포 전사",
+       "url": "https://doi.org/10.2147/CCID.S622469"
+      }
+     ]
+    },
+    {
+     "name": "폐 체외모델: 호흡 역학과 암 침윤",
+     "text": "초박막 하이드로겔막 기반 호흡 폐 모델과 내피–ECM–암세포 3층 침윤 모델로 YAP 기계신호, 감염 반응, MMP 표적 약물 효과 평가",
+     "papers": [
+      {
+       "label": "Adv Mater 2026 · 호흡하는 폐 모델 하이드로겔막",
+       "url": "https://doi.org/10.1002/adma.74372"
+      },
+      {
+       "label": "Biomed Mater 2026 · 3층 폐암 침윤 모델과 MMP9",
+       "url": "https://doi.org/10.1088/1748-605X/ae834f"
+      }
+     ]
+    },
+    {
+     "name": "근감소증 염증 매개인자와 운동 반응",
+     "text": "공개 전사체 분석, 노인 대상 연구, 세포·동물 실험을 연결해 운동으로 줄어드는 근감소성 염증 인자 CXCL2 규명",
+     "papers": [
+      {
+       "label": "JSHS 2026 · 근감소증 염증과 CXCL2",
+       "url": "https://doi.org/10.1016/j.jshs.2026.101159"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2025–",
+     "text": "바이오프린팅 피부·폐 체외모델을 이용한 레이저·고주파 시술 평가, 호흡 폐 모델과 폐암 침윤 모델 구축, 근감소증 염증 연구"
+    }
+   ],
+   "resources": {
+    "techniques": "콜라겐 기반 3D 진피 구조체 바이오프린팅, 압축 시험, 조직학·면역형광·SEM, bulk RNA-seq 및 공개 전사체 분석, 공기–액체 계면 배양과 음압 바이오리액터, GelMA–acrylamide 초박막 하이드로겔막 제작, MMP9 knockdown, ex vivo 피부 형태계측",
+    "models": "인간 진피 섬유아세포, 각질형성세포, 멜라닌세포, B16F10 흑색종 세포, 3층 폐암 침윤 모델(MMP9 knockdown), 인플루엔자 A 감염 폐 모델, ex vivo 돼지 피부, 노화 마우스"
+   }
+  },
+  "a858p6": {
+   "question": "가시아메바 같은 자유생활아메바는 어떻게 단단한 낭포로 변해 약과 환경 스트레스를 견디는지 묻습니다. 그 분화를 조절하는 유전자와 효소를 찾아 아메바를 죽이거나 낭포화를 막는 물질을 설계할 수 있는지, 또 말라리아·트리코모나스 같은 원충을 더 민감하게 진단하고 약제내성과 유전적 다양성을 추적할 수 있는지도 함께 살펴봐요.",
+   "axes": [
+    {
+     "name": "가시아메바 낭포화의 분자·후성유전 조절",
+     "text": "시스테인 단백분해효소와 오토파지 단백질, sirtuin·PRMT·DNA 메틸화 등 후성유전 인자를 통한 영양형–낭포 분화 조절 기전 규명과 유전자조작 플랫폼 구축",
+     "papers": [
+      {
+       "label": "Parasit Vectors 2020 · AcSir2와 낭포화",
+       "url": "https://doi.org/10.1186/s13071-020-04237-5"
+      },
+      {
+       "label": "PHD 2025 · Cre/loxP 유전자조작",
+       "url": "https://doi.org/10.3347/PHD.24078"
+      }
+     ]
+    },
+    {
+     "name": "병원성 아메바 표적 치료물질 탐색",
+     "text": "천연물 유래 화합물의 Acanthamoeba·Naegleria fowleri 살아메바 활성 평가와 apoptosis-like 세포사·미토콘드리아 기능장애 기반 기전 규명, 기존 약제와의 병용 상승효과 설계",
+     "papers": [
+      {
+       "label": "Phytomedicine 2025 · 잔톤 배당체의 항아메바",
+       "url": "https://doi.org/10.1016/j.phymed.2025.157199"
+      },
+      {
+       "label": "Acta Trop 2026 · 에피카테킨·CHX 상승효과",
+       "url": "https://doi.org/10.1016/j.actatropica.2026.108010"
+      }
+     ]
+    },
+    {
+     "name": "원충 감염의 분자진단과 집단유전 감시",
+     "text": "LAMP·PCR 기반 트리코모나스 및 원충 진단법 개발과 말라리아 원충 vir·var 유전자 다양성, 항말라리아제 내성 표지자, G6PD 변이 분포 추적",
+     "papers": [
+      {
+       "label": "KJP 2016 · T. vaginalis actin LAMP",
+       "url": "https://doi.org/10.3347/kjp.2016.54.3.329"
+      },
+      {
+       "label": "Acta Trop 2017 · PvMSP-1 pyrosequencing",
+       "url": "https://doi.org/10.1016/j.actatropica.2017.08.020"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2002–2009",
+     "text": "가시아메바 cathepsin L형 시스테인 단백분해효소와 laminin 결합 단백질 클로닝 등 병원성 관련 분자의 초기 특성 규명"
+    },
+    {
+     "years": "2014–2019",
+     "text": "오토파지 Atg12, PRMT1, 프로모터 메틸화 등 낭포화 조절 인자 분석과 LAMP 진단법 개발, 트리코모나스 역학 조사"
+    },
+    {
+     "years": "2020–2022",
+     "text": "AcSir2·sirtinol을 이용한 증식·낭포화 억제 전략 제시와 식물 추출물 기반 항아메바·항말라리아 활성 평가"
+    },
+    {
+     "years": "2023–",
+     "text": "임상분리주 대상 항아메바 물질 및 병용요법 탐색, 파울러자유아메바 표적 발굴, Cre/loxP 유전자조작과 말라리아 약제내성 감시"
+    }
+   ],
+   "resources": {
+    "techniques": "재조합 단백질 발현·효소활성 분석, siRNA knockdown, EGFP 융합 국재화, Cre/loxP 상동재조합 유전자 삽입, 투과전자현미경, TUNEL·caspase-3·ROS·미토콘드리아막전위 분석, qRT-PCR, bisulfite sequencing, EMSA·원자간력현미경, PCR·다중 PCR·LAMP·pyrosequencing, 18S rRNA 유전형 분석, 집단유전 분석, HPLC, 4일 억제시험",
+    "models": "Acanthamoeba castellanii·A. polyphaga·A. healyi 및 임상분리주, Naegleria fowleri, Plasmodium falciparum 3D7·Dd2와 P. berghei 감염 마우스, Trichomonas vaginalis, Clonorchis sinensis, Cryptosporidium parvum, Anisakis 알레르겐 비강투여 마우스, HCE-2·ARPE-19·C6 glial 세포"
+   }
+  },
+  "aacr9x": {
+   "question": "남성형 탈모에서 안드로겐과 스트레스 호르몬은 어떤 신호를 거쳐 모낭을 퇴행시키고 모발 성장을 멈추게 할까요? 그리고 배양하면 금세 사라지는 인간 모낭 세포의 모발 유도 능력을 어떻게 지키고 되살려, 새 모낭을 만들고 발모를 이끌 수 있을까요?",
+   "axes": [
+    {
+     "name": "안드로겐성 탈모의 모낭 퇴행 기전",
+     "text": "안드로겐·글루코코르티코이드, PGD2 대사물, EDA-A2/DKK-1, GPRC6A-Duox1 축이 모유두·모낭각질세포의 사멸과 퇴행기 진입을 일으키는 경로 규명",
+     "papers": [
+      {
+       "label": "NSAP 2016 · 15-dPGJ2와 모낭 각질세포 사멸",
+       "url": "https://doi.org/10.1007/s00210-016-1257-z"
+      },
+      {
+       "label": "SPP 2022 · 글루코코르티코이드와 AR 활성",
+       "url": "https://doi.org/10.1159/000525067"
+      }
+     ]
+    },
+    {
+     "name": "모발 유도능과 모낭 신생",
+     "text": "배양 중 사라지는 trichogenicity를 좌우하는 인자(FOXA2, ALP-CCL5-CCR1)를 찾고 hair reconstitution assay로 모낭 신생을 검증하는 세포기반 재생법 설계",
+     "papers": [
+      {
+       "label": "TERM 2026 · ALP-CCL5 축과 모낭 신생",
+       "url": "https://doi.org/10.1007/s13770-026-00792-7"
+      },
+      {
+       "label": "FCDB 2020 · FOXA2와 모낭각질세포 유도능",
+       "url": "https://doi.org/10.3389/fcell.2020.575382"
+      }
+     ]
+    },
+    {
+     "name": "인간 모낭 세포주와 발모 물질 평가",
+     "text": "SV40T·hTERT로 불멸화한 DP·모낭각질세포주와 3D 모낭 유사 구조를 만들고, 세포외소포·펩타이드·천연물의 발모 효과를 인간 모낭 기관배양으로 평가하는 플랫폼 구축",
+     "papers": [
+      {
+       "label": "BBRC 2026 · 모낭 유도능 유지 HFK 불멸화주",
+       "url": "https://doi.org/10.1016/j.bbrc.2026.154264"
+      },
+      {
+       "label": "Sci Rep 2023 · 탈모 전두·후두 DP 불멸화주",
+       "url": "https://doi.org/10.1038/s41598-023-48942-4"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2003–2004",
+     "text": "간세포암에서 과발현되는 유전자(GPC3, FACL4, COX-2) 발굴과 간암세포 성장 조절 기능 분석"
+    },
+    {
+     "years": "2016–2019",
+     "text": "PGD2 대사물·DKK-1의 모발 성장 억제 기전 연구와 탈모 환자 유래 인간 DP 불멸화 세포주 확립"
+    },
+    {
+     "years": "2020–2022",
+     "text": "FOXA2 등 모발 유도능 유지 인자, EDA-A2/DKK-1 축, 세포외소포·나노소포 기반 발모 연구"
+    },
+    {
+     "years": "2023–",
+     "text": "부위별 DP 세포주, ALP-CCL5·GPRC6A-Duox1 축, 모발 유도능을 지닌 인간 모낭각질세포주 확립과 모발 노화 지표 탐색"
+    }
+   ],
+   "resources": {
+    "techniques": "인간 모낭 기관배양(모간 신장 측정), DP 세포 3D sphere 배양, SV40T·hTERT 불멸화 세포주 제작, chamber·patch hair reconstitution assay, siRNA knockdown, microarray·cytokine array·전사체 분석, qRT-PCR, 면역조직화학, Western blot, TUNEL, 세포외소포·압출 나노소포 분리(초원심분리), Raman 분광, 제모 유도 성장기 모델, WIHN",
+    "models": "C57BL/6·Balb/c·누드 마우스, db/db 및 HFD/STZ 당뇨 마우스, GPRC6A KO·Duox1 KO 마우스, 테스토스테론 유도 탈모 모델; 인간 DP 불멸화주(SV40T-hTERT DPC, KNU-101~202, 전두·후두 짝 세포주), KNUK-8 모낭각질세포주, Ker-CT, 인간 ORS 세포, HepG2"
+   }
+  },
+  "b2x22u": {
+   "question": "RUNX 전사인자와 그 짝인 CBFβ가 연골세포와 뼈세포의 정체성을 어떻게 지키고, 이 균형이 무너지면 왜 골관절염이나 골 소실이 생기는지 물어요. 또 파골세포 안의 지질 신호 효소와 수용체가 뼈 흡수를 어떻게 조절하는지 밝히고, 이 지식을 골다공증·골관절염의 치료와 조기 진단으로 이어갈 수 있는지 살펴요.",
+   "axes": [
+    {
+     "name": "RUNX/CBFβ 복합체와 연골·뼈 항상성",
+     "text": "Cbfβ 결손에 따른 관절연골 퇴행과 TGF-β 신호, Hif-2α·PADI2에 의한 Runx2 안정성 조절, hiPSC 연골 오가노이드의 비대화 억제, 뇌·간에서의 RUNX/CBFβ 기능 규명",
+     "papers": [
+      {
+       "label": "Cells 2023 · Cbfβ 결손과 골관절염",
+       "url": "https://doi.org/10.3390/cells12071064"
+      },
+      {
+       "label": "Cell Biosci 2026 · CBFβ와 연골 오가노이드",
+       "url": "https://doi.org/10.1186/s13578-026-01616-w"
+      }
+     ]
+    },
+    {
+     "name": "파골세포 지질 신호와 뼈 흡수 조절",
+     "text": "PLCβ4–MKK3–p38, PLD1·PLD2, GPR119·ERRγ 등 지질 신호 분자가 파골세포 분화·이동·생존과 골량을 조절하는 기전 규명",
+     "papers": [
+      {
+       "label": "Exp Mol Med 2025 · PLCβ4와 파골세포 분화",
+       "url": "https://doi.org/10.1038/s12276-025-01390-8"
+      },
+      {
+       "label": "Exp Mol Med 2022 · PLD2와 파골세포 이동",
+       "url": "https://doi.org/10.1038/s12276-022-00820-1"
+      }
+     ]
+    },
+    {
+     "name": "골·연골 질환의 진단과 재생 후보 탐색",
+     "text": "골관절염 초기 연골세포 사멸 영상 탐침, FSTL1·PDRN·4-hexylresorcinol·sericin 등 골형성 촉진 후보와 골수 줄기세포 채취법 평가로 진단·재생 전략 연결",
+     "papers": [
+      {
+       "label": "Arthritis Res Ther 2015 · 연골세포 사멸 영상",
+       "url": "https://doi.org/10.1186/s13075-015-0832-x"
+      },
+      {
+       "label": "Biomedicines 2026 · FSTL1과 골세포 교류",
+       "url": "https://doi.org/10.3390/biomedicines14030555"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2007–2017",
+     "text": "골결손 치유에 대한 pamidronate 영향, 방사선 조사 골흡수의 CX3CL1 축, 골관절염 초기 진단 영상, 생분해 봉합사 연구"
+    },
+    {
+     "years": "2020–2023",
+     "text": "PLD1·PLD2와 파골세포, Cbfβ와 관절연골 항상성, Hif-2α·PADI2의 Runx2 조절, Apert 증후군 모델 골격 표현형 분석"
+    },
+    {
+     "years": "2024–",
+     "text": "PLCβ4 파골세포 신호, CBFβ 연골 오가노이드, 뇌·간의 RUNX/CBFβ 기능, 지방산 감지 GPCR과 골대사로 확장"
+    }
+   ],
+   "resources": {
+    "techniques": "조직 특이적 조건부 녹아웃 마우스 분석, micro-CT·골조직형태계측, DMM 수술 골관절염 모델, 난소절제 골다공증 모델, TRAP·pit assay, ALP·Alizarin Red 염색, qRT-PCR·Western blot, 면역침강·LC-MS/MS, bulk·single-cell RNA-seq, NIRF 생체 영상, hiPSC 연골 오가노이드, FACS",
+    "models": "LysM-Cre PLCβ4 cKO, Pld1·Pld2 KO, 관절연골 특이 Cbfb cKO, Emx1-Cre Cbfb cKO, Padi2·Prdx5·Pdk2·Bbx KO, Hif-2α·Runx2 이형접합 마우스, Fgfr2 S252W(EIIA·Col2a1·Col1a1) 마우스, STZ 당뇨 랫드; BMM·BMSC, MC3T3-E1, ATDC5, hiPSC, HUVEC, Huh7·HepG2, Saos-2, RAW264.7"
+   }
+  },
   "c7c9wd": {
    "question": "항암제를 몸에 넣어도 종양만 골라 듣게 하기는 어려워요. 그래서 종양에서만 약이 풀리고 빛을 쬘 때만 작동하는 나노입자를 만들어, 암세포를 죽이면서 면역이 깨어나게 할 수 있는지 물어요. 먹는 세포외소포나 마이크로로봇처럼 약을 그 자리까지 데려가는 방법도 함께 찾고 있어요.",
    "axes": [
@@ -1180,6 +1570,209 @@
     "models": "Osterix(Sp7) 조건부 결손 마우스, Tgfbi·Gulp1·Idh2·스타빌린 결손 마우스, 뱀독 유도 근육 손상 마우스, MC3T3-E1 골형성 세포, K562 거대핵세포 분화계, 3T3-L1 지방세포"
    }
   },
+  "crzzc2": {
+   "question": "여성 생식기의 미생물과 HPV, 숙주 세포가 서로 어떻게 얽혀 자궁경부암으로의 진행을 이끄는지 물어요. 그리고 그 변화를 미생물 유전체·전사체·병리 영상 속에서 얼마나 일찍, 얼마나 정확하게 읽어낼 수 있는지를 오믹스와 인공지능으로 함께 탐구해요.",
+   "axes": [
+    {
+     "name": "질 미생물총·병원균과 자궁경부암 진행",
+     "text": "HPV 감염 여성과 자궁경부 병변 환자의 질 미생물총을 16S·메타게놈으로 분석하고, Streptococcus 등 분리 균주가 암세포 신호와 스트레스 반응에 미치는 영향 규명",
+     "papers": [
+      {
+       "label": "Oncol Lett 2024 · GBS가 켜는 자궁경부선암 경로",
+       "url": "https://doi.org/10.3892/ol.2024.14720"
+      },
+      {
+       "label": "IJMM 2023 · 임신부 GBS와 질 미생물총",
+       "url": "https://doi.org/10.1016/j.ijmmb.2023.100426"
+      }
+     ]
+    },
+    {
+     "name": "전사체·영상 AI 기반 암 진단과 예후 예측",
+     "text": "자궁경부 탈락세포·종양 싹 조직의 전사체 분석과 MRI·PET radiomics, 병리·Pap 세포 영상 딥러닝을 결합한 진행 위험 및 예후 지표 설계",
+     "papers": [
+      {
+       "label": "CGP 2023 · 탈락세포 전사체로 진행 위험 예측",
+       "url": "https://doi.org/10.21873/cgp.20366"
+      },
+      {
+       "label": "Bioengineering 2024 · Pap 세포 이상 탐지",
+       "url": "https://doi.org/10.3390/bioengineering11060567"
+      }
+     ]
+    },
+    {
+     "name": "뇌허혈 염증과 혈액-뇌 장벽 손상 기전",
+     "text": "실험적 뇌졸중에서 경도 저체온이 iNOS·NF-κB 등 염증 신호를 억제하는 기전과 지방 색전 물질에 의한 혈액-뇌 장벽 손상의 NO 매개 경로 규명",
+     "papers": [
+      {
+       "label": "J Neurosci 2002 · 저체온의 iNOS 억제",
+       "url": "https://doi.org/10.1523/JNEUROSCI.22-10-03921.2002"
+      },
+      {
+       "label": "Curr Neurovasc Res 2013 · 올레산 BBB 손상",
+       "url": "https://doi.org/10.2174/15672026113109990024"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2002–2005",
+     "text": "뇌허혈 후 염증 반응과 경도 저체온의 신경보호 기전(iNOS, NF-κB) 연구 및 신경혈관단위 염증 정리"
+    },
+    {
+     "years": "2013–2018",
+     "text": "혈액-뇌 장벽 투과성 기전, 난소암 microRNA 프로파일, 핵산 증폭용 혈액 RNA 준비법 개발"
+    },
+    {
+     "years": "2019–2022",
+     "text": "자궁경부암 HPV 상태·종양 싹·질/분변 미생물총 분석, radiomics 예측 모델, LAMP 기반 현장진단 기기 개발"
+    },
+    {
+     "years": "2023–",
+     "text": "질 미생물 유전체·균주-숙주 상호작용 기전, 병리·세포 영상 AI, 혈액암 유전자 변이 분석으로 확장"
+    }
+   ],
+   "resources": {
+    "techniques": "16S rRNA amplicon·shotgun metagenomic sequencing, pangenome 비교유전체, RNA-seq 전사체·네트워크 분석, targeted DNA sequencing·ctDNA, MRI/PET radiomics와 머신러닝, CNN·MIL·VAE·대조 자기지도학습 영상 분석, LAMP 등온증폭 진단, 랫드 MCAO 뇌허혈 모델, TEM, Western blot, RT-qPCR",
+    "models": "자궁경부암 세포주(HeLa, SiHa, CaSki), T-ALL 세포주(Jurkat, CCRF-CEM, Loucy), 자궁경부 오가노이드, 랫드 중대뇌동맥 폐색(MCAO)·LPS 뇌염증 모델, 배양 미세아교세포, 랫드 경동맥 올레산·트리올레인 주입 모델"
+   }
+  },
+  "dehfgh": {
+   "question": "다제내성 아시네토박터 같은 병원성 세균이 어떤 신호와 전사조절 회로로 병독성과 항생제 내성을 켜고 끄는지 묻습니다. 또 그 조절망의 약한 고리를 겨냥해 파지와 엔도라이신, 항균 단백질이 기존 항생제를 대신할 수 있는지, 숙주와 기회감염체가 주고받는 신호가 감염의 결과를 어떻게 바꾸는지 함께 살펴요.",
+   "axes": [
+    {
+     "name": "Acinetobacter baumannii 병원성·내성 조절망",
+     "text": "H-NS·LeuO 전사조절자, BfmRS·PmrAB 두 성분계, ppGpp/DksA 긴축반응이 바이오필름·표면운동성·외막소포 생성과 콜리스틴·배출펌프 매개 내성을 조절하는 회로 규명.",
+     "papers": [
+      {
+       "label": "Virulence 2021 · ppGpp와 병독성 조절",
+       "url": "https://doi.org/10.1080/21505594.2021.1961660"
+      },
+      {
+       "label": "J Microbiol 2024 · H-NS의 CRISPR-Cas 억제",
+       "url": "https://doi.org/10.1007/s12275-024-00182-5"
+      }
+     ]
+    },
+    {
+     "name": "파지·엔도라이신 기반 항균제와 진단 플랫폼",
+     "text": "임상 다제내성균 대상 파지 분리와 전장유전체 분석, 항균펩타이드 융합 엔도라이신 공학, 파지-항생제 병용 요법 및 결합도메인 기반 균 포획 진단으로 이어지는 대체 항균 전략 설계.",
+     "papers": [
+      {
+       "label": "Front Microbiol 2022 · 세크로핀A 융합 라이신",
+       "url": "https://doi.org/10.3389/fmicb.2022.988522"
+      },
+      {
+       "label": "Viruses 2021 · 신규 파지와 엔도라이신",
+       "url": "https://doi.org/10.3390/v13091848"
+      }
+     ]
+    },
+    {
+     "name": "기회감염 원충의 포낭화 기전",
+     "text": "Acanthamoeba의 sirtuin 및 Dps 상동체 기능과 Cre/loxP 기반 유전자 조작·리포터 체계 구축을 통한 포낭화와 DNA 보호 기전 규명.",
+     "papers": [
+      {
+       "label": "Acta Trop 2025 · Dps 상동체와 DNA 보호",
+       "url": "https://doi.org/10.1016/j.actatropica.2025.107837"
+      },
+      {
+       "label": "PHD 2025 · Cre/loxP 유전자 조작 체계",
+       "url": "https://doi.org/10.3347/PHD.24078"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2016–2018",
+     "text": "H-NS와 Ler의 결합·탈억제 기전 분석을 통한 프로모터 수준 전사 조절 원리 규명"
+    },
+    {
+     "years": "2019–2021",
+     "text": "아시네토박터 외막소포 생성, ppGpp·DksA 긴축반응과 배출펌프 발현을 잇는 병독성·내성 조절 축 분석"
+    },
+    {
+     "years": "2021–2023",
+     "text": "엔도라이신 공학과 항균펩타이드 융합, PmrAB·BfmRS-쿼럼센싱 조절망 및 임상 분리주 유전체 특성 규명"
+    },
+    {
+     "years": "2024–",
+     "text": "다제내성 임상균 대상 파지 분리·병용 요법, 엔도라이신 유래 결합단백질 진단 플랫폼과 원충 포낭화 인자 탐색"
+    }
+   ],
+   "resources": {
+    "techniques": "유전자 결손·상보 균주 제작, 정량 RT-PCR과 전사체 분석, in vitro transcription·EMSA·DNA affinity pulldown, 크기배제 크로마토그래피, 재조합 단백질 발현·정제, 외막소포 분리·정량, 바이오필름·표면운동성·MIC 평가, 파지 분리와 전장유전체 시퀀싱, TEM·AFM, MLST·RAPD-PCR, 분자도킹, 마우스 감염 모델과 생물발광 이미징",
+    "models": "A. baumannii ATCC 17978·ATCC 19606과 ΔpmrA/ΔpmrB·ΔbfmS·ΔdksA·ppGpp 결손 변이주, CRAB 임상분리주(ST191·ST208·ST369·ST451, 1656-2, KBN10P05679 등), 카바페넴 내성 E. coli·K. pneumoniae 임상분리주, Acanthamoeba castellanii, A549·Raw264.7·dHL-60 세포, BALB/c 마우스 전신감염·폐렴 모델"
+   }
+  },
+  "dgv2gf": {
+   "question": "뇌는 통증과 가려움처럼 비슷하면서도 다른 불쾌한 감각을 어떤 신경세포 집단과 분자 신호로 나누어 처리할까요? 그리고 뉴런의 유전체·전사 조절인자가 사라지면 뉴런과 교세포, 나아가 기억·정서 행동은 어떻게 달라질까요? 감각에서 행동까지 이어지는 뇌의 작동 원리를 묻고 있어요.",
+   "axes": [
+    {
+     "name": "척수·후근신경절 신경면역 신호와 만성 통증",
+     "text": "말초 염증·신경 손상 후 척수와 후근신경절에서 NF-kB, TNFR1, IL-6, p38 MAPK, 미세아교 CX3CR1로 이어지는 신호가 통증 과민을 일으키는 기전 규명",
+     "papers": [
+      {
+       "label": "Eur J Neurosci 2004 · 척수 NF-kB와 염증성 통증",
+       "url": "https://doi.org/10.1111/j.0953-816X.2004.03441.x"
+      },
+      {
+       "label": "Eur J Pain 2010 · IL-6와 미세아교 CX3CR1",
+       "url": "https://doi.org/10.1016/j.ejpain.2009.10.017"
+      }
+     ]
+    },
+    {
+     "name": "전대상피질 회로와 행동생리 기록",
+     "text": "전대상피질(ACC) 2/3층에서 통증·가려움에 각각 반응하는 뉴런 집단과 시상 입력을 찾고, 자유 행동 동물의 신경활동 기록을 돕는 도구 설계",
+     "papers": [
+      {
+       "label": "Nat Commun 2025 · ACC 통증·가려움 특이 뉴런",
+       "url": "https://doi.org/10.1038/s41467-025-57041-z"
+      },
+      {
+       "label": "Mol Brain 2015 · 영상 기반 능동 커뮤테이터",
+       "url": "https://doi.org/10.1186/s13041-015-0152-8"
+      }
+     ]
+    },
+    {
+     "name": "흥분성 뉴런 전사·유전체 조절인자와 뇌 표현형",
+     "text": "전뇌 흥분성 뉴런에서 Ctcf·Cbfβ를 결손시켰을 때 나타나는 뉴런 소실, 반응성 신경교증, 공간기억 저하와 성별 특이 불안·우울 유사 행동의 연결",
+     "papers": [
+      {
+       "label": "BMB Rep 2021 · Ctcf 결손과 해마 신경교증",
+       "url": "https://doi.org/10.5483/BMBRep.2021.54.6.265"
+      },
+      {
+       "label": "BBRC 2025 · Cbfβ 결손과 성별 특이 행동",
+       "url": "https://doi.org/10.1016/j.bbrc.2025.152838"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2004–2010",
+     "text": "랫드 신경병증성·염증성 통증 모델에서 척수·후근신경절 사이토카인과 전사인자 신호 기전 연구"
+    },
+    {
+     "years": "2015–2016",
+     "text": "자유 행동 동물 행동생리 기록 장치 개발과 새로운 TSC2 변이 환자의 mTOR 신호 분석"
+    },
+    {
+     "years": "2021–",
+     "text": "흥분성 뉴런 Ctcf·Cbfβ 조건부 결손 마우스의 신경교증·행동 분석과 ACC 통증·가려움 뉴런 집단 규명"
+    }
+   ],
+   "resources": {
+    "techniques": "척수강 내 antisense oligonucleotide·NF-kB decoy 투여, 기계적 이질통·열 통각과민 행동검사, 면역형광·면역조직화학, Western blot, qRT-PCR, chemogenetic 억제·활성화, 시냅스 표지 도구, Y-maze·open field·EPM·tail suspension, 만성 구속 스트레스, 영상 추적 기반 commutator 제어, whole exome sequencing",
+    "models": "랫드 좌골신경 만성 협착 손상(CCI) 모델, CFA 뒷발 염증 모델, Camk2a-Cre;Ctcf-floxed 조건부 결손 마우스, Emx1-Cre Cbfβ 조건부 결손 마우스(Cbfb br/br), HEK293T 세포"
+   }
+  },
   "e4tanr": {
    "question": "호중구는 감염 부위에 가장 먼저 도착하는 선천면역세포인데, 몸이 어떤 상태에 있느냐에 따라 전혀 다르게 행동해요. 패혈증·당뇨·지방간 같은 환경이 호중구를 어떻게 미리 바꿔 두는지, 그렇게 바뀐 호중구가 NET과 세포외소포(EV)로 주변 세포와 조직에 무엇을 전달하는지 물어요.",
    "axes": [
@@ -1247,6 +1840,404 @@
    "resources": {
     "techniques": "사람(환자 포함) 말초혈액 호중구 분리, NET 형성·ROS·탈과립 분석, 히스톤 아세틸화 분석, 세포외소포 분리·특성 분석(nanoparticle tracking analysis, 주사전자현미경), miRNA sequencing, 생세포 형광 이미징, 말초 면역세포 단일세포 RNA-seq, 호중구·EV 입양 전달(adoptive transfer)",
     "models": "dHL-60(호중구 유사 분화 HL-60) 세포, 마우스 패혈증·만성 대장염 모델, 고지방식이 지방간 마우스, db/db·STZ 당뇨병성 신증 마우스, 종양 마우스 모델"
+   }
+  },
+  "emkbpu": {
+   "question": "우리 몸에서 매일 죽는 세포를 대식세포가 삼킬 때, 그 신호가 어떻게 염증을 가라앉히는 사이토카인으로 이어질까요? 그리고 종양 주변의 세포외기질과 면역세포는 암의 진행과 면역 회피에 어떻게 관여하고, 이를 어떻게 되돌릴 수 있을까요?",
+   "axes": [
+    {
+     "name": "세포사멸체 탐식과 대식세포 염증 조절",
+     "text": "Stabilin-2, CARMIL3, GOLPH2, progranulin 등이 대식세포의 IL-10·IL-12 등 사이토카인 전사를 조절하는 신호 경로와 패혈증·내독소 쇼크에서의 역할 규명",
+     "papers": [
+      {
+       "label": "CBB 2024 · Stabilin-2 탐식과 IL-10",
+       "url": "https://doi.org/10.1007/s12013-024-01243-7"
+      },
+      {
+       "label": "J Immunol 2018 · GOLPH2와 IL-12 조절",
+       "url": "https://doi.org/10.4049/jimmunol.1700897"
+      }
+     ]
+    },
+    {
+     "name": "종양미세환경의 세포외기질과 항종양 면역",
+     "text": "Periostin·TGFBI 같은 세포외기질 단백질의 종양 진행·혈관신생·예후 연관 분석과 PD-L1·LAG-3 결합 펩타이드, SIRPγ 나노케이지를 이용한 면역 회복 설계",
+     "papers": [
+      {
+       "label": "Anticancer Res 2020 · 연골육종과 Periostin",
+       "url": "https://doi.org/10.21873/anticanres.14557"
+      },
+      {
+       "label": "In Vivo 2020 · TGFBI와 구인두암 예후",
+       "url": "https://doi.org/10.21873/invivo.12132"
+      }
+     ]
+    },
+    {
+     "name": "결핵성 흉막염의 면역 지표",
+     "text": "결핵성 흉수의 ADA2(CECR1)·케모카인 수준과 대식세포 극성화, 잠복·활동성 결핵의 면역세포 구성 차이를 환자 시료로 연결",
+     "papers": [
+      {
+       "label": "Tuberculosis 2020 · 결핵 흉수 케모카인",
+       "url": "https://doi.org/10.1016/j.tube.2020.101940"
+      },
+      {
+       "label": "Int Immunopharmacol 2021 · 부티레이트와 CECR1",
+       "url": "https://doi.org/10.1016/j.intimp.2021.107635"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2015–2017",
+     "text": "NOD2와 죽상경화 고찰, progranulin–C/EBPα–IL-10 축의 패혈증 조절, 결핵 항원에 의한 대식세포 ADA2 발현 분석"
+    },
+    {
+     "years": "2018–2020",
+     "text": "GOLPH2의 IL-12 조절, 연골육종 periostin과 TGFBI 예후 지표, PD-L1 결합 펩타이드, 결핵 흉수 케모카인 연구"
+    },
+    {
+     "years": "2021–2023",
+     "text": "CARMIL3의 사이토카인 전사 조절, TGFBI의 지방 혈관신생·대사 조절, SIRPγ 나노케이지, 결핵 CyTOF 면역 프로파일링"
+    },
+    {
+     "years": "2024–",
+     "text": "Stabilin-2 매개 탐식의 IL-10 유도 경로, LAG-3 결합 펩타이드와 PD-L1 차단 병용 연구"
+    }
+   ],
+   "resources": {
+    "techniques": "유전자 결손 마우스 표현형 분석, RNA-seq, CyTOF·유세포분석, 면역조직화학(H-score), phage display 펩타이드 선별, siRNA 녹다운, qRT-PCR, MTT·Boyden chamber 이동 분석, Matrigel 혈관신생 분석, 케모카인 array, 동계 종양 모델, 표적 DNA 시퀀싱",
+    "models": "GOLPH2 KO, PGRN 결손, 조혈계 C/EBPα 결손, TGFBI KO 마우스; RAW264.7, THP-1, SW1353, PANC-1, AsPC-1, MIA PaCa-2, SVEC-10, 3T3-L1, B16F10 세포; 인체 단핵구 유래 대식세포, PBMC, 흉수 시료"
+   }
+  },
+  "gmq676": {
+   "question": "방사성 동위원소를 몸속 원하는 곳, 특히 암에만 오래 머물게 하고 나머지 장기에서는 빨리 빠져나가게 하려면 분자를 어떻게 설계해야 할까요? 금속을 꽉 붙잡는 킬레이터, 항체·리포솜 같은 운반체, 그리고 표지 과정의 품질이 생체 내 영상과 치료 효과를 어떻게 좌우하는지 묻고 있어요.",
+   "axes": [
+    {
+     "name": "64Cu용 교차가교 이관능성 킬레이터 설계",
+     "text": "cyclam 기반 propylene cross-bridged 킬레이터를 합성하고 Cu 착물의 동역학적 안정성·체내 청소율·종양 섭취의 상관관계 규명",
+     "papers": [
+      {
+       "label": "Inorg Chem 2015 · 차세대 교차가교 킬레이터",
+       "url": "https://doi.org/10.1021/acs.inorgchem.5b01386"
+      },
+      {
+       "label": "J Med Chem 2018 · 킬레이터 안정성과 종양 섭취",
+       "url": "https://doi.org/10.1021/acs.jmedchem.7b01671"
+      }
+     ]
+    },
+    {
+     "name": "방사표지 항체 immunoPET와 품질관리",
+     "text": "click chemistry(IEDDA·CuAAC)와 사전표적화로 64Cu·177Lu 항체를 표지하고, DLS로 숨은 응집체를 찾아 종양 섭취와의 관계 규명",
+     "papers": [
+      {
+       "label": "J Med Chem 2025 · DLS로 방사표지 항체 응집 검출",
+       "url": "https://doi.org/10.1021/acs.jmedchem.4c02344"
+      },
+      {
+       "label": "Pharmaceutics 2022 · TNBC 사전표적 PET",
+       "url": "https://doi.org/10.3390/pharmaceutics14081677"
+      }
+     ]
+    },
+    {
+     "name": "생체 분자 탐지 프로브와 리포솜 기반 영상·치료",
+     "text": "64Cu 착물로 H2S를 포착하는 PET 영상, 에스터라제 감수성 리포솜 추적자, 붕소·가돌리늄 리포솜 중성자포획치료 설계",
+     "papers": [
+      {
+       "label": "Angew Chem 2016 · 64Cu로 H2S 포착·생체영상",
+       "url": "https://doi.org/10.1002/anie.201603813"
+      },
+      {
+       "label": "ACS Nano 2021 · 에스터라제 이용 췌장암 조기영상",
+       "url": "https://doi.org/10.1021/acsnano.1c05165"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2009–2013",
+     "text": "카보레인 함유 백금 착물 BNCT 후보 합성, TE2A 신규 합성 경로, SPECT/MR 이중영상 Gd 프로브 개발"
+    },
+    {
+     "years": "2014–2018",
+     "text": "교차가교 킬레이터 체계화, 리포솜 이중모드 추적자, H2S 방사성 고정화 영상, 체렌코프 발광 기반 방사화학순도 분석"
+    },
+    {
+     "years": "2019–2022",
+     "text": "BNCT·GdNCT 리포솜 치료, click 반응 기반 항체 immunoPET, 뇌 H2S PET 영상, 에스터라제 이용 고대비 종양 영상"
+    },
+    {
+     "years": "2023–",
+     "text": "방사표지 항체 응집의 DLS 품질관리, Staudinger 반응 기반 혈중 방사능 제거, 177Lu 방사면역치료 평가"
+    }
+   ],
+   "resources": {
+    "techniques": "64Cu·124I·131I·177Lu 방사표지, 이관능성 킬레이터 합성, IEDDA·CuAAC click chemistry, Staudinger ligation, PET·SPECT·Cerenkov 발광 영상, 생체분포 분석, SEC-HPLC·radio-TLC·DLS 품질분석, PEG 리포솜 제조, 열중성자 조사 BNCT·GdNCT",
+    "models": "NIH3T6.7 등 HER2 양성 종양 마우스, MDA-MB-231 TNBC 이식 마우스, CT26 대장암 마우스, 췌장암 동소이식 모델, 신경염증 마우스 모델, 랫드 심근경색 모델(ADSC 추적), 랫드 꼬리 림프부종 모델"
+   }
+  },
+  "hbxbrv": {
+   "question": "뇌의 교세포, 특히 미세아교세포와 별아교세포가 어떤 분자 신호로 염증을 키우거나 가라앉히는지 물어요. 그 신경염증이 인지 저하·행동 변화·신경세포 손상으로 어떻게 이어지는지, 그리고 이 경로를 막아 뇌손상·탈수초 질환·뇌 노화를 늦출 수 있는지 알고 싶어요.",
+   "axes": [
+    {
+     "name": "미세아교세포 선천면역 분자와 신경염증 증폭",
+     "text": "PGLYRP1–TREM1, ITK–NF-κB, Shh–Gli1 등 미세아교세포에서 신경염증을 증폭하는 신호 축과 그에 따른 행동 변화 규명",
+     "papers": [
+      {
+       "label": "Cell Rep 2024 · 미세아교세포 PGLYRP1",
+       "url": "https://doi.org/10.1016/j.celrep.2024.113813"
+      },
+      {
+       "label": "Mol Cell Neurosci 2025 · 외상성 뇌손상과 ITK",
+       "url": "https://doi.org/10.1016/j.mcn.2025.103994"
+      }
+     ]
+    },
+    {
+     "name": "반응성 별아교세포와 LCN2 매개 교세포–신경 상호작용",
+     "text": "해마 별아교세포 활성과 LCN2 분비가 시냅스 LTP 저하·인지 저하로 이어지는 과정, 뇌손상에서 LCN2–IL-6 상호 조절 연결",
+     "papers": [
+      {
+       "label": "PLoS Biol 2024 · 해마 별아교세포와 인지저하",
+       "url": "https://doi.org/10.1371/journal.pbio.3002687"
+      },
+      {
+       "label": "Exp Neurol 2025 · 뇌손상 LCN2–IL-6 연결",
+       "url": "https://doi.org/10.1016/j.expneurol.2024.115092"
+      }
+     ]
+    },
+    {
+     "name": "교세포 표적 신경염증 치료 전략",
+     "text": "GV1001 펩타이드, 항균 펩타이드 CRAMP 등으로 미세아교세포 활성을 조절해 신경염증 완화와 재수초화를 유도하는 치료 접근 설계",
+     "papers": [
+      {
+       "label": "Biochem Pharmacol 2026 · GV1001과 재수초화",
+       "url": "https://doi.org/10.1016/j.bcp.2025.117514"
+      },
+      {
+       "label": "Cells 2022 · CRAMP의 교세포 활성 억제",
+       "url": "https://doi.org/10.3390/cells11233886"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2004",
+     "text": "저산소 조건에서 미세아교세포의 염증성 활성화와 minocycline·PACAP의 p38 MAPK 억제 기전 분석"
+    },
+    {
+     "years": "2011",
+     "text": "인간 Ago2·Dicer·TRBP 도입으로 출아효모에서 RNAi 경로 재구성"
+    },
+    {
+     "years": "2014–2022",
+     "text": "염증성 통증의 ER 스트레스, 합성 화합물·항균 펩타이드에 의한 미세아교세포 표현형 조절 연구"
+    },
+    {
+     "years": "2024–",
+     "text": "PGLYRP1·ITK·LCN2 등 교세포 신경염증 매개자 규명과 GV1001·줄기세포 치료, 뇌 노화 연구로 확장"
+    }
+   ],
+   "resources": {
+    "techniques": "광유전학·화학유전학 별아교세포 자극, GCaMP 섬유광도측정, AAV·shRNA 유전자 knockdown, 척수강 내 단백질·펩타이드 전달, bulk RNA-seq, kinome 단위 siRNA 스크리닝, 혈장 bead 기반 multiplex 분석, 일차 교세포 배양·공배양, Boyden chamber 이동 분석, luciferase reporter·decoy RNA 분석",
+    "models": "EAE 마우스, CCI 외상성 뇌손상 마우스, MPTP 파킨슨 모델, 뇌내 LPS 신경염증 모델, SCA2 마우스, Lcn2 결손·LCN2 과발현 형질전환 마우스, 미세아교세포 특이 Ptch1 KO, Emx1-Cre Cbfb cKO, 흰쥐 CCI-ION 신경병증 통증·CFA 염증성 통증 모델, BV-2·일차 마우스 미세아교세포, 인간 미세아교세포, THP-1, 출아효모"
+   }
+  },
+  "j8eswk": {
+   "question": "주사바늘이나 캐뉼라가 몸속을 지날 때, 신경·혈관을 피하면서 원하는 자리에 정확히 닿으려면 무엇을 기준으로 삼아야 할까요? 이 연구실은 시신 해부와 측정으로 피부 위 지표와 조직층의 위치·저항을 수치로 밝혀, 시술의 안전한 경로가 어디인지를 묻고 있어요.",
+   "axes": [
+    {
+     "name": "안면 필러 시술의 조직층·저항 분석",
+     "text": "신선 시신에서 캐뉼라 굵기·조직층·진행 방향에 따른 조직 관통력 측정과 비익주위 공간 같은 새 주입 공간의 해부학적 경계 규명",
+     "papers": [
+      {
+       "label": "Aesthet Plast Surg 2026 · 측두부 캐뉼라 관통력",
+       "url": "https://doi.org/10.1007/s00266-026-05891-3"
+      },
+      {
+       "label": "J Cosmet Dermatol 2026 · 비익주위 공간 필러",
+       "url": "https://doi.org/10.1111/jocd.70698"
+      }
+     ]
+    },
+    {
+     "name": "체표 지표 기반 주사 지점과 신경 포착 부위 결정",
+     "text": "내측 복사 끝·종골·견갑골 같은 체표 지표로 Baxter 신경과 견갑거근의 주사 지점을 좌표화하고 초음파 유도 주사로 정확도를 검증, 수근관 안 근육 변이 보고",
+     "papers": [
+      {
+       "label": "Case Rep Plast Surg 2024 · 수근관 내 부충양근",
+       "url": "https://doi.org/10.1080/23320885.2024.2351130"
+      },
+      {
+       "label": "Ann Med 2025 · Baxter 신경 초음파 주사",
+       "url": "https://doi.org/10.1080/07853890.2025.2450525"
+      }
+     ]
+    },
+    {
+     "name": "경추 시상 정렬과 임상 증상 연결",
+     "text": "측면 경추 X선의 C2–C7 전만각과 sagittal vertical axis를 목 통증·장애·신경 증상과 연결하는 후향적 분석",
+     "papers": [
+      {
+       "label": "J Back Musculoskel Rehabil 2026 · 경추 정렬",
+       "url": "https://doi.org/10.1177/10538127261444790"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2024–",
+     "text": "시신 해부 기반 주사 지점·신경 포착 부위 연구와 필러 캐뉼라 생체역학 측정, 경추 X선 임상 분석으로의 확장"
+    }
+   ],
+   "resources": {
+    "techniques": "신선 시신 해부와 계측, 디지털 힘 측정기를 이용한 조직 관통력 측정, 색소 주입 후 분포 확인, 초음파 유도 주사(in-plane/out-of-plane), 조직학적 평가, 선형혼합효과모형 통계, 측면 경추 X선 후향적 분석. 공동연구로 방사광 micro-CT·면역조직화학 참여",
+    "models": "성체 마우스 신장 허혈-재관류 손상 모델(공동연구 참여)"
+   }
+  },
+  "j8sbxc": {
+   "question": "항생제가 듣지 않는 세균을 어떻게 다시 제어할 수 있을까요? 환자에게서 분리한 다제내성균에 꼭 맞는 박테리오파지와 엔도리신을 찾고, 이들이 몸 안에서 충분히 오래 머물면서 내성 출현 없이 균을 없애는 조건을 묻습니다. 또 어떤 균인지 빠르고 정확히 가려내는 방법도 함께 찾아요.",
+   "axes": [
+    {
+     "name": "다제내성균 표적 박테리오파지 치료",
+     "text": "병원 하수에서 분리한 A. baumannii·E. coli·K. pneumoniae 특이 lytic phage의 숙주범위와 유전체 특성 분석, 파지-항생제 병용과 흡착 소재 결합을 통한 균 제거 및 내성 출현 억제 전략 수립",
+     "papers": [
+      {
+       "label": "Biomater Res 2026 · 벤토나이트 병용 파지 치료",
+       "url": "https://doi.org/10.34133/bmr.0310"
+      },
+      {
+       "label": "AEM 2012 · 녹농균 파지의 biofilm 제거",
+       "url": "https://doi.org/10.1128/AEM.00648-12"
+      }
+     ]
+    },
+    {
+     "name": "엔도리신 공학과 세균 특이 검출",
+     "text": "LysSS·LysSAP26 등 재조합 엔도리신의 광범위 살균 활성 확인, 도메인 절단과 항균펩타이드 융합을 통한 활성 개선, cell wall binding domain과 자성비드를 결합한 균종 특이 포집·검출 플랫폼 구축",
+     "papers": [
+      {
+       "label": "JGAR 2020 · 엔도리신 LysSS 항균 활성",
+       "url": "https://doi.org/10.1016/j.jgar.2020.01.005"
+      },
+      {
+       "label": "Anal Chem 2026 · 엔도리신 CBD로 균 검출",
+       "url": "https://doi.org/10.1021/acs.analchem.5c07518"
+      }
+     ]
+    },
+    {
+     "name": "내성 유전자와 병원체 유전체 역학",
+     "text": "카바페넴 분해효소 유전자의 염색체·플라스미드 배치와 전달성 분석, MLST 기반 클론 분포와 생물막 형성 비교, 근연 균종을 가르는 분자 감별법 마련",
+     "papers": [
+      {
+       "label": "Infect Genet Evol 2025 · 카바페넴 내성 유전체",
+       "url": "https://doi.org/10.1016/j.meegid.2025.105845"
+      },
+      {
+       "label": "J Yeungnam Med Sci 2025 · adk PCR 균종 감별",
+       "url": "https://doi.org/10.12701/jyms.2025.42.52"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2003–2011",
+     "text": "살모넬라 등 장내세균의 분자역학 감시, class 1 인테그론과 다제내성 유전자 구조 및 유행 클론 규명"
+    },
+    {
+     "years": "2011–2017",
+     "text": "파지 분리와 생물막 제거 활성 검증, A. baumannii 생물막·OmpA·외막소포를 통한 병독성과 내성 기전 분석"
+    },
+    {
+     "years": "2018–2022",
+     "text": "재조합 엔도리신 LysSS·LysSAP26 발굴과 항균펩타이드 융합 개량, 세균 외막소포가 유도하는 숙주 염증반응 규명"
+    },
+    {
+     "years": "2023–",
+     "text": "임상 다제내성균 표적 파지 치료의 체계화, 파지-항생제 순차 병용·PEG화 전달·엔도리신 기반 진단 플랫폼 개발"
+    }
+   ],
+   "resources": {
+    "techniques": "파지 분리·숙주범위 및 one-step growth 분석, RAPD-PCR, 전장유전체 시퀀싱과 MLST, TEM, 재조합 엔도리신 발현·정제와 MIC/MBC 측정, 체커보드 시너지(FICI) 분석, PEG 접합 및 약동학 분석, 자성비드 기반 포집 검출, 생물막 형성·제거 평가, 외막소포 분리와 사이토카인 발현 분석, 16S rRNA 앰플리콘 및 culturomics 기반 장내세균총 분석",
+    "models": "BALB/c 마우스 전신·장관 감염모델(면역저하 모델 포함), RAW264.7 대식세포, A549·HT-29·HaCaT·Caco-2 세포주, Acanthamoeba castellanii, A. baumannii ATCC 17978와 ΔpmrA·ΔpmrB·ΔompA 변이주, 임상분리 carbapenem 내성 A. baumannii·E. coli·K. pneumoniae"
+   }
+  },
+  "jbtyhn": {
+   "question": "암 조직에만 달라붙는 짧은 펩타이드를 어떻게 찾아낼 수 있을까요? 저희는 파지 디스플레이로 종양 표면 분자와 면역관문에 결합하는 펩타이드를 골라내고, 이를 나노케이지·소포체에 붙여 약물을 종양으로만 보내거나 면역세포의 제동을 풀 수 있는지 묻습니다. 나아가 종양 주변 대식세포를 바꾸면 치료 반응이 달라지는지도 확인해요.",
+   "axes": [
+    {
+     "name": "파지 디스플레이 기반 종양 표적 펩타이드 발굴",
+     "text": "무작위 펩타이드 라이브러리 바이오패닝으로 CD44v6, 메소텔린, KIM-1, 폐종양 등 표적 결합 펩타이드 선별과 영상·치료 프로브화",
+     "papers": [
+      {
+       "label": "Theranostics 2021 · CD44v6 결합 펩타이드",
+       "url": "https://doi.org/10.7150/thno.50564"
+      },
+      {
+       "label": "Cancer Res 2019 · 폐종양 표적 펩타이드 프로브",
+       "url": "https://doi.org/10.1158/0008-5472.CAN-18-3089"
+      }
+     ]
+    },
+    {
+     "name": "면역관문 차단 펩타이드와 페리틴 나노케이지",
+     "text": "PD-L1·LAG-3 결합 펩타이드 발굴과 다가 제시 페리틴 나노케이지 설계로 T세포 활성 회복 및 종양 성장 억제 검증",
+     "papers": [
+      {
+       "label": "Biomaterials 2020 · PD-L1 결합 펩타이드",
+       "url": "https://doi.org/10.1016/j.biomaterials.2020.119984"
+      },
+      {
+       "label": "Biomater Res 2026 · LAG-3 차단 펩타이드",
+       "url": "https://doi.org/10.34133/bmr.0364"
+      }
+     ]
+    },
+    {
+     "name": "IL-4 수용체 표적 전달과 대식세포 재프로그래밍",
+     "text": "IL-4 수용체 표적 ELP·리포좀·세포외소포를 이용한 약물·핵산 전달과 종양관련대식세포의 M1형 전환 기전 연결",
+     "papers": [
+      {
+       "label": "Biomaterials 2021 · M1 엑소좀 TAM 재프로그래밍",
+       "url": "https://doi.org/10.1016/j.biomaterials.2021.121137"
+      },
+      {
+       "label": "PNAS 2021 · 대식세포 후각수용체 Olfr78",
+       "url": "https://doi.org/10.1073/pnas.2102434118"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2002–2007",
+     "text": "βig-h3의 FAS1 도메인에서 integrin 결합 모티프 규명과 세포 접착·이동·혈관신생 조절 기전 해석"
+    },
+    {
+     "years": "2007–2014",
+     "text": "파지 디스플레이로 방광암·폐암·죽상반·아폽토시스 표적 펩타이드 발굴 및 영상 프로브화"
+    },
+    {
+     "years": "2015–2020",
+     "text": "IL-4 수용체 표적 ELP·리포좀·나노입자 기반 약물 및 siRNA 전달 체계 구축"
+    },
+    {
+     "years": "2020–",
+     "text": "면역관문 차단 펩타이드와 페리틴 나노케이지, 대식세포 재프로그래밍을 결합한 항암 면역치료 설계"
+    }
+   ],
+   "resources": {
+    "techniques": "파지 디스플레이 펩타이드 라이브러리 바이오패닝, 합성 펩타이드 결합친화도 분석(ELISA·SPR·유세포분석), 페리틴 나노케이지 및 elastin-like polypeptide 재조합 설계, 리포좀·엑소좀 등 세포외소포 공학, siRNA/miRNA 전달, 근적외 형광·생물발광·광음향 영상, 동소/동종이식 종양모델 치료 평가, 환자유래 오가노이드 및 공개 단일세포 RNA-seq 분석",
+    "models": "대장암 동종이식 및 B16F10 흑색종(시스플라틴 내성 포함) 마우스, MDA-MB-231·H226·H460·HCT116·U87MG·D54·KKU-213 등 암세포주, 뇌종양 동소모델, K-rasLA2 폐암 마우스, Olfr78 결손 마우스, 골수유래 대식세포·마스트세포, RBL-2H3, 췌장암 환자유래 오가노이드"
    }
   },
   "k77nvt": {
@@ -1318,6 +2309,144 @@
     "models": "유방암·폐암·흑색종 세포주와 종양 이식(제노그래프트·동계) 마우스 모델, Jurkat T세포·NK세포 유래 소포 생산계, 아세트아미노펜 유도 간손상 마우스, 랫 일차 간세포, 3T3-L1 지방세포, 110종 식물 유래 나노입자 라이브러리"
    }
   },
+  "kjy7dt": {
+   "question": "콩팥 집합관 세포는 바소프레신 신호를 받으면 수분통로 AQP2를 얼마나, 어떻게 만들어 소변 농도를 맞출까요? 이 연구실은 AQP2 유전자를 켜는 전사 조절 장치와 단백질의 이동·분해를 밝히고, 이것이 무너질 때 생기는 수분대사 질환을 되돌릴 길을 묻고 있어요.",
+   "axes": [
+    {
+     "name": "바소프레신 반응 Aqp2 유전자 전사 조절",
+     "text": "TAZ-NR4A1 축, PARP-1, CTNNB1-TRIM28 복합체가 RNA polymerase II 동원과 신장을 매개해 바소프레신 유도 Aqp2 전사를 조절하는 기전 규명",
+     "papers": [
+      {
+       "label": "PNAS 2026 · CTNNB1-TRIM28과 Pol II",
+       "url": "https://doi.org/10.1073/pnas.2611995123"
+      },
+      {
+       "label": "FASEB J 2025 · TAZ-NR4A1 축과 Aqp2",
+       "url": "https://doi.org/10.1096/fj.202500686RR"
+      }
+     ]
+    },
+    {
+     "name": "AQP2 단백질 운명과 신장 질환 모델",
+     "text": "SNX27·Vps35에 의한 AQP2 리소좀 분해, 리튬 유발 신성 요붕증·요관폐쇄 모델의 AQP2 이상과 tamoxifen·TGR5 등 치료 표적, 유전체 편집 줄기세포 시트의 급성 신손상 억제 연결",
+     "papers": [
+      {
+       "label": "Cells 2020 · SNX27과 AQP2 리소좀 분해",
+       "url": "https://doi.org/10.3390/cells9051208"
+      },
+      {
+       "label": "Kidney Int 2021 · 유전체 편집 MSC 시트",
+       "url": "https://doi.org/10.1016/j.kint.2020.07.043"
+      }
+     ]
+    },
+    {
+     "name": "아쿠아포린·TAZ와 유방암 세포 이동",
+     "text": "AQP5와 TAZ가 유방암 세포 이동·세포 접착에 관여하는 경로 규명과 AQP5 표적 miRNA를 담은 엑소좀 전달 전략 설계",
+     "papers": [
+      {
+       "label": "FASEB J 2020 · AQP5 표적 miRNA 엑소좀",
+       "url": "https://doi.org/10.1096/fj.201902434R"
+      },
+      {
+       "label": "Front Oncol 2024 · TAZ와 유방암 세포 이동",
+       "url": "https://doi.org/10.3389/fonc.2024.1376831"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2000–2002",
+     "text": "신장 Na-HCO3 공수송체의 세포 내 위치와 대사성 산증 반응, 무기질코르티코이드에 따른 AQP3 조절, 안지오텐신 II의 TAL 나트륨 수송체 조절 연구"
+    },
+    {
+     "years": "2007–2019",
+     "text": "리튬 유발 신성 요붕증·요관폐쇄 모델에서 COX-2·ENaC·AQP2 조절 이상과 tamoxifen·TGR5 효과, Vps35에 의한 AQP2 분해 연구"
+    },
+    {
+     "years": "2016–2021",
+     "text": "AQP5와 암세포 이동·세포 접착, AQP5 표적 miRNA 엑소좀, 유전체 편집 중간엽줄기세포 시트를 이용한 급성 신손상 치료 연구"
+    },
+    {
+     "years": "2019–",
+     "text": "PARP-1·TAZ-NR4A1·CTNNB1-TRIM28 등 바소프레신 반응 Aqp2 전사 조절 인자 탐색과 유전체 편집 mpkCCDc14 세포 자원 구축"
+    }
+   ],
+   "resources": {
+    "techniques": "siRNA 녹다운, RNA-seq·전사체 분석, 정량적 유전체 결합 분석, 공면역침강, 세포표면 비오틴화 분석, 면역블롯·면역조직화학·면역전자현미경, CRISPR/Cas9 및 ZFN 유전체 편집, LC-MS/MS 단백체 분석, miRNA 마이크로어레이, 엑소좀 공학, 온도감응 고분자 기반 세포 시트 제작",
+    "models": "mpkCCDc14·mpkCCDc11 세포, V2R-AQP2 유전체 편집 mpkCCDc14 세포, TAZf/f;HoxB7Cre 마우스, Tgr5-/- 마우스, 리튬 유발 신성 요붕증 랫드·마우스, 편측 요관폐쇄 랫드·마우스, 허혈-재관류 급성 신손상 마우스, 랫드 일차 IMCD 세포, MDCK, MCF-7·MDA-MB-231, 인간 제대 유래 중간엽줄기세포"
+   }
+  },
+  "kwvhqn": {
+   "question": "다제내성 Acinetobacter baumannii 같은 병원균은 어떤 단백질과 조절 네트워크를 써서 숙주를 공격하고 항생제를 견뎌낼까요? 세균이 밖으로 내보내는 막소포는 숙주 염증과 세포 손상에 어떻게 관여할까요? 이 질문에서 출발해 병독인자 자체를 표적으로 삼는, 항생제를 대신할 치료와 진단 전략을 찾고 있어요.",
+   "axes": [
+    {
+     "name": "A. baumannii 병독인자와 조절 네트워크",
+     "text": "외막단백질 OmpA의 숙주 상호작용과 자가포식 회피, PmrAB·BfmRS-AbaIR 이성분계, ppGpp/DksA 스트린전트 반응, LeuO·H-NS 전사조절이 병독 형질과 내성에 미치는 영향 규명",
+     "papers": [
+      {
+       "label": "J Biomed Sci 2025 · AbOmpA 병독 기전 총설",
+       "url": "https://doi.org/10.1186/s12929-025-01147-5"
+      },
+      {
+       "label": "Virulence 2021 · DksA의 병독성 조절",
+       "url": "https://doi.org/10.1080/21505594.2021.1995253"
+      }
+     ]
+    },
+    {
+     "name": "세균 막소포 생성과 숙주 염증·세포독성",
+     "text": "그람음성·그람양성 병원균이 항생제 스트레스에서 생성하는 외막소포·막소포의 양과 단백질 구성 변화, 상피세포 독성과 전염증 사이토카인 유도 및 생체 내 병리 연결",
+     "papers": [
+      {
+       "label": "BMC Microbiol 2021 · ZrlA 결손과 OMV 증가",
+       "url": "https://doi.org/10.1186/s12866-020-02083-0"
+      },
+      {
+       "label": "Virulence 2020 · 항생제 스트레스와 OMV",
+       "url": "https://doi.org/10.1080/21505594.2020.1802193"
+      }
+     ]
+    },
+    {
+     "name": "다제내성균 역학과 항생제 대체 전략",
+     "text": "국내 임상 분리주의 클론형·카바페넴 내성 유전자 추적과 함께 ompA 발현 억제 저분자, 엔도라이신·파지, 천연물 기반 항균제의 치료 및 진단 플랫폼 설계",
+     "papers": [
+      {
+       "label": "IJMS 2021 · ompA 발현 억제제의 치료 효과",
+       "url": "https://doi.org/10.3390/ijms222212257"
+      },
+      {
+       "label": "Infect Genet Evol 2023 · CRAB 클론 변화",
+       "url": "https://doi.org/10.1016/j.meegid.2023.105404"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2006–2009",
+     "text": "임상 Acinetobacter의 기도상피 부착능 관찰과 Shigella 등 장내세균의 항균제 내성 유전자·클론 분석"
+    },
+    {
+     "years": "2015–2019",
+     "text": "다제내성 A. baumannii 클론 역학 추적과 여러 병원균 막소포의 염증 유도·세포독성 규명"
+    },
+    {
+     "years": "2020–2022",
+     "text": "OmpA·이성분계·스트린전트 반응 조절망과 OMV 생성의 연결, 엔도라이신·저분자 억제제 탐색"
+    },
+    {
+     "years": "2023–",
+     "text": "OmpA 표적 치료제와 파지·나노물질 결합 치료, 엔도라이신 기반 균 검출 및 캡슐 합성효소 표적 발굴"
+    }
+   ],
+   "resources": {
+    "techniques": "전장유전체 시퀀싱·MLST·PFGE, 유전자 결손 및 상보주 제작, qRT-PCR·전사체/프로테오믹스 분석, DNA affinity chromatography·EMSA·in vitro transcription, 항균제 MIC 및 체커보드 시너지, OMV 분리와 나노입자 추적분석, 바이오필름·표면운동성·부착 분석, 재조합 단백질 발현·정제, 고속 대량 스크리닝, 분자 도킹, 마우스 감염 실험",
+    "models": "A. baumannii ATCC 17978·ATCC 19606 및 임상 CRAB 분리주(ST191, ST451), ΔpmrA/ΔpmrB·ΔbfmR/ΔbfmS·ΔdksA·ΔzrlA·ΔleuO·Δhns 변이주, A549·Caco-2 상피세포와 배양 각질형성세포, 마우스 전신감염·폐감염 모델, 호중구감소 마우스, 피부 표재감염 및 아토피피부염 유사 피부 모델, 마우스 설사 모델"
+   }
+  },
   "mxxq28": {
    "question": "유전성 난청이나 신경근육 질환이 있는 가계에서 어떤 유전 변이가 병을 일으키는지 찾고, 그 변이가 와우 유모세포와 신경·근육의 기능을 어떻게 바꾸는지 물어요. 유전자 발현이 어떻게 조절되는지, 그리고 혈액 표지가 질환의 진행 정도를 보여 줄 수 있는지도 함께 살펴보고 있어요.",
    "axes": [
@@ -1369,6 +2498,205 @@
    "resources": {
     "techniques": "전장 엑솜 시퀀싱(WES)·Sanger 검증·가계 공분리 분석, in silico 병원성 예측, microsatellite 하플로타입 분석, 뇌 조직 RNA-seq(DEG·WGCNA), gap-prepulse inhibition 이명 행동 평가, 혈장 NfL 측정",
     "models": "살리실산나트륨 유도 이명 마우스 모델(C57BL/6N)"
+   }
+  },
+  "n5hjnb": {
+   "question": "알레르기 염증은 왜 쉽게 가라앉지 않고 만성으로 이어질까요? 저희는 비만세포와 T·B세포가 자극을 받았을 때 작동하는 신호전달과 에너지 대사가 어떻게 어긋나는지를 묻고, 아토피피부염·천식·건선 모델에서 그 흐름을 되돌릴 수 있는 천연물 성분과 펩타이드를 찾아요. 면역세포를 조절하는 물질이 실제로 질환 증상을 줄이는지까지 확인하는 것이 목표예요.",
+   "axes": [
+    {
+     "name": "비만세포 매개 알레르기 반응의 신호 기전",
+     "text": "비만세포 탈과립과 히스타민·사이토카인 분비를 세포 내 칼슘, FcεRI–PLCγ/Akt/NF-κB, p38 MAPK 축으로 추적하고 천연물 분획의 억제 효과 검증",
+     "papers": [
+      {
+       "label": "Food Chem Toxicol 2007 · 비만세포 알레르기 억제",
+       "url": "https://doi.org/10.1016/j.fct.2007.05.011"
+      },
+      {
+       "label": "Molecules 2026 · 알레르기 기도염증과 비만세포",
+       "url": "https://doi.org/10.3390/molecules31193479"
+      }
+     ]
+    },
+    {
+     "name": "아토피피부염·건선의 면역대사 재프로그래밍",
+     "text": "AMPK–mTOR 축과 미토콘드리아 ROS·해당과정 변화를 통한 조절 B세포 유도, 각질형성세포·Th17 반응 제어로 피부 만성 염증 완화 기전 규명",
+     "papers": [
+      {
+       "label": "JACI 2026 · AMPK와 조절 B세포",
+       "url": "https://doi.org/10.1016/j.jaci.2026.06.015"
+      },
+      {
+       "label": "Int J Biol Sci 2026 · 노밀린의 mTOR 억제",
+       "url": "https://doi.org/10.7150/ijbs.133330"
+      }
+     ]
+    },
+    {
+     "name": "면역·골 표적 후보 물질 탐색",
+     "text": "파지 디스플레이 기반 면역관문 결합 펩타이드와 합성 화합물을 이용해 T세포 기능 회복, 파골세포 분화·골 소실 억제 후보 물질 발굴",
+     "papers": [
+      {
+       "label": "Biomater Res 2026 · LAG-3 차단 펩타이드",
+       "url": "https://doi.org/10.34133/bmr.0364"
+      },
+      {
+       "label": "PLoS One 2015 · 파골세포 분화 억제 화합물",
+       "url": "https://doi.org/10.1371/journal.pone.0142201"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2002–2003",
+     "text": "무기수은의 면역독성 기전 연구로, NO 생성과 NF-κB·p38 MAPK 신호, T림프구 아집단 및 염증성 사이토카인 발현 변화 규명"
+    },
+    {
+     "years": "2007–2015",
+     "text": "천연물 추출물의 비만세포 탈과립·히스타민 분비 억제 효과 확인과, 합성 화합물의 파골세포 분화·염증성 골 소실 억제 평가"
+    },
+    {
+     "years": "2019–",
+     "text": "천식·아토피피부염·건선 동물모델에서 면역대사(AMPK·mTOR) 조절과 펩타이드 기반 면역관문 제어로 치료 후보 전략 확장"
+    }
+   ],
+   "resources": {
+    "techniques": "비만세포 탈과립 측정(β-hexosaminidase·히스타민 방출), 세포 내 칼슘 측정, 수동피부아나필락시스 및 전신 아나필락시스 모델, 면역블롯·RT-qPCR·유세포분석, BALF·조직 사이토카인 분석, 세포 대사 분석(포도당 섭취·해당과정·산소소비·미토콘드리아 ROS), 입양전달 실험, 환자 PBMC 분석, 파지 디스플레이 펩타이드 라이브러리, 분자도킹·CETSA, 이종/동종이식 종양모델, TRAP 염색 및 골흡수 분석",
+    "models": "OVA 유도 알레르기 기도염증, LPS 유도 급성폐손상, DNCB·집먼지진드기 유도 아토피피부염, TPA·IMQ 유도 건선, LPS 유도 염증성 골소실 마우스 모델; 무기수은 경구노출 BALB/c 마우스. 세포로는 랫드 복강 비만세포, RBL-2H3, 인간 일차 각질형성세포, Th17 분화 CD4+ T세포, 마우스 골수유래 대식세포(BMM), J774A.1, EL4·A20 림프종 세포, 환자 유래 PBMC 사용"
+   }
+  },
+  "p244yk": {
+   "question": "우리 몸에 사는 미생물과 숙주 면역이 감염과 암의 발생·진행, 그리고 치료 반응에 어떻게 관여하는지 물어요. 특히 여성 생식기 미생물이 HPV 감염과 자궁경부 병변에 어떤 영향을 주는지, 방사선·항암치료 뒤 종양과 면역 환경이 어떻게 바뀌는지 살펴요. 대규모 코호트 자료로 난청 같은 질환의 위험 요인도 찾아요.",
+   "axes": [
+    {
+     "name": "여성 생식기 미생물과 HPV·자궁경부 병변",
+     "text": "질 미생물총의 메타게놈 분석과 질 유래 연쇄상구균·유산균 분리주의 유전체 특성 규명, 자궁경부암세포와 병원균에 미치는 영향 연결",
+     "papers": [
+      {
+       "label": "Microbiol Res 2026 · 질 연쇄상구균과 ER 스트레스",
+       "url": "https://doi.org/10.1016/j.micres.2025.128433"
+      },
+      {
+       "label": "Probiotics 2025 · 질 VGS 상등액의 MRSA 억제",
+       "url": "https://doi.org/10.1007/s12602-024-10412-2"
+      }
+     ]
+    },
+    {
+     "name": "치료 반응에 따른 종양 전사체·면역 지형",
+     "text": "직장암 항암방사선치료와 방광암 반복 절제 전후 종양의 RNA-seq·면역 레퍼토리 분석을 통한 치료 반응 바이오마커 탐색",
+     "papers": [
+      {
+       "label": "Sci Rep 2023 · 방사선 반응 qPCR 기준유전자",
+       "url": "https://doi.org/10.1038/s41598-023-39488-6"
+      },
+      {
+       "label": "CGC 2026 · 반복 TURBT 후 방광암 면역지형",
+       "url": "https://doi.org/10.1016/j.clgc.2026.102513"
+      }
+     ]
+    },
+    {
+     "name": "대규모 코호트 역학과 계산 모델링",
+     "text": "UK Biobank·국민건강보험 자료를 이용한 난청·근육질환 위험 요인과 염증 매개 효과 분석, 강화학습 기반 공간 학습 모델 설계",
+     "papers": [
+      {
+       "label": "JNHA 2025 · 음식 소금 첨가와 난청 위험",
+       "url": "https://doi.org/10.1016/j.jnha.2025.100663"
+      },
+      {
+       "label": "Cogn Neurodyn 2026 · ACh 조절 강화학습 탐색",
+       "url": "https://doi.org/10.1007/s11571-026-10477-5"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2014–2016",
+     "text": "가시아메바 자가포식·활성산소 연구, 항생제의 HIF-1α 번역 억제, 조직 투명화와 이미지 기반 약물 스크리닝"
+    },
+    {
+     "years": "2022–2023",
+     "text": "자궁경부암과 생식기 미생물 리뷰, 직장암 항암방사선치료 반응 바이오마커와 종양 면역 미세환경 분석"
+    },
+    {
+     "years": "2024–",
+     "text": "질 미생물 분리주 유전체·메타게놈 연구, 대규모 코호트 기반 난청 위험 요인 분석, 강화학습 모델링"
+    }
+   ],
+   "resources": {
+    "techniques": "RNA-seq·WGCNA 전사체 분석, 면역 레퍼토리 분석, shotgun 메타게놈·16S rRNA 시퀀싱, 범유전체·비교유전체 분석, qPCR 기준유전자 평가, Cox 비례위험·인과 매개 분석, 메타분석, GWAS, CLARITY 조직 투명화, 이미지 기반 고함량 스크리닝, 강화학습 시뮬레이션",
+    "models": "HeLa·SiHa·CaSki 자궁경부암세포, 대장암 세포주(HCT116, HT-29, SW480 등)와 오가노이드, MCF-7·MCF-7/CerS4·MCF-7/ADR, HepG2·Hep3B·Huh7, C57BL/6N 마우스(살리실산 이명 모델), Acanthamoeba castellanii, MRSA, 인체 모낭 ex vivo 배양"
+   }
+  },
+  "q6ruks": {
+   "question": "대장암과 간암은 어떻게 자라고 퍼지며, 왜 항암제에 내성을 얻을까요? 이 연구실은 microRNA·circRNA·lncRNA 같은 비암호화 RNA와 DNA·히스톤 메틸화 같은 후성유전 변화가 이 과정을 어떻게 조절하는지 묻고, 이를 혈액이나 조직에서 읽어 조기진단과 예후 판단에 쓸 수 있는지 확인해요.",
+   "axes": [
+    {
+     "name": "간암·지방간의 비암호화 RNA 예후 지표",
+     "text": "간암 조직의 circRNA·lncRNA 발현과 LINE-1 저메틸화를 환자 생존과 연결하고, 지방간 섬유화 진행을 순환 lncRNA GAS5로 추적하는 바이오마커 규명",
+     "papers": [
+      {
+       "label": "Sci Rep 2021 · 간암 예후 circRNA",
+       "url": "https://doi.org/10.1038/s41598-021-94074-y"
+      },
+      {
+       "label": "Genes 2020 · 지방간 섬유화와 lncRNA GAS5",
+       "url": "https://doi.org/10.3390/genes11050545"
+      }
+     ]
+    },
+    {
+     "name": "대장암 전이·약물 내성의 후성유전 조절",
+     "text": "대장암 전이에 관여하는 miRNA와 히스톤 메틸전달효소 EHMT2가 5-FU 내성·세포사멸을 조절하는 경로를 세포주·이종이식·환자유래 오가노이드로 규명",
+     "papers": [
+      {
+       "label": "BMB Rep 2015 · 대장암 전이와 miRNA",
+       "url": "https://doi.org/10.5483/bmbrep.2015.48.4.007"
+      },
+      {
+       "label": "STTT 2026 · EHMT2와 5-FU 내성",
+       "url": "https://doi.org/10.1038/s41392-026-02692-7"
+      }
+     ]
+    },
+    {
+     "name": "엑소좀·순환 miRNA 기반 액체생검",
+     "text": "혈청 엑소좀과 순환 miRNA를 이용한 간암 진단 모델, 암연관섬유아세포 엑소좀 miR-1290의 종양 성장 촉진 기전 등 액체생검 표지자 발굴과 기능 연결",
+     "papers": [
+      {
+       "label": "Cancer Commun 2025 · 혈청 엑소좀 miRNA 간암 진단",
+       "url": "https://doi.org/10.1002/cac2.70043"
+      },
+      {
+       "label": "STTT 2026 · CAF 엑소좀 miR-1290",
+       "url": "https://doi.org/10.1038/s41392-026-02922-y"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2003–2010",
+     "text": "위암 Cox-2 CpG 메틸화, 가스트린·수용체 발현, 위장관기질종양 유전자 발현 프로파일링 등 위장관 종양 분자 특성 분석"
+    },
+    {
+     "years": "2015–2020",
+     "text": "대장암 전이 miRNA 정리, 간암 lncRNA-ATB 예후 의의, EBV 위암 바이럴 miRNA, 지방간 섬유화와 GAS5 연결"
+    },
+    {
+     "years": "2021–2023",
+     "text": "간암 circRNA·LINE-1 저메틸화 예후 지표, 대장암 EHMT2와 장내미생물 대사물, 폐암 SMYD2 전이 조절 연구"
+    },
+    {
+     "years": "2024–",
+     "text": "혈청 엑소좀 miRNA 진단 모델, miR-1290 축의 종양 증식 조절, 5-FU 내성 대장암 오가노이드 검증"
+    }
+   ],
+   "resources": {
+    "techniques": "qRT-PCR 기반 miRNA·circRNA·lncRNA 정량, NanoString miRNA 스크리닝, miRNA·RNA 시퀀싱, LINE-1 pyrosequencing, bisulfite sequencing, cDNA microarray, siRNA/shRNA 녹다운, 엑소좀·세포외소포 분리, 3D 스페로이드 배양, 환자유래 오가노이드, 이종이식 마우스 실험",
+    "models": "5-FU 내성 HCT116·HT29 대장암 세포주, H1299 폐암 세포주, MDA-MB-231·BT-549·Hs578T 유방암 세포주, 세포주 유래 이종이식 마우스, 환자유래 대장암 오가노이드, 인간 전정부 위 오가노이드"
    }
   },
   "s2nb4e": {
@@ -1434,6 +2762,339 @@
    "resources": {
     "techniques": "[바이러스 제작] reverse genetics 기반 재조합 인플루엔자 바이러스 생성, 백신주 유전적 최적화\n[유전체·계산] 전장유전체 시퀀싱과 계통분석, PB2 서열 기반 머신러닝(random forest) 위험도 예측\n[면역·진단] 혈구응집(HA)·HI·중화시험, RPA·CRISPR-Cas12a 현장 진단",
     "models": "마우스 병원성 모델, 기니피그 전파 모델, 유정란(embryonated chicken egg) 증식계, MDCK 세포 감염계"
+   }
+  },
+  "sjxmx9": {
+   "question": "다제내성 세균 감염을 항생제 말고 무엇으로 끊을 수 있을까요? 저희는 병원균만 골라 죽이는 박테리오파지와 파지 유래 단백질이 몸 안에서 얼마나 오래 버티고 얼마나 잘 듣는지를 묻습니다. 또 사람 장에 사는 균 가운데 어떤 균이 염증을 누그러뜨리고 병원균을 막아 주는지, 그 균을 어떻게 치료 자원으로 쓸 수 있는지도 함께 살펴요.",
+   "axes": [
+    {
+     "name": "항생제 내성 기전과 임상 역학",
+     "text": "ESBL·카바페넴분해효소·16S rRNA 메틸화효소 등 내성 유전자의 분포와 접합성 플라스미드 전파 추적, Acinetobacter·MRSA·Shigella 임상분리주의 유전형과 내성 표현형 연결.",
+     "papers": [
+      {
+       "label": "J Clin Microbiol 2008 · armA/rmtB 전파",
+       "url": "https://doi.org/10.1128/JCM.01677-07"
+      },
+      {
+       "label": "AAC 2005 · CTX-M형 ESBL 확산",
+       "url": "https://doi.org/10.1128/AAC.49.4.1572-1575.2005"
+      }
+     ]
+    },
+    {
+     "name": "다제내성균 표적 박테리오파지 치료",
+     "text": "CRAB·MDR 대장균 용균 파지의 분리와 유전체 분석, 마우스 모델 약동학과 면역반응 평가, PEG 수식·항생제 순차 병용에 의한 내성 출현 억제, 엔도리신 결합도메인 기반 균 검출 플랫폼 구축.",
+     "papers": [
+      {
+       "label": "JAC-AMR 2025 · CRAB 대상 파지 약동학",
+       "url": "https://doi.org/10.1093/jacamr/dlaf121"
+      },
+      {
+       "label": "ACS Infect Dis 2026 · 파지 PEG화로 체내 지속",
+       "url": "https://doi.org/10.1021/acsinfecdis.5c00755"
+      }
+     ]
+    },
+    {
+     "name": "사람 장내 미생물 유래 신규 균주 발굴",
+     "text": "건강인 분변에서 분리한 Parabacteroides·Bifidobacterium·Collinsella 등 신종 균주의 전장유전체 기반 분류, 위장관 스트레스 내성과 항염증·항산화 기능 평가를 통한 차세대 프로바이오틱 후보 제시.",
+     "papers": [
+      {
+       "label": "Arch Microbiol 2026 · 장내 P. distasonis",
+       "url": "https://doi.org/10.1007/s00203-026-04804-x"
+      },
+      {
+       "label": "Curr Microbiol 2025 · 장내 신종 3종 분리",
+       "url": "https://doi.org/10.1007/s00284-025-04491-9"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "1996–2005",
+     "text": "장내세균 임상분리주의 CTX-M·SHV형 ESBL과 AmpC 과생산 규명, 플라스미드 매개 내성 확산 경로 추적"
+    },
+    {
+     "years": "2005–2013",
+     "text": "Acinetobacter 유전종별 내성 특성 비교, MRSA 클론형과 감염 위험인자 분석, 16S rRNA 메틸화효소 전파 규명"
+    },
+    {
+     "years": "2013–2020",
+     "text": "S. aureus 병독인자와 biofilm 형성 결정요인 규명, 다제내성 A. baumannii 무표지 유전자 결손법 확립"
+    },
+    {
+     "years": "2023–",
+     "text": "파지·엔도리신 기반 치료 및 진단 플랫폼 개발과 장내 유래 신종 프로바이오틱 균주 발굴"
+    }
+   ],
+   "resources": {
+    "techniques": "파지 분리·역가측정·흡착 및 one-step growth 분석, PEG 접합, 재조합 엔도리신 CBD 발현·정제와 자성비드 결합 검출, 전장유전체 시퀀싱과 ANI/dDDH·16S rRNA 계통분석, 마이크로바이옴 분석, PCR-RFLP·PFGE·MLST·접합전달 실험, 무표지 유전자 결손, 마우스 감염모델 약동학·형광 이미징, 사이토카인 정량과 ELISA, 항생제 감수성·FICI 평가",
+    "models": "BALB/c 마우스 전신감염 및 설사 모델, 면역저하 BALB/c 모델, RAW 264.7 대식세포, HT-29 상피세포, 카바페넴내성 A. baumannii·MDR 대장균·E. faecalis 등 임상분리주, S. aureus 8325-4 및 유전자 결손주"
+   }
+  },
+  "ttm8jc": {
+   "question": "췌장 베타세포는 고지방식이나 여러 번의 임신처럼 대사 부담이 커질 때 어떻게 버티고, 왜 어떤 사람에게서는 그 적응이 무너질까요? 동아시아인에게만 있는 당뇨병 유전 변이가 베타세포의 정체성과 보상 능력을 어떻게 흔드는지, 마우스 모델과 사람 코호트를 함께 보며 답을 찾아요.",
+   "axes": [
+    {
+     "name": "대사 스트레스 속 베타세포 적응과 당뇨 유전 변이",
+     "text": "PAX4 R192H knock-in 마우스와 다산 모델에서 ER 스트레스, 탈분화, 노화 특징으로 무너지는 베타세포 보상 능력을 사람 코호트 자료와 연결",
+     "papers": [
+      {
+       "label": "Genome Med 2026 · PAX4 R192H와 베타세포",
+       "url": "https://doi.org/10.1186/s13073-026-01669-z"
+      },
+      {
+       "label": "Exp Mol Med 2023 · 다산과 베타세포 증식",
+       "url": "https://doi.org/10.1038/s12276-023-01100-2"
+      }
+     ]
+    },
+    {
+     "name": "심장 방 형성과 혈관 발생의 신호 조절",
+     "text": "심근 Angpt1–심내막 Tie2 신호에 의한 cardiac jelly 분해와 심방 형성, 내피세포 YAP/TAZ에 의한 혈관 새싹 형성·장벽 성숙 규명",
+     "papers": [
+      {
+       "label": "Cell Rep 2018 · Angpt1과 심방 형성",
+       "url": "https://doi.org/10.1016/j.celrep.2018.04.080"
+      },
+      {
+       "label": "J Clin Invest 2017 · YAP/TAZ와 혈관신생",
+       "url": "https://doi.org/10.1172/JCI93825"
+      }
+     ]
+    },
+    {
+     "name": "지방조직 형성과 대사질환 위험 요인",
+     "text": "혈관을 따라 증식하는 배아 지방전구세포의 정체 규명과 PFAS 복합 노출이 성인 대사증후군 위험에 미치는 영향 분석",
+     "papers": [
+      {
+       "label": "Development 2015 · 배아 지방전구세포",
+       "url": "https://doi.org/10.1242/dev.125336"
+      },
+      {
+       "label": "IJHEH 2024 · PFAS 노출과 대사증후군",
+       "url": "https://doi.org/10.1016/j.ijheh.2024.114427"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2013–2018",
+     "text": "재조합 hLIF 생산, 지방전구세포·혈관·심장 발생과 만능줄기세포 유래 심근모세포 연구"
+    },
+    {
+     "years": "2023–2024",
+     "text": "다산이 베타세포 증식 능력에 미치는 영향과 PFAS 노출의 대사증후군 위험 분석"
+    },
+    {
+     "years": "2026–",
+     "text": "당뇨병 위험 변이 PAX4 R192H가 베타세포 정체성과 대사 스트레스 보상을 해치는 기전 규명"
+    }
+   ],
+   "resources": {
+    "techniques": "knock-in·조건부 유전자 결손 마우스 제작과 표현형 분석, 내당능·인슐린 분비 등 대사 표현형 분석, 계통 추적, islet bulk 및 single-cell RNA-seq, 사람 코호트 OGTT 기반 베타세포 기능 분석, BKMR 등 역학 통계 분석, 만능줄기세포 분화, 대장균 재조합 단백질 발현·정제",
+    "models": "Pax4 R192H knock-in 마우스, 베타세포 특이 Pax4 결손 마우스, 고지방식이 마우스, 다산 마우스 모델, 심근 Angpt1 결손·Tie2 결손 마우스, 내피 특이 Yap/Taz 결손 마우스, 마우스·사람 만능줄기세포, 마우스 배아줄기세포주"
+   }
+  },
+  "w4qffq": {
+   "question": "뇌 속 글루타메이트·글루타티온 같은 대사물이나 신경 활동의 변화를 몸을 열지 않고 MRI로 얼마나 정확히 잴 수 있을까요? 그리고 이런 신호가 우울증·강박장애·편두통 같은 질환을 구분하는 지표가 될 수 있을까요? 나아가 병소를 더 잘 보여 주면서 치료 효과까지 내는 조영제는 어떻게 설계할 수 있는지도 묻고 있어요.",
+   "axes": [
+    {
+     "name": "MRS·CEST 기반 뇌 대사물 정량 영상",
+     "text": "MEGA-PRESS 1H-MRS와 CEST로 글루타티온·글루타메이트를 정량하고, 우울·강박장애·편두통·종양에서 산화스트레스 지표로서의 진단 가능성 규명",
+     "papers": [
+      {
+       "label": "Biol Psychiatry 2025 · 우울·강박장애 뇌 GSH",
+       "url": "https://doi.org/10.1016/j.biopsych.2024.08.018"
+      },
+      {
+       "label": "J Headache Pain 2026 · 편두통 시상 GSH 감소",
+       "url": "https://doi.org/10.1186/s10194-026-02379-y"
+      }
+     ]
+    },
+    {
+     "name": "fMRI·DTI로 본 뇌 기능·구조 변화",
+     "text": "과제·휴지기 fMRI, 뇌 엔트로피, DTI 섬유추적으로 정신질환·신경손상·인지중재에 따른 뇌 네트워크와 백질 변화를 임상 증상과 연결",
+     "papers": [
+      {
+       "label": "Brain Imaging Behav 2024 · 조현병 뇌 엔트로피",
+       "url": "https://doi.org/10.1007/s11682-024-00909-3"
+      },
+      {
+       "label": "J Neurotrauma 2010 · 경수손상 DTI 신경로",
+       "url": "https://doi.org/10.1089/neu.2009.1265"
+      }
+     ]
+    },
+    {
+     "name": "Gd 조영제·나노입자 테라노스틱 설계",
+     "text": "천연 항염 물질을 결합한 Gd 착물과 란타나이드 산화물 나노입자로 이완율을 높이고 염증·종양·알츠하이머 병소의 영상화와 치료를 함께 하는 조영제 설계",
+     "papers": [
+      {
+       "label": "J Med Chem 2026 · 친지질성 Gd-PCTA 조영제",
+       "url": "https://doi.org/10.1021/acs.jmedchem.5c03268"
+      },
+      {
+       "label": "ACS PTS 2025 · 알츠하이머 Gd-DO3A-Va",
+       "url": "https://doi.org/10.1021/acsptsci.5c00316"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2004–2010",
+     "text": "DTI·자화전달 등 MR 기법으로 청각경로, 경수손상, 3.0T 다절편 뇌영상 평가"
+    },
+    {
+     "years": "2013–2018",
+     "text": "종양 표적 SPECT/MR 이중 영상 Gd 프로브 개발과 용접공 실행기능 fMRI 연구"
+    },
+    {
+     "years": "2019–2022",
+     "text": "인지훈련·곤충 사육의 fMRI 효과 분석, 플라보노이드 결합 Gd 테라노스틱, Gd 중성자포획치료 평가"
+    },
+    {
+     "years": "2024–",
+     "text": "MEGA-PRESS·CEST 기반 GSH·글루타메이트 정량, 뇌 엔트로피 분석, 다중영상 란타나이드 나노입자로 확장"
+    }
+   ],
+   "resources": {
+    "techniques": "과제·휴지기 fMRI, 뇌 엔트로피 분석, DTI·섬유추적, MEGA-PRESS 1H-MRS, CEST MRI, 망간증강 MRI(MEMRI), Gd 착물 합성과 이완율(r1·r2) 측정, 란타나이드·산화철 나노입자 합성, X선 CT 조영, 형광 양자수율 측정, CETSA·DARTS, 장 오가노이드 computational clearing 영상, RNA-seq",
+    "models": "5XFAD 마우스, LPS 유도 신경염증 마우스, 염증 마우스 모델, U87MG 종양 이식 마우스, CT26 종양 모델, 뇌·간 종양 마우스 모델, 대장균 감염 마우스, Sprague-Dawley 랫드, Lgr5-EGFP 마우스 유래 장 오가노이드(DSS 염증)"
+   }
+  },
+  "wdztdt": {
+   "question": "간은 공복과 식후라는 서로 다른 영양 상태를 어떻게 알아차리고 대사 방식을 바꿀까요? 이 연구실은 PPARα·FXR 같은 영양 감지 핵수용체가 자가포식과 서로 어떻게 맞물려 간 대사와 전신 에너지 균형을 조율하는지, 그리고 이 연결을 대사질환 치료에 어떻게 활용할 수 있는지를 물어요.",
+   "axes": [
+    {
+     "name": "핵수용체와 간 자가포식의 상호 조절",
+     "text": "간 특이 Atg7 결손에서 축적된 NRF2가 PPARα·FXR의 약물 활성화를 막는 기전 규명, 기저 자가포식과 핵수용체 신호의 상호 의존성 연결",
+     "papers": [
+      {
+       "label": "Cells 2022 · 자가포식과 PPARα 활성화",
+       "url": "https://doi.org/10.3390/cells11040754"
+      },
+      {
+       "label": "Antioxidants 2022 · NRF2의 FXR 활성 억제",
+       "url": "https://doi.org/10.3390/antiox11020370"
+      }
+     ]
+    },
+    {
+     "name": "핵수용체의 전신 대사 항상성 조절",
+     "text": "간 FXR/SHP 축의 포도당·지방산 대사와 체중 조절, SHP의 영양 신호–일주기 연결, 장 FXR의 Trpm6 직접 전사 조절을 통한 담즙산–Mg2+ 항상성 연결",
+     "papers": [
+      {
+       "label": "IJMS 2022 · 장 FXR의 Trpm6 전사 조절",
+       "url": "https://doi.org/10.3390/ijms23041980"
+      },
+      {
+       "label": "Hepatology 2017 · 간 FXR/SHP와 전신 대사",
+       "url": "https://doi.org/10.1002/hep.29199"
+      }
+     ]
+    },
+    {
+     "name": "선택적 자가포식과 면역세포 대사",
+     "text": "퍼옥시좀 자가포식을 유도하는 화합물의 ROS–TFEB·ATM 기전 규명, 갈색지방 미토파지와 호중구 대사·자가포식에 관한 공동연구와 정리",
+     "papers": [
+      {
+       "label": "BMCL 2025 · ZLDI-8의 퍼옥시좀 자가포식",
+       "url": "https://doi.org/10.1016/j.bmcl.2025.130130"
+      },
+      {
+       "label": "Immune Netw 2020 · 호중구 대사 리뷰",
+       "url": "https://doi.org/10.4110/in.2020.20.e46"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2011–2016",
+     "text": "SHP의 간 일주기 조절과 글루코코르티코이드 수용체의 간 섬유화 조절 등 핵수용체 기능 연구"
+    },
+    {
+     "years": "2016–2020",
+     "text": "PPARα·FXR의 간 자가포식 전사 조절 정리, 간 FXR/SHP 축의 전신 대사 조절과 FXR–Rubicon 자가포식 억제 공동연구"
+    },
+    {
+     "years": "2021–",
+     "text": "기저 자가포식–NRF2 축의 PPARα·FXR 활성 조절 규명, 장 FXR 표적 유전자 발굴과 퍼옥시좀 자가포식 연구로 확장"
+    }
+   ],
+   "resources": {
+    "techniques": "간 특이·조건부 유전자 결손 마우스 표현형 분석, 합성 핵수용체 리간드(GW4064 등) 처리 후 표적 유전자 발현 분석, FXR ChIP-seq 데이터 분석과 반응요소 결합 확인, 루시퍼레이스 프로모터 분석, 세포 기반 화합물 라이브러리 스크리닝",
+    "models": "간 특이 Atg7 knockout 마우스, Fxr/Shp 이중 및 간 특이 이중 knockout 마우스, Shp knockout 마우스, 면역세포·성상세포 특이 GR knockout 마우스(GR LysM, GR hGFAP), pink1 knockout 마우스, ATG5 knockout HeLa 세포, LX-2 간성상세포주"
+   }
+  },
+  "ww8k4q": {
+   "question": "같은 약이라도 비만·성별·질환·함께 먹는 약에 따라 몸속 농도와 효과가 왜 달라질까요? 혈액과 소변 속 대사체·지질의 변화로 약물·식이·질환이 몸에 남기는 흔적을 읽어 내고, 이를 임상시험 설계와 개인에 맞춘 투약에 어떻게 쓸 수 있을지 물어요.",
+   "axes": [
+    {
+     "name": "임상 약동학·약력학과 약물상호작용",
+     "text": "건강인·비만인·환자에서 신약과 복합제의 약동학·약력학, 약물상호작용, 생물학적동등성 평가와 집단약동학 모델 기반 용량 최적화",
+     "papers": [
+      {
+       "label": "DDDT 2026 · 비만인의 다파글리플로진 PK/PD",
+       "url": "https://doi.org/10.2147/DDDT.S574016"
+      },
+      {
+       "label": "DDDT 2020 · 피마사르탄-리나글립틴 상호작용",
+       "url": "https://doi.org/10.2147/DDDT.S248205"
+      }
+     ]
+    },
+    {
+     "name": "LC-MS 기반 대사체·지질체 바이오마커",
+     "text": "약물 투여·식이 개입·환경오염물질 노출·질환에 따른 혈장·소변 대사체와 지질 변화를 untargeted metabolomics·lipidomics로 추적하는 바이오마커 규명",
+     "papers": [
+      {
+       "label": "Eur J Clin Nutr 2026 · 식물성 식단과 소변 대사체",
+       "url": "https://doi.org/10.1038/s41430-026-01703-8"
+      },
+      {
+       "label": "Metabolites 2025 · 다파글리플로진 혈장 대사체",
+       "url": "https://doi.org/10.3390/metabo15070484"
+      }
+     ]
+    },
+    {
+     "name": "임상 데이터 기반 머신러닝·예후 예측",
+     "text": "전자의무기록의 임상검사 수치로 임상시험 적격 대상자를 고르는 머신러닝 틀과 중증열성혈소판감소증후군 사망 예측 지표의 시간의존 분석 설계",
+     "papers": [
+      {
+       "label": "JMIR AI 2025 · 생동성시험 대상자 선별 ML",
+       "url": "https://doi.org/10.2196/64845"
+      },
+      {
+       "label": "Sci Rep 2025 · SFTS 사망 예측 시간의존 Cox",
+       "url": "https://doi.org/10.1038/s41598-025-94416-0"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2014–2018",
+     "text": "파골세포 분화 조절 분자(LCN2, CPE, GPR84) 연구와 함께 항고혈압제 약물상호작용 평가, LC-MS/MS 정량법 개발, 잔류성 유기오염물질 노출 연구"
+    },
+    {
+     "years": "2019–2022",
+     "text": "신장이식 소변 대사체 바이오마커, 인삼 사포닌·β-lapachone 인체 약동학, 집단약동학 모델링과 복합제 생물학적동등성 평가"
+    },
+    {
+     "years": "2023–",
+     "text": "비만에 따른 약동학·약력학 차이, 식이 개입·환경 노출 대사체·지질체 분석, 머신러닝 기반 임상시험 대상자 선별과 약물유전체 분석"
+    }
+   ],
+   "resources": {
+    "techniques": "LC-MS/MS 혈장 약물 정량법 개발·밸리데이션, UHPLC-QTOF/MS untargeted metabolomics·lipidomics, GC-MS 소변 대사체 분석, PCA·OPLS-DA 다변량 분석, 비구획 약동학 분석, 비선형 혼합효과 집단약동학 모델링, 1상 교차설계 임상시험, CYP2D6 유전형·복제수 분석, 머신러닝 앙상블 모델, 시간의존 Cox 회귀",
+    "models": "인간 간 마이크로솜, 골수유래 대식세포(BMM), CPE knockout 마우스, INS-1E β세포, Jurkat T세포, 인간 혈소판·PBMC, CRAB 감염 마우스 모델"
    }
   },
   "y6q4hu": {
@@ -1503,6 +3164,75 @@
    "resources": {
     "techniques": "환자 섬유아세포·뇌·혈장의 ASM 분석, 환자 iPSC 유래 신경세포 분석, 병체결합(parabiosis), 일차 뇌혈관내피세포 배양, 줄기세포 뇌 내 이식, 전세포 패치클램프, 기억·행동 검사(Morris water maze, fear conditioning)",
     "models": "APP/PS1·5xFAD 알츠하이머병 마우스, ASM+/- 마우스, 뇌혈관내피 특이 ASM 과발현·knockdown 마우스, 신경세포 특이 SphK1 결손 마우스, ApoM 결손 마우스, 니만-픽병 C형 마우스, NPY 결손·Y1 수용체 조건부 결손 마우스"
+   }
+  },
+  "ymg4ub": {
+   "question": "미세먼지나 잔류성 유기오염물질 같은 환경 노출이 사람 세포의 DNA 메틸화를 어떻게 바꾸고, 그 변화가 폐암 같은 질환으로 어떻게 이어지는지 물어요. 암 조직과 혈액에서 읽어 낸 메틸화 표지가 환자의 예후를 알려 주는 바이오마커가 될 수 있는지도 함께 살펴요.",
+   "axes": [
+    {
+     "name": "폐암·대장암 DNA 메틸화 예후 바이오마커",
+     "text": "비소세포폐암 절제 조직에서 FOSB, IRX1, TGFBI, RGC32 등 유전자 프로모터 메틸화를 측정하고 환자 생존·임상 특성과 연결, 대장암 진행 단계별 메틸화 누적 규명",
+     "papers": [
+      {
+       "label": "Oncol Rep 2020 · FOSB 엑손4 비메틸화와 폐암 예후",
+       "url": "https://doi.org/10.3892/or.2019.7431"
+      },
+      {
+       "label": "Cancer Biomark 2021 · 대장암 진행과 메틸화 변화",
+       "url": "https://doi.org/10.3233/CBM-203259"
+      }
+     ]
+    },
+    {
+     "name": "환경 노출이 남기는 후성유전 변화",
+     "text": "미세먼지(PM2.5, PM10, PM10-PAH)를 처리한 기관지 상피세포·표피 각질세포와 POPs·PAH 노출 인체 시료에서 반복서열·유전자 메틸화 변화 규명",
+     "papers": [
+      {
+       "label": "Genes Environ 2022 · 미세먼지와 반복서열 저메틸화",
+       "url": "https://doi.org/10.1186/s41021-022-00235-4"
+      },
+      {
+       "label": "Anim Cells Syst 2023 · 미세먼지와 NAA10 저메틸화",
+       "url": "https://doi.org/10.1080/19768354.2023.2189934"
+      }
+     ]
+    },
+    {
+     "name": "체세포 변이로 추적한 인간 초기 발생 계통",
+     "text": "시신 기증자 조직의 단일세포 클론 전장유전체 분석으로 첫 세포분열 할구들이 온몸에 기여하는 비대칭성 연결",
+     "papers": [
+      {
+       "label": "Nature 2021 · 체세포 변이로 본 초기 배아 클론",
+       "url": "https://doi.org/10.1038/s41586-021-03786-8"
+      },
+      {
+       "label": "TERM 2022 · 2세포기 할구의 비대칭 기여",
+       "url": "https://doi.org/10.1007/s13770-022-00443-7"
+      }
+     ]
+    }
+   ],
+   "timeline": [
+    {
+     "years": "2002",
+     "text": "좌골신경 만성 압박 손상 모델에서 배근신경절 전압개폐 칼륨통로 유전자 발현 감소 분석"
+    },
+    {
+     "years": "2007–2011",
+     "text": "비소세포폐암에서 E-cadherin, HOXA5, CHK2, PTEN, RGC32 등 프로모터 메틸화 양상과 임상 특성 분석"
+    },
+    {
+     "years": "2015–2020",
+     "text": "비만·PAH·POPs 노출과 메틸화 연관 탐색, 파이로시퀀싱 기반 폐암 예후 메틸화 표지 발굴"
+    },
+    {
+     "years": "2021–",
+     "text": "미세먼지 유도 메틸화 변화, 대장암 진행 메틸화, 체세포 변이 기반 발생 계통과 조직 투명화 공동연구"
+    }
+   ],
+   "resources": {
+    "techniques": "메틸화 특이 PCR(nested MSP 포함), bisulfite 파이로시퀀싱, 전장유전체 bisulfite 시퀀싱, RT-PCR·qRT-PCR, 면역조직화학, LOH 미세위성 분석, 루시퍼라제 리포터·EMSA·ChIP, 단일세포 클론 전장유전체 시퀀싱, 조직 투명화와 광시트 현미경 3D 영상",
+    "models": "정상 인간 기관지 상피세포(NHBE), 정상 인간 표피 각질세포(NHEK), H1299 폐암 세포, 비소세포폐암·대장암 절제 조직, 말초혈액·내장지방 시료, 시신 기증자 조직, 랫드 좌골신경 CCI 모델, 랫드 MCAO 뇌허혈 모델, Gad-GFP·Thy1-YFP 마우스"
    }
   },
   "yqqdrd": {
