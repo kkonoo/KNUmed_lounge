@@ -1,0 +1,20 @@
+{
+ "_설명": "교수소개(med.knu.ac.kr)에 학력·경력이 비어 있는 분을 보태는 자리예요. 교수님 본인의 공개 자료에서만 옮겨 적고, source에 어디서 가져왔는지 적어요. 메일·전화는 적지 않아요. pipeline/collect.py 가 읽어요.",
+ "xxmm65": {
+  "source": "연구실 페이지 https://im.knu.ac.kr/lee/principal-investigator/",
+  "edu": [
+   "2015.03–2019.08 충북대학교 수의과대학 박사 (Ph.D)",
+   "2010.03–2012.02 충북대학교 수의과대학 석사 (M.S.)",
+   "2004.03–2010.02 충북대학교 수의과대학 수의학사 (D.V.M., B.S.)"
+  ],
+  "career": [
+   "2025.03–현재 경북대학교 의과대학 조교수",
+   "2023.09–2025.02 안전성평가연구원(Korea Institute of Toxicology, KIT) 선임연구원",
+   "2019.09–2023.08 서울아산병원 아산생명과학연구원(Asan Institute for Life Sciences, AMC) 박사후연구원",
+   "2012.03–2015.02 한국원자력의학원(Korea Institute of Radiological & Medical Sciences, KIRAMS) 전문연구요원"
+  ],
+  "info": [
+   "연구실은 2025년에 열렸고, 자궁 내 환경을 만드는 생물학적 과정과 조절 기전을 발생생물학·생식유전학·실험의학으로 함께 봐요."
+  ]
+ }
+}

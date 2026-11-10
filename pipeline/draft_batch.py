@@ -168,15 +168,16 @@ def user_text(person, rec):
     if rec.get('homonym'):
         L.append('- 주의: 같은 교실에 이름이 똑같은 교수님이 또 계세요. 논문만으로는 두 분을 나눌 수 '
                  '없으니, 어느 분 논문인지 분명하지 않으면 모두 빼고 notes에 그 사정을 적어 주세요.')
+    src = rec.get('extra_source') or '학교 교수소개'
     L.append('')
-    L.append('# 학교 교수소개의 학력')
+    L.append(f'# 학력 (출처: {src})')
     L += [f'- {x}' for x in rec.get('edu') or ['(없음)']]
     L.append('')
-    L.append('# 학교 교수소개의 경력')
+    L.append(f'# 경력 (출처: {src})')
     L += [f'- {x}' for x in rec.get('career') or ['(없음)']]
     if rec.get('info'):
         L.append('')
-        L.append('# 학교 교수소개의 기본정보')
+        L.append(f'# 기본정보 (출처: {src})')
         L += [f'- {x}' for x in rec['info']]
 
     L.append('')
@@ -323,7 +324,7 @@ def cmd_fetch():
             out[pid] = json.loads(text)
         except json.JSONDecodeError as e:
             trouble.append((pid, 'json', str(e)))
-    save(out, {pid: MODEL for pid in out}, trouble)
+    save({**load('results.json'), **out}, {pid: MODEL for pid in out}, trouble)
     bank_usage('batch', u)
     print(f"\n받은 초안 {len(out)}개 → {WORK / 'results.json'}")
     for pid, kind, msg in trouble:

@@ -33,6 +33,27 @@ def norm_doi(s):
 
 LABEL_MAX = 40
 
+# 연구 질문은 해요체예요 (DESIGN §9 '문체'). 모델이 더러 합니다체로 끝내서 끝말만 바꿔요.
+# 손으로 고치면 이 스크립트를 다시 돌릴 때 지워지니, 여기서 하는 게 맞아요.
+HAEYO = {
+    '묻습니다': '물어요', '찾습니다': '찾아요', '살핍니다': '살펴요', '봅니다': '봐요',
+    '살펴봅니다': '살펴봐요', '알아봅니다': '알아봐요', '밝힙니다': '밝혀요',
+    '만듭니다': '만들어요', '합니다': '해요', '입니다': '이에요',
+    '있습니다': '있어요', '없습니다': '없어요', '됩니다': '돼요',
+}
+
+
+def to_haeyo(q):
+    """끝 문장이 합니다체면 해요체로. 바꿀 말이 표에 없으면 그대로 두고 알려요."""
+    s = q.rstrip()
+    if not s.endswith('.'):
+        return q, False, False
+    body = s[:-1]
+    for a, b in sorted(HAEYO.items(), key=lambda kv: -len(kv[0])):
+        if body.endswith(a):
+            return body[:-len(a)] + b + '.', True, False
+    return q, False, not re.search(r'요$', body)
+
 
 def fit_label(label):
     """대표 논문 이름이 40자를 넘으면 학술지를 줄임말로 (DESIGN §9의 'STTT 2025 ·' 처럼).
@@ -93,7 +114,9 @@ def main(write=False):
                                'author': where})
             row['axes'].append({'name': a.get('name'), 'papers': picked})
 
-        q = (r.get('question') or '').strip()
+        q, fixed, odd = to_haeyo((r.get('question') or '').strip())
+        row['haeyo_fixed'] = fixed
+        row['haeyo_odd'] = odd
         axes = [a for a in (r.get('axes') or []) if (a.get('name') or '').strip()]
         if not q or not axes:
             row['ok'] = False
@@ -172,6 +195,10 @@ def report(rows):
                 L.append('    - (대표 논문 없음)')
         for s in r.get('shortened') or []:
             L.append(f'- 이름 줄임: {s}')
+        if r.get('haeyo_fixed'):
+            L.append('- 연구 질문 끝말을 해요체로 바꿨어요')
+        if r.get('haeyo_odd'):
+            L.append('- **확인 필요**: 연구 질문이 해요체로 끝나지 않아요')
         if r.get('notes'):
             L.append(f"- 확인할 점: {r['notes']}")
         if not r['ok']:

@@ -81,6 +81,8 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 - 이름북에 없는 분 사진: `python3 pipeline/school_photos.py`. 공개 프로필을 학교 홈페이지 교수소개와 이름·교실로 맞춰 사진만 가져와요. 교수님을 새로 더한 뒤 다시 돌려요.
 - 논문 초안 만들기 (DESIGN §9): 초안이 없고 본인이 확인하지 않은 분만 골라서 세 번에 걸쳐 해요.
   1. `python3 pipeline/collect.py` — 학교 교수소개의 영문 이름·학력·경력과 NCBI 후보 논문을 `pipeline/work/`에 모아요.
+     - 교수소개에 학력·경력이 비어 있는 분은 `pipeline/extra.json`에 보태요. 경력을 모르면 소속으로 본인 논문을 가릴 수 없어요. 교수님 본인의 공개 자료(연구실 페이지 등)에서만 옮겨 적고 `source`에 어디서 가져왔는지 적어요.
+     - 한 분만 다시 하려면 `pipeline/work/candidates.json`에서 그 번호를 지우고 다시 돌려요. 이미 모은 분은 건너뛰어요.
   2. `ANTHROPIC_API_KEY=... python3 pipeline/draft_batch.py submit` — 교수님 한 분이 요청 하나인 배치를 보내고, `fetch`로 결과를 받아요 (`probe <번호>`로 한 분만 미리 볼 수 있어요. `pip install anthropic` 필요).
   3. `python3 pipeline/apply_drafts.py --write` — 한도를 통과하고 대표 논문이 정말 후보 논문인 초안만 `data/people.json`의 `drafts`에 넣어요. 보고서는 `pipeline/work/report.md`.
   - `pipeline/work/`는 작업 파일이라 저장소에 올리지 않아요. API 키는 환경 변수로만 읽고 어디에도 적지 않아요.

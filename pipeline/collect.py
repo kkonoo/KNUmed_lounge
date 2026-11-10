@@ -10,6 +10,8 @@
   학력·경력에 나온 기관을 소속 조건으로 같이 넣어요.
 - 논문마다 PMID·DOI·학술지·연도·제목·초록(앞 1500자)과, 그 교수님 이름과 맞는 저자의
   순서·소속을 남겨요. 본인 논문을 고르는 건 다음 단계(배치)가 해요.
+- 교수소개에 학력·경력이 비어 있는 분은 pipeline/extra.json 으로 보탤 수 있어요.
+  교수님 본인의 공개 자료(연구실 페이지 등)만 쓰고, 어디서 가져왔는지 source에 적어요.
 - 결과는 pipeline/work/candidates.json. 작업 파일이라 저장소에 올리지 않아요(.gitignore).
 """
 import base64
@@ -27,6 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PEOPLE = ROOT / 'data' / 'people.json'
 WORK = Path(__file__).resolve().parent / 'work'
+EXTRA = Path(__file__).resolve().parent / 'extra.json'
 SITE = 'https://med.knu.ac.kr'
 LIST = f'{SITE}/pages/sub.htm?nav_code=knu1670413496&view_cate=&view_cate2='
 EUTILS = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils'
@@ -83,7 +86,8 @@ INSTITUTIONS = {
     '생명공학연구원': 'KRIBB', 'KRIBB': 'KRIBB', '화학연구원': 'Korea Research Institute of Chemical',
     '한국뇌연구원': 'Korea Brain Research', 'KBRI': 'Korea Brain Research',
     '국립암센터': 'National Cancer Center', '보건연구원': 'Korea National Institute of Health',
-    '한국원자력': 'Korea Atomic Energy', '표준과학연구원': 'Korea Research Institute of Standards',
+    '한국원자력': 'Korea Atomic Energy', '원자력의학원': 'Korea Institute of Radiological',
+    '아산생명과학': 'Asan Institute for Life Sciences', '표준과학연구원': 'Korea Research Institute of Standards',
     '삼성서울': 'Samsung Medical Center', '삼성의료원': 'Samsung Medical Center',
     '아산병원': 'Asan Medical Center', '세브란스': 'Severance',
     '하버드': 'Harvard', '존스홉킨스': 'Johns Hopkins', '스탠퍼드': 'Stanford', '스탠포드': 'Stanford',
@@ -134,6 +138,17 @@ def public_profiles():
         token = page.get('nextPageToken')
         if not token:
             return out
+
+
+def extra_for(pid):
+    """pipeline/extra.json 에 손으로 적어 둔 학력·경력 (교수소개가 비어 있는 분).
+
+    20분 넘게 교수소개의 학력·경력이 비어 있어요. 경력을 모르면 소속으로 본인 논문을
+    가릴 수 없어서, 본인 공개 자료에서 옮겨 적을 자리를 뒀어요.
+    """
+    if not EXTRA.exists():
+        return {}
+    return json.loads(EXTRA.read_text(encoding='utf-8')).get(pid, {})
 
 
 def targets():
@@ -258,6 +273,7 @@ GENERIC = {'university', 'univ', 'institute', 'college', 'school', 'medicine', '
            'hospital', 'research', 'center', 'centre', 'department', 'graduate', 'national',
            'immunology', 'immunobiology', 'biochemistry', 'physiology', 'pharmacology',
            'anatomy', 'pathology', 'microbiology', 'neuroscience', 'biology', 'science',
+           'toxicology', 'radiology', 'veterinary',
            'sciences', 'engineering', 'health', 'public', 'clinical', 'postdoctoral',
            'professor', 'visiting', 'korea', 'korean', 'america', 'american', 'the', 'and', 'of',
            'ph.d', 'phd', 'ph.d.', 'm.d', 'md', 'm.s', 'ms', 'b.s', 'bs', 'dvm', 'fellow'}
@@ -487,7 +503,8 @@ def collect_one(p, detail):
     return {
         'name_en': detail['name_en'], 'edu': detail['edu'], 'career': detail['career'],
         'info': detail['info'], 'variants': initials + full_forms, 'surnames': surs,
-        'homonym': detail.get('homonym', False), 'affiliations': affs,
+        'homonym': detail.get('homonym', False), 'extra_source': detail.get('extra_source', ''),
+        'affiliations': affs,
         'queries': {'init': q_init, 'name': q_name},
         'pubmed_count': {'init': n_init, 'name': n_name},
         'found': len(papers), 'over_cap': dropped, 'papers': kept,
@@ -532,6 +549,13 @@ def main():
         detail = school_detail(same[0][2])
         detail['rank_site'] = same[0][1]
         detail['homonym'] = homonym
+        ex = extra_for(p['id'])
+        for k in ('edu', 'career', 'info'):
+            if ex.get(k):
+                detail[k] = ex[k]
+        if ex.get('source'):
+            detail['extra_source'] = ex['source']
+            print(f"    학력·경력은 extra.json 에서 ({ex['source']})")
         print(f"    영문 이름 {detail['name_en'] or '없음'}, 학력 {len(detail['edu'])}줄, 경력 {len(detail['career'])}줄")
         rec = collect_one(p, detail)
         if rec is None:
