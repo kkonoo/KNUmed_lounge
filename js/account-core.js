@@ -90,3 +90,6 @@ function authMessage(err) {
   if (/permission-denied|insufficient permissions/i.test(code)) return '권한이 없어요';
   return '잠시 문제가 생겼어요. 다시 해 주세요';
 }
+
+// Worker(worker/worker.js, 관리자 PIN 초기화)도 같은 PIN → 비밀번호 규칙을 써요. 브라우저에는 module이 없어 건너뜀
+if (typeof module === 'object' && module.exports) module.exports = { pinToPassword };

@@ -3,7 +3,6 @@
 // 데이터는 admin-db.js, 계산은 js/account-core.js · people/people-core.js, 입력 부품은 js/form.js
 
 const app = $('app');
-const CONSOLE_USERS = 'https://console.firebase.google.com/project/knumed-lounge/authentication/users';
 let S = null, D = null, tab = 'roster', find = '', editing = '';
 
 const fmtTime = ms => (ms ? new Date(ms).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '');
@@ -217,7 +216,7 @@ function rosterRow(r) {
     if (!on && !confirmBox(`${r.name} 교수님 계정을 멈출까요? 그 순간부터 로그인해도 아무것도 못 봐요.`)) return;
     try { await adminDb.setActive(r.email, on, r.mems, r.name, r.profile); await reload(); } catch (e) { fail('바꾸지 못했어요', e); }
   }, 'btn small'));
-  if (r.state === 'joined') acts.append(button('PIN 초기화', () => pinResetHelp(r), 'btn small'));
+  if (r.state === 'joined') { const b = button('PIN 초기화', () => pinReset(r, b), 'btn small'); acts.append(b); }
   if (r.mems.length > 1) {
     acts.append(button(`예전 계정 ${r.mems.length - 1}개 정리`, async () => {
       try { for (const m of r.mems.slice(1)) await adminDb.removeMember(m.uid, `${r.name} (${r.email})`); toast('정리했어요'); await reload(); } catch (e) { fail('정리하지 못했어요', e); }
@@ -284,27 +283,14 @@ const linkOf = (r, pid, person) => ({
 });
 const actsRow = (...nodes) => { const a = h('div', 'form-actions'); a.append(...nodes); return a; };
 
-// PIN 초기화: Worker를 붙이기 전까지는 Firebase 콘솔에서 로그인 계정을 지우고 다시 가입
-function pinResetHelp(r) {
-  const dlg = h('dialog');
-  dlg.append(
-    h('h2', '', `${r.name} 교수님 PIN 초기화`),
-    h('p', '', '지금은 Firebase 콘솔에서 해요.'),
-  );
-  const ol = h('ol', 'hint');
-  for (const s of [
-    `Firebase 콘솔 › Authentication › 사용자에서 ${r.email} 을 찾아 ⋮ › 계정 삭제`,
-    '교수님께 “처음 가입”에서 새 PIN으로 다시 가입하시라고 알려 드려요 (가입 코드는 지금 코드)',
-    '다시 가입하시면 이 명단에 ‘예전 계정 정리’ 단추가 생겨요. 눌러서 정리해요',
-  ]) ol.append(h('li', '', s));
-  const go = h('a', 'btn primary', 'Firebase 콘솔 열기');
-  Object.assign(go, { href: CONSOLE_USERS, target: '_blank', rel: 'noopener' });
-  const acts = h('div', 'dialog-actions');
-  acts.append(withIcon(button('메일 복사', () => copyText(r.email), 'btn'), 'copy'), go, button('닫기', () => dlg.close(), 'btn'));
-  dlg.append(ol, acts);
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg);
-  dlg.showModal();
+// PIN 초기화: Worker가 그 교수님 로그인 PIN을 0000으로 바꿔요 (Firebase 서비스 계정 키는 Worker 비밀값, worker/README.md)
+async function pinReset(r, btn) {
+  if (!confirmBox(`${r.name} 교수님 PIN을 0000으로 초기화할까요?`)) return;
+  try {
+    await busy(btn, '바꾸는 중…', () => workerCall('/admin/pin-reset', { method: 'POST', body: { email: r.email } }));
+  } catch (e) { toast(e.message, 4000); return; }
+  toast(`${r.name} 교수님 PIN을 0000으로 바꿨어요`, 3500);
+  adminDb.log('PIN 초기화', `${r.name} (${r.email})`).catch(e => console.error(e));
 }
 
 // ---------- 관리자 ----------

@@ -179,7 +179,6 @@ dialog {
 dialog::backdrop { background: rgba(20, 20, 25, .35); backdrop-filter: blur(2px); }
 dialog h2 { margin: 4px 0 10px; font-size: 1.05rem; }
 dialog h2 + .hint { margin-top: 0; line-height: 1.5; }
-.dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-top: 16px; }
 /* 화면 밝기·글씨 크기 메뉴 (js/theme.js) */
 .theme-menu { position: fixed; inset: auto; margin: 0; padding: 5px; min-width: 12rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text); box-shadow: 0 12px 32px rgba(0, 0, 0, .18); }
 .theme-menu .menu-label { padding: 6px 10px 2px; font-size: .75rem; color: var(--muted); }

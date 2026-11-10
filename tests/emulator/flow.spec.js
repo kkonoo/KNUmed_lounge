@@ -333,6 +333,41 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.waitForURL(site.url);
   });
 
+  await t.test('관리자 PIN 초기화: 0000으로 바뀌고 0000으로 들어감', async () => {
+    // Worker는 가짜로: 받은 메일의 로그인 계정 비밀번호를 Auth 에뮬레이터에서 바꿈 (실제 Worker 코드는 tests/worker.test.js가 확인)
+    const { pinToPassword } = require('../load')('js/account-core.js');
+    const AUTH = 'http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/projects/demo-lounge/accounts';
+    const admin = (what, body) => fetch(`${AUTH}:${what}`, { method: 'POST', headers: { authorization: 'Bearer owner', 'content-type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json());
+    const sent = [];
+    await A.context().route(/workers\.dev\//, async r => {
+      const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*' };
+      if (r.request().method() === 'OPTIONS') return r.fulfill({ status: 204, headers: cors });
+      const { email } = r.request().postDataJSON();
+      sent.push([new URL(r.request().url()).pathname, email]);
+      const uid = (await admin('lookup', { email: [email] })).users[0].localId;
+      await admin('update', { localId: uid, password: pinToPassword('0000') });
+      return r.fulfill({ headers: cors, json: { pin: '0000' } });
+    });
+    await A.goto(`${site.url}admin/`);
+    await A.getByPlaceholder('이름·메일·교실로 찾기').fill(PROF.name);
+    await A.locator('.r-row', { hasText: PROF.email }).getByRole('button', { name: 'PIN 초기화' }).click();
+    await toast(A, `${PROF.name} 교수님 PIN을 0000으로 바꿨어요`);
+    assert.deepEqual(sent, [['/admin/pin-reset', PROF.email]]);
+    await A.context().unroute(/workers\.dev\//);
+
+    await P.goto(`${site.url}login/`);
+    const out = P.getByRole('button', { name: '로그아웃' }), mail = P.getByLabel('메일');
+    await out.or(mail).first().waitFor();
+    if (await out.isVisible()) await out.click(); // 비밀번호가 바뀌면 그 기기 로그인이 먼저 풀리기도 해요 (Firebase가 정하는 때)
+    await mail.fill(PROF.email);
+    await P.getByLabel('PIN').fill('9876'); // 바꾸기 전 PIN은 이제 안 됨
+    await P.getByRole('button', { name: '들어가기' }).click();
+    await P.getByText('메일 주소나 PIN이 맞지 않아요').waitFor();
+    await P.getByLabel('PIN').fill('0000');
+    await P.getByRole('button', { name: '들어가기' }).click();
+    await P.waitForURL(site.url);
+  });
+
   await t.test('멈춘 계정은 친목회를 못 봄', async () => {
     await A.goto(`${site.url}admin/`);
     await A.getByPlaceholder('이름·메일·교실로 찾기').fill(PROF.name);

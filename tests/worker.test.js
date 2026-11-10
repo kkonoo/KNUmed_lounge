@@ -1,7 +1,7 @@
 'use strict';
 // Worker 확인 (node --test): Cloudflare 없이 worker/worker.js를 불러서
-// 로그인 토큰 서명 확인, 교수님·관리자 확인, 키 넣기·감추기, 메뉴판 읽기 요청 모양, 하루 한도를 봐요
-// Google 공개키·Firestore·Anthropic은 가짜 fetch로 흉내 내요. 이름·메일·키는 모두 가짜
+// 로그인 토큰 서명 확인, 교수님·관리자 확인, 키 넣기·감추기, 메뉴판 읽기 요청 모양, 하루 한도, PIN 초기화를 봐요
+// Google 공개키·Firestore·Anthropic·Google 토큰·Firebase Auth는 가짜 fetch로 흉내 내요. 이름·메일·키는 모두 가짜
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
@@ -11,7 +11,7 @@ const PROJECT = 'knumed-lounge';
 const ORIGIN = 'https://kkonoo.github.io';
 const GOOD_KEY = 'sk-ant-api03-' + 'x'.repeat(40) + 'WXYZ';
 let W, keys, jwk;
-const state = { members: {}, admins: [], anthropic: [], modelsStatus: 200, messagesReply: null, roster: {}, profiles: [], book: null };
+const state = { members: {}, admins: [], anthropic: [], modelsStatus: 200, messagesReply: null, roster: {}, profiles: [], book: null, google: [], authUsers: {} };
 // 공동연구 찾기용 가짜 프로필 (공개 데이터 + Firestore). 이름은 모두 가짜
 const BOOK = {
   topics: [{ key: 'brain', emoji: '🧠', label: '뇌·신경·마음' }, { key: 'immune', emoji: '🛡️', label: '면역·염증·알레르기' }],
@@ -54,7 +54,7 @@ test.before(async () => {
     const fs = /documents\/(.+)$/.exec(url);
     if (fs) {
       if (fs[1].startsWith('roster/')) {
-        const pid = state.roster[fs[1].slice(7)];
+        const pid = state.roster[decodeURIComponent(fs[1].slice(7))];
         return pid ? json({ fields: { name: fsString('가짜'), profile: fsString(pid) } }) : json({ error: {} }, 404);
       }
       if (fs[1] === 'config/admins') return json({ fields: { uids: { arrayValue: { values: state.admins.map(stringValue => ({ stringValue })) } } } });
@@ -65,6 +65,17 @@ test.before(async () => {
     if (url === 'https://api.anthropic.com/v1/messages') {
       state.anthropic.push({ headers: opts.headers, body: JSON.parse(opts.body) });
       return state.messagesReply || json({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify({ items: [{ name: '아메리카노', temp: 'both' }, { name: '자몽에이드', temp: 'none' }] }) }] });
+    }
+    if (url === 'https://oauth2.googleapis.com/token') {
+      state.google.push({ token: Object.fromEntries(new URLSearchParams(opts.body)) });
+      return json({ access_token: 'ya29.fake', expires_in: 3599, token_type: 'Bearer' });
+    }
+    const idt = /^https:\/\/identitytoolkit\.googleapis\.com\/v1\/projects\/([^/]+)\/accounts:(lookup|update)$/.exec(url);
+    if (idt) {
+      const body = JSON.parse(opts.body);
+      state.google.push({ project: idt[1], what: idt[2], auth: opts.headers.authorization, body });
+      if (idt[2] === 'lookup') { const uid = state.authUsers[body.email?.[0]]; return json(uid ? { users: [{ localId: uid, email: body.email[0] }] } : {}); }
+      return json({ localId: body.localId });
     }
     throw new Error(`예상 못 한 주소 ${url}`);
   };
@@ -261,4 +272,59 @@ test('Claude 답 읽기: name·temp만, 모르는 temp는 none, 모양이 다르
     [{ name: '라떼', temp: 'both' }, { name: '차', temp: 'none' }]);
   assert.deepEqual(W.menuItems('메뉴판이 아니에요'), []);
   assert.deepEqual(W.menuItems('{"items":"x"}'), []);
+});
+
+// ---------- PIN 초기화 ----------
+// 가짜 서비스 계정 키 (Firebase 콘솔에서 받는 JSON과 같은 모양)
+async function fakeServiceAccount() {
+  const pair = await crypto.subtle.generateKey({ name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
+  const der = Buffer.from(await crypto.subtle.exportKey('pkcs8', pair.privateKey)).toString('base64');
+  const pem = `-----BEGIN PRIVATE KEY-----\n${der.match(/.{1,64}/g).join('\n')}\n-----END PRIVATE KEY-----\n`;
+  const sa = { type: 'service_account', project_id: PROJECT, client_email: `lounge-pin@${PROJECT}.iam.gserviceaccount.com`, private_key: pem };
+  return { json: JSON.stringify(sa), publicKey: pair.publicKey, email: sa.client_email };
+}
+
+test('PIN 초기화: 관리자만, 명단에 있고 가입한 분만, 서비스 계정 키로 0000 규칙의 비밀번호', async () => {
+  const A = require('./load')('js/account-core.js');
+  const sa = await fakeServiceAccount();
+  const env = { ...setup(), FIREBASE_SA: sa.json };
+  state.roster['lee@example.com'] = 'cccccc'; // 명단에는 있지만 아직 가입 안 함
+  state.authUsers = { 'kim@example.com': 'uid-kim' };
+  state.google = [];
+  const reset = (uid, email, e = env) => call(e, 'POST', '/admin/pin-reset', { uid, body: { email } });
+
+  assert.equal((await reset('prof', 'kim@example.com')).status, 403); // 관리자만
+  assert.equal((await reset('admin', 'kim@example.com', setup())).status, 503); // 서비스 계정 키 없음
+  assert.match((await reset('admin', 'kim@example.com', setup())).body.error, /FIREBASE_SA/);
+  assert.equal((await reset('admin', 'kim@example.com', { ...setup(), FIREBASE_SA: '{"client_email":"x","private_key":"깨짐"}' })).status, 503);
+  state.roster['lee@example.com'] = 'cccccc';
+  assert.equal((await reset('admin', 'not-an-email')).status, 400);
+  assert.equal((await reset('admin', 'a/b@example.com')).status, 400);
+  assert.equal((await reset('admin', 'nobody@example.com')).status, 404); // 명단에 없음
+  const notJoined = await reset('admin', 'lee@example.com');
+  assert.equal(notJoined.status, 404);
+  assert.equal(notJoined.body.error, '아직 가입하지 않은 분이에요');
+  assert.equal(state.google.filter(x => x.what === 'update').length, 0);
+
+  const ok = await reset('admin', ' Kim@Example.com ');
+  assert.equal(ok.status, 200);
+  assert.deepEqual(ok.body, { pin: '0000' });
+  assert.ok(!ok.text.includes('PRIVATE KEY') && !ok.text.includes('ya29')); // 키·토큰은 돌려주지 않음
+  const upd = state.google.filter(x => x.what === 'update');
+  assert.equal(upd.length, 1);
+  assert.deepEqual(upd[0].body, { localId: 'uid-kim', password: A.pinToPassword('0000') }); // 로그인 화면과 같은 규칙
+  assert.equal(upd[0].project, PROJECT);
+  assert.equal(upd[0].auth, 'Bearer ya29.fake');
+
+  // Google 토큰 요청: 서비스 계정 키로 서명한 JWT (한 번 받으면 한 시간 다시 씀)
+  const tokens = state.google.filter(x => x.token);
+  assert.equal(tokens.length, 1);
+  assert.equal(tokens[0].token.grant_type, 'urn:ietf:params:oauth:grant-type:jwt-bearer');
+  const [h, b, s] = tokens[0].token.assertion.split('.');
+  const verified = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', sa.publicKey, Buffer.from(s, 'base64url'), new TextEncoder().encode(`${h}.${b}`));
+  assert.ok(verified);
+  const claim = JSON.parse(Buffer.from(b, 'base64url'));
+  assert.equal(claim.iss, sa.email);
+  assert.equal(claim.aud, 'https://oauth2.googleapis.com/token');
+  assert.equal(claim.exp - claim.iat, 3600);
 });

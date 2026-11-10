@@ -5,15 +5,18 @@
 //   GET    /admin/key    키가 있는지, 끝 4자리, 오늘 쓴 횟수 (관리자)
 //   PUT    /admin/key    Claude API 키 넣기 { key } (관리자, 넣기 전에 Anthropic에 맞는 키인지 확인)
 //   DELETE /admin/key    키 지우기 (관리자)
+//   POST   /admin/pin-reset  교수님 PIN을 0000으로 { email } (관리자, 명단에 있고 가입한 분만. Firebase 서비스 계정 키 FIREBASE_SA)
 //
 // 지키는 것
 // - 요청마다 Firebase 로그인 토큰(ID 토큰)의 서명·발급처·대상·만료를 확인해요. Origin 확인만으로는 브라우저 밖에서 흉내 낼 수 있어서요
 // - 그 토큰으로 Firestore를 읽어 교수님(members/{uid}.active)·관리자(config/admins)인지 봐요. firestore.rules가 그대로 적용돼요
 // - Claude API 키는 KV(LOUNGE)에만 두고 브라우저로 돌려주지 않아요(끝 4자리만)
+// - Firebase 서비스 계정 키는 Worker 비밀값(FIREBASE_SA)에만 있어요. PIN 초기화에만 쓰고 브라우저로 돌려주지 않아요
 // - 프롬프트는 여기 고정이에요. 아무 질문이나 대신 보내는 통로가 되지 않게
 // - 한 분당 하루, 모두 합쳐 하루 한도가 있어요(메뉴판 읽기와 공동연구 찾기를 합쳐서). 사진·질문·답은 저장하지 않아요
 
 import core from '../people/people-core.js'; // 연구실 둘러보기와 같은 규칙으로 프로필을 합침 (wrangler가 함께 묶어 배포)
+import account from '../js/account-core.js'; // PIN → Firebase 비밀번호 규칙 (로그인 화면과 같아야 해요)
 
 const PROJECT = 'knumed-lounge';
 const ORIGINS = ['https://kkonoo.github.io', 'http://localhost:8767'];
@@ -123,6 +126,54 @@ async function count(kv, uid) {
   if (u.mine >= LIMITS.perUser) throw new Fail(429, `오늘은 ${LIMITS.perUser}번까지 썼어요. 내일 다시 해 주세요`);
   if (u.all >= LIMITS.all) throw new Fail(429, '오늘 라운지 전체 한도를 다 썼어요. 내일 다시 해 주세요');
   await Promise.all([kv.put(`use:${u.day}:${uid}`, String(u.mine + 1), ttl), kv.put(`use:${u.day}:all`, String(u.all + 1), ttl)]);
+}
+
+// ---------- PIN 초기화 (Firebase 서비스 계정) ----------
+// 비밀값 FIREBASE_SA = 서비스 계정 키 JSON 통째로 (worker/README.md). Firebase Authentication 관리 권한만 있으면 돼요
+const RESET_PIN = '0000';
+const toB64url = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const textB64url = s => toB64url(new TextEncoder().encode(s));
+function readSa(raw) {
+  let sa = null;
+  try { sa = JSON.parse(raw || ''); } catch { /* 없거나 깨짐 */ }
+  if (!sa?.client_email || !sa?.private_key) throw new Fail(503, 'Worker에 Firebase 서비스 계정 키(FIREBASE_SA)가 아직 없어요. worker/README.md를 봐 주세요');
+  return sa;
+}
+// 서비스 계정 키로 Google 접근 토큰 받기 (한 시간짜리, 끝나기 2분 전까지 다시 씀)
+let saToken = { value: '', email: '', until: 0 };
+async function googleToken(sa, now = Date.now() / 1000) {
+  if (saToken.value && saToken.email === sa.client_email && now < saToken.until) return saToken.value;
+  const iat = Math.floor(now);
+  const claim = { iss: sa.client_email, scope: 'https://www.googleapis.com/auth/cloud-platform', aud: 'https://oauth2.googleapis.com/token', iat, exp: iat + 3600 };
+  const unsigned = `${textB64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))}.${textB64url(JSON.stringify(claim))}`;
+  let key;
+  try {
+    key = await crypto.subtle.importKey('pkcs8', b64url(sa.private_key.replace(/-----[^-]+-----|\s/g, '')), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  } catch { throw new Fail(503, 'Firebase 서비스 계정 키(FIREBASE_SA)를 읽지 못했어요. JSON 파일 내용을 통째로 넣어 주세요'); }
+  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(unsigned));
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: `${unsigned}.${toB64url(sig)}` }),
+  });
+  if (!res.ok) throw new Fail(502, 'Firebase 서비스 계정 키로 로그인하지 못했어요. 키가 지워졌는지 확인해 주세요');
+  const t = await res.json();
+  saToken = { value: t.access_token, email: sa.client_email, until: iat + Math.min(Number(t.expires_in) || 3600, 3600) - 120 };
+  return saToken.value;
+}
+// 그 메일의 로그인 계정 비밀번호를 PIN 0000 규칙으로 바꿈
+async function resetPin(projectId, sa, email) {
+  const token = await googleToken(sa);
+  const auth = async (what, body) => {
+    const res = await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:${what}`, {
+      method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body),
+    });
+    if (res.status === 403) throw new Fail(502, '서비스 계정에 Firebase Authentication 관리 권한이 없어요. worker/README.md를 봐 주세요');
+    if (!res.ok) throw new Fail(502, `PIN을 바꾸지 못했어요 (${res.status})`);
+    return res.json();
+  };
+  const uid = (await auth('lookup', { email: [email] })).users?.[0]?.localId;
+  if (!uid) throw new Fail(404, '아직 가입하지 않은 분이에요');
+  await auth('update', { localId: uid, password: account.pinToPassword(RESET_PIN) });
 }
 
 // ---------- Claude ----------
@@ -354,6 +405,15 @@ async function route(req, env) {
       await kv.delete(KEY);
       return { set: false, last4: '' };
     }
+  }
+  if (path === '/admin/pin-reset' && req.method === 'POST') {
+    if (!me.isAdmin) throw new Fail(403, '관리자만 할 수 있어요');
+    const email = String((await req.json().catch(() => null))?.email || '').trim().toLowerCase();
+    if (!/^[^@\s/?#]+@[^@\s/?#]+\.[^@\s/?#]+$/.test(email)) throw new Fail(400, '메일 주소를 다시 확인해 주세요');
+    const sa = readSa(env.FIREBASE_SA);
+    if (!(await firestoreGet(projectId, `roster/${encodeURIComponent(email)}`, me.token))) throw new Fail(404, '명단에 없는 메일이에요');
+    await resetPin(projectId, sa, email);
+    return { pin: RESET_PIN };
   }
   throw new Fail(404, '없는 주소예요');
 }
