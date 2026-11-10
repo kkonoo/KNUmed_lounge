@@ -16,7 +16,7 @@
 | 연구실 둘러보기 | 누구나 | 교수님별 연구 소개와 키워드. 카드를 누르면 연구 질문·연구 축·발자취·보유 자원이 자세히 보여요(찾는 것·연락처는 로그인한 교수님만). 이름·교실·키워드로 찾고 교실·주제로 걸러요(고른 칩을 한 번 더 누르면 풀려요). 거른 상태는 주소 `#` 뒤에 남아 링크로 보낼 수 있어요(예: `people/#dept=생리학교실`) |
 | 내 프로필 | 교수님 | 연구실 둘러보기에 보이는 내 소개를 고쳐요. 저장하면 본인 확인이 돼요. 계정 화면의 ‘내 프로필’ |
 | 로그인 | 누구나 | 메일 주소 + PIN(숫자 4자리도 돼요). 처음엔 가입 코드를 같이 넣어요. 한 기기에서 한 번 로그인하면 계속 유지돼요 |
-| 관리자 | 관리자 | 명단 붙여 넣기·고치기·멈추기·지우기, 명단과 연구실 둘러보기 프로필 잇기, 관리자 지정·해제, 가입 코드, 작업 기록 |
+| 관리자 | 관리자 | 명단 붙여 넣기·고치기·멈추기·지우기, 명단과 연구실 둘러보기 프로필 잇기, 관리자 지정·해제, 가입 코드, Claude 키(메뉴판 사진 읽기용, Worker), 작업 기록 |
 | 공동연구 찾기 | 교수님 | 준비 중이에요 |
 
 머리 줄 오른쪽 끝 해·달 단추에서 화면 밝기(자동·밝게·어둡게)와 글씨 크기(작게·보통·크게·아주 크게)를 골라요.
@@ -59,7 +59,8 @@ PIN을 잊으신 분은 관리자 화면 명단의 ‘PIN 초기화’가 순서
 이 저장소는 공개라서 아래는 여기 두지 않아요.
 
 - 교수님 명단과 메일 주소, 가입 코드 → Firestore
-- Anthropic API 키, Firebase 서비스 계정 키 → (공동연구 찾기를 붙일 때) Cloudflare Worker 비밀값
+- Claude API 키 → 관리자 화면에서 넣으면 Cloudflare Worker의 KV에만 저장 (브라우저로는 끝 4자리만)
+- Firebase 서비스 계정 키 → (PIN 초기화를 붙일 때) Cloudflare Worker 비밀값
 - 연구실 내부 메모나 미출판 내용 → 어디에도 넣지 않음
 
 ## 개발
@@ -68,7 +69,8 @@ PIN을 잊으신 분은 관리자 화면 명단의 ‘PIN 초기화’가 순서
 powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:8767/  (다른 번호: $env:PORT=8770)
 ```
 
-- 확인(테스트): 저장소 맨 위에서 `node --test`. 계정·명단 붙여 넣기·친목회·게시판·찾기 계산과, 공개 데이터에 메일·연락처가 없는지 확인해요.
+- 확인(테스트): 저장소 맨 위에서 `node --test`. 계정·명단 붙여 넣기·친목회·게시판·주문·찾기 계산, Worker(토큰 확인·관리자 키·한도), 공개 데이터에 메일·연락처가 없는지 확인해요.
+- Worker 배포·고치기: `worker/README.md`.
 - 규칙·화면 흐름 확인: `cd tests/emulator`, 처음 한 번 `npm install`, 그다음 `npm test` (Java 21 이상과 Playwright 필요). Firebase 에뮬레이터를 켜서
   - `rules.spec.js`: `firestore.rules`가 화면이 하는 읽기·쓰기는 받고, 하면 안 되는 것은 막는지 봐요.
   - `flow.spec.js`: Chromium으로 처음 설정 → 명단 65분 → 가입 코드로 가입 → 친목회 참석 체크 → 게시판 → PIN 바꾸기 → 멈춤까지 눌러 봐요.
@@ -103,7 +105,9 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 | `data/people.json` · `photos/` | 연구 소개 데이터와 사진 |
 | `pipeline/from_namebook.py` | 이름북 → 연구 소개 데이터 |
 | `tools/serve.ps1` · `tools/make-icons.py` · `tools/make-icon-set.py` | 로컬 서버 · 앱 아이콘 그리기 · 화면 아이콘 모으기 |
-| `tests/` | `node --test` (계산) · `tests/emulator/` (`npm test`: 규칙·화면 흐름, 에뮬레이터) |
+| `worker/` | Cloudflare Worker: `worker.js`(메뉴판 읽기 · 관리자 Claude 키), 배포 안내 `README.md` |
+| `js/worker-config.js` | Worker 주소 (배포한 뒤 넣음, 비어 있으면 사진 읽기 단추가 안 보임) |
+| `tests/` | `node --test` (계산 · Worker) · `tests/emulator/` (`npm test`: 규칙·화면 흐름, 에뮬레이터) |
 
 ## 함께 쓰는 것
 

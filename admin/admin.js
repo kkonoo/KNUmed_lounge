@@ -1,5 +1,5 @@
 'use strict';
-// 관리자 화면: 처음 설정 · 명단(연구실 둘러보기 프로필 잇기 포함) · 관리자 · 가입 코드 · 기록
+// 관리자 화면: 처음 설정 · 명단(연구실 둘러보기 프로필 잇기 포함) · 관리자 · 가입 코드 · Claude 키(Worker) · 기록
 // 데이터는 admin-db.js, 계산은 js/account-core.js · people/people-core.js, 입력 부품은 js/form.js
 
 const app = $('app');
@@ -66,12 +66,12 @@ function renderSetup() {
 // ---------- 틀 ----------
 function render() {
   const tabs = h('div', 'seg tabs');
-  for (const [t, label] of [['roster', '명단'], ['admins', '관리자'], ['code', '가입 코드'], ['log', '기록']]) {
+  for (const [t, label] of [['roster', '명단'], ['admins', '관리자'], ['code', '가입 코드'], ['ai', 'Claude 키'], ['log', '기록']]) {
     tabs.append(button(label, () => { tab = t; render(); }, t === tab ? 'on' : ''));
   }
   const body = h('div', '');
   app.replaceChildren(tabs, body);
-  ({ roster: renderRoster, admins: renderAdmins, code: renderCode, log: renderLog })[tab](body);
+  ({ roster: renderRoster, admins: renderAdmins, code: renderCode, ai: renderAi, log: renderLog })[tab](body);
 }
 
 // ---------- 명단 ----------
@@ -372,6 +372,45 @@ function renderCode(body) {
   acts.append(withIcon(button('문구 복사', () => copyText(notice), 'btn'), 'copy'));
   wrap.append(acts);
   body.append(wrap);
+}
+
+// ---------- Claude 키 (Worker에만 저장, 이 화면에도 끝 4자리만) ----------
+async function renderAi(body) {
+  const wrap = h('div', 'stack');
+  body.append(wrap);
+  if (typeof WORKER_URL === 'undefined' || !WORKER_URL) {
+    wrap.append(h('p', 'hint', 'Worker가 아직 연결되지 않았어요. 저장소의 worker/README.md 순서대로 Cloudflare에 배포하고 그 주소를 js/worker-config.js에 넣으면, 여기서 키를 넣을 수 있어요.'));
+    return;
+  }
+  const now = h('div', 'code-now');
+  now.append(h('span', 'hint', '확인하는 중…'));
+  const paint = s => now.replaceChildren(h('b', '', s.set ? `넣음 · 끝 ${s.last4}` : '아직 없어요'), ...(s.set && s.today != null ? [h('span', 'hint', `오늘 모두 ${s.today}번 씀`)] : []));
+  const input = textInput('password', { placeholder: 'sk-ant-…', autocomplete: 'off', spellcheck: false });
+  const save = button('넣기', async () => {
+    const key = input.value.trim();
+    if (!key) return toast('키를 넣어 주세요');
+    try {
+      const s = await busy(save, '확인하는 중…', () => workerCall('/admin/key', { method: 'PUT', body: { key } }));
+      input.value = '';
+      paint(s);
+      await adminDb.log('Claude 키 넣음', `끝 ${s.last4}`);
+      toast('키를 넣었어요');
+    } catch (e) { toast(e.message, 3500); }
+  }, 'btn primary');
+  const del = button('지우기', async () => {
+    if (!confirmBox('Claude 키를 지울까요? 메뉴판 사진 읽기를 쓸 수 없게 돼요.')) return;
+    try { paint(await workerCall('/admin/key', { method: 'DELETE' })); await adminDb.log('Claude 키 지움'); toast('지웠어요'); } catch (e) { toast(e.message, 3500); }
+  }, 'btn danger');
+  const row = h('div', 'inline');
+  row.append(input, save);
+  wrap.append(
+    block('지금 키', now),
+    field('키 넣기·바꾸기', row, '넣기 전에 Anthropic에 맞는 키인지 확인해요'),
+    h('p', 'hint', '키는 Worker에만 저장되고 브라우저로는 돌아오지 않아요(여기에도 끝 4자리만). 교수님들이 메뉴판 사진 읽기와, 앞으로 공동연구 찾기에 써요. 한 분당 하루 20번, 라운지 전체 하루 300번까지예요. 쓸 때마다 이 키의 크레딧이 들어요.'),
+    h('p', 'hint', '키는 Claude Console(console.anthropic.com)에서 만들고, 크레딧은 그곳에서 따로 충전해요.'),
+    actsRow(del),
+  );
+  try { paint(await workerCall('/admin/key')); } catch (e) { now.replaceChildren(h('span', 'msg err', e.message)); }
 }
 
 // ---------- 기록 ----------

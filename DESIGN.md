@@ -77,8 +77,9 @@
 - **Cloudflare Worker 하나 (3단계부터).** 브라우저가 할 수 없는 일만 맡아요.
   - 남의 PIN 초기화, 로그인 계정 지우기. 그 전까지는 관리자가 Firebase 콘솔 › Authentication에서 계정을 지우고, 교수님이 가입 코드로 다시 가입해요 (관리자 화면의 ‘PIN 초기화’가 이 순서를 안내해요)
   - AI 호출
-  - Anthropic API 키와 Firebase 서비스 계정 키는 Worker 비밀값에만 둬요.
+  - Claude(Anthropic) API 키는 Worker의 KV에(관리자가 화면에서 넣음), Firebase 서비스 계정 키는 Worker 비밀값에 둬요. 둘 다 브라우저로는 내려가지 않아요.
   - Worker는 요청한 사람의 로그인 토큰을 확인해요. Origin 확인만으로는 브라우저 밖에서 흉내 낼 수 있어서요.
+  - 지금 하는 일(`worker/worker.js`, 배포는 `worker/README.md`): 메뉴판 사진 읽기, 관리자가 넣는 Claude API 키. 키는 관리자 화면에서 넣고 Worker의 KV에만 저장돼요(브라우저로는 끝 4자리만). 토큰 서명을 확인한 뒤 그 토큰으로 Firestore를 읽어 교수님·관리자인지 봐요. 프롬프트는 Worker 안에 고정이고, 한 분당 하루 20번·전체 300번 한도가 있어요.
 - **화면.** 공통 디자인 토큰(`css/style.css`)에 강조색은 학교색 크림슨(#B0283C, HaLab 슬라이드 갤러리 crimson). 굵기는 700까지, 강조색은 고른 것·주요 단추에만, 그라데이션·빛 번짐 없음. 글씨 크기는 🌗 메뉴에서 네 단계(--fs).
 - **앱 아이콘.** Lucide `sofa`(ISC) 흰 선을 크림슨 바탕에. `icons/icon.svg`를 고치고 `tools/make-icons.py`로 다시 그려요.
 - **화면 아이콘.** Lucide 선 아이콘 중 쓰는 것만 `js/icons.js`에 모아요(`tools/make-icon-set.py`). 바깥 CDN 없이 오프라인에서도 보여요. 이모지는 주제 거르기(🎗 암 등)와 참석 체크(🙋 🤔 🙅)에만 남겨요. 공지 메일 문구에도 이모지 대신 '일시·장소·참석 체크 마감'을 써요.
@@ -109,7 +110,7 @@ admin/                 관리자 (처음 설정 · 명단 · 관리자 · 가입
 css/style.css          공통 토큰 + 공용 부품 + 홈
 js/                    공용 (ui · theme · pwa · session · form · account-core · firebase-config · home)
 firestore.rules        Firestore 보안 규칙 → Firebase 콘솔에 붙여 넣음
-worker/                Cloudflare Worker (PIN 초기화 · 계정 지우기 · AI, 나중)
+worker/                Cloudflare Worker (메뉴판 읽기 · 관리자 Claude 키. PIN 초기화 · 계정 지우기 · 공동연구 찾기는 나중)
 pipeline/              데이터 만들기 (사이트와 따로 실행)
 ```
 
@@ -282,4 +283,5 @@ pipeline/              데이터 만들기 (사이트와 따로 실행)
 - 2026-11-10 주문 모으기를 장난감 상자 링크 대신 라운지 안(`order/`)에 같은 모양으로. 카페 판은 늘, 식당 판과 식당 메뉴 미리 고르기는 필요할 때. 개수는 Firestore에 같이 쌓여 각자 폰·폰 한 대 돌리기 둘 다 됨 (§12)
 - 2026-11-10 친목회를 만들 때 관리자가 카페·식당 메뉴를 미리 넣어 둠. 주문판은 그 메뉴로 바로 열리고, 식당 메뉴 미리 고르기는 따로 켬
 - 2026-11-10 관리자 명단의 교수님 목록은 처음엔 접어 둠
+- 2026-11-10 Worker 1단계: 메뉴판 사진 읽기와 관리자 Claude 키(KV). Worker 코드는 대시보드에 붙여 넣는 파일 하나, SDK 없이 fetch로 Messages API (빌드 단계를 두지 않으려고)
 - 2026-11-10 Claude API 키는 관리자가 넣고 모두가 Worker를 거쳐 씀(메뉴판 읽기·공동연구 찾기). 키를 Firestore에 두고 브라우저가 직접 쓰는 방식은 65명 브라우저에 키가 내려가서 쓰지 않음
