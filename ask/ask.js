@@ -39,7 +39,6 @@ function render() {
   form.append(
     h('p', 'hint', '필요한 모델·시료·장비·데이터·기법을 적으면, 연구실 둘러보기 프로필에서 갖고 계시거나 다뤄 온 교수님을 2~3분 찾아 드려요.'),
     field('찾는 것', q),
-    h('p', 'form-note', '적은 질문은 답을 만드는 데만 Claude(Anthropic)로 보내고 저장하지 않아요. 미출판 결과나 환자 정보는 적지 말아 주세요.'),
     msg, acts,
   );
   app.replaceChildren(form, out);
