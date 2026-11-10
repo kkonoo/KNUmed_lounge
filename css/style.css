@@ -226,7 +226,7 @@ a.door:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
 .door span { color: var(--muted); font-size: .9rem; }
 .door small { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 12px; font-size: .8rem; color: var(--muted); }
 .door small .badge { font-size: .75rem; }
-a.door small::after { content: "→"; font-size: 1rem; color: var(--faint); transition: color .15s ease-out; }
+a.door small::after { content: "→"; margin-left: auto; font-size: 1rem; color: var(--faint); transition: color .15s ease-out; }
 a.door:hover small::after { color: var(--accent); }
 .door.soon { background: transparent; border-style: dashed; }
 .door.soon .door-icon { color: var(--faint); }
