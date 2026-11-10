@@ -47,7 +47,7 @@ function section(title, hint, ...nodes) {
 
 function render(S, pid, doc, priv, book) {
   const M = PROFILE_MAX;
-  const v = profileForm(doc, book.people.find(p => p.id === pid));
+  const v = profileForm(doc, { ...book.people.find(p => p.id === pid), ...book.drafts?.[pid] }); // 저장 전엔 이름북 + 논문 초안
 
   const who = h('div', 'me-who');
   who.append(h('b', '', `${doc.name} 교수님`), h('span', '', doc.dept || ''));

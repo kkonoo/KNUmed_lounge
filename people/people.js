@@ -15,7 +15,7 @@
     app.append(h('p', 'empty-note', '교수님 목록을 읽지 못했어요. 잠시 뒤 새로 고쳐 주세요.'));
     return;
   }
-  let people = data.people;
+  let people = mergeProfiles(data.people, [], data.photos, data.drafts); // Firestore를 읽기 전에도 초안까지
   let S = null, myPid = '', fromList = false, listScroll = 0;
   let f = readHash(location.hash);
   const detailId = () => (/^#p=([a-z2-9]{6})$/.exec(location.hash) || [])[1] || '';
@@ -154,7 +154,7 @@
     if (p.rank) name.append(h('small', '', p.rank));
     const state = p.confirmedAt
       ? `마지막 확인 ${fmtDay(p.confirmedAt)}${isStale(p.confirmedAt) ? ' · 1년이 넘었어요' : ''}`
-      : '아직 교수님 확인 전이에요';
+      : p.drafted ? '아직 교수님 확인 전이에요. 연구 질문·축·발자취는 논문으로 만든 초안이에요' : '아직 교수님 확인 전이에요';
     who.append(name, h('p', 'dept', p.dept), h('p', 'state', state));
     head.append(photoOf(p), who);
     const nodes = [head];
@@ -258,7 +258,7 @@
       try { myPid = await profileDb.myId(S.user.email); } catch (e) { console.error(e); }
     }
   } else console.error(s.reason);
-  if (docs.status === 'fulfilled') people = mergeProfiles(data.people, docs.value, data.photos);
+  if (docs.status === 'fulfilled') people = mergeProfiles(data.people, docs.value, data.photos, data.drafts);
   else console.error(docs.reason);
   route();
 })();

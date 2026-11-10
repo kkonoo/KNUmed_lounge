@@ -75,8 +75,11 @@ const isUrl = s => /^https?:\/\/\S+$/.test(s);
 // 공개 목록: 이름북(people.json) 위에 Firestore 프로필을 얹음
 //   본인이 저장했으면(confirmedAt) 그 내용 · 아직이면 이름북 소개, 이름북에도 없으면 이름·교실만(status 'listed') · 숨김이면 빼기
 //   photos: 이름북에 없는 분의 사진 { 번호: 'photos/번호.jpg' } (people.json의 photos, 학교 홈페이지 교수소개에서)
-function mergeProfiles(base, docs, photos = {}) {
-  const out = new Map(base.map(p => [p.id, p]));
+//   drafts: 논문으로 만든 초안 { 번호: { question, axes, timeline, resources, 이름북에 없는 분은 line·keywords·topics도 } }
+//           (people.json의 drafts, DESIGN §9). 본인이 저장하기 전에만 보이고, 저장하면 본인 내용으로 바뀜
+function mergeProfiles(base, docs, photos = {}, drafts = {}) {
+  const withDraft = (p, id) => (drafts[id] ? { ...p, ...drafts[id], drafted: true } : p);
+  const out = new Map(base.map(p => [p.id, withDraft(p, p.id)]));
   for (const d of docs) {
     const old = out.get(d.id);
     if (d.hidden) { out.delete(d.id); continue; }
@@ -88,7 +91,7 @@ function mergeProfiles(base, docs, photos = {}) {
         links: (d.links || []).map(l => [l.url, l.label]), confirmedAt: d.confirmedAt, status: 'confirmed',
       });
     } else if (old) out.set(d.id, { ...old, ...head });
-    else out.set(d.id, { ...head, line: '', keywords: [], topics: [], links: [], status: 'listed' });
+    else out.set(d.id, withDraft({ ...head, line: '', keywords: [], topics: [], links: [], status: drafts[d.id] ? 'draft' : 'listed' }, d.id));
   }
   return [...out.values()];
 }
@@ -122,20 +125,20 @@ function parsePapers(s) {
 }
 const papersText = papers => (papers || []).map(p => (p.label && p.label !== '논문' ? `${p.label} ${p.url}` : p.url)).join('\n');
 
-// 내 프로필 고치기 칸의 처음 값: 저장한 적 있으면 그 값, 없으면 이름북 소개에서 가져옴
+// 내 프로필 고치기 칸의 처음 값: 저장한 적 있으면 그 값, 없으면 이름북 소개와 논문 초안(old)에서 가져옴
 //   연구 축은 3칸, 발자취는 4칸으로 늘 같은 수 (빈 칸은 저장할 때 빠짐)
 function profileForm(doc, old) {
-  const mine = doc?.confirmedAt ? doc : null;
+  const mine = doc?.confirmedAt ? doc : null, src = mine || old || {};
   const pad = (list, n, empty) => [...list, ...Array.from({ length: Math.max(0, n - list.length) }, empty)].slice(0, n);
   return {
     rank: doc?.rank || old?.rank || '',
     line: mine ? mine.line || '' : old?.line || '',
-    question: mine?.question || '',
+    question: src.question || '',
     keywords: (mine ? mine.keywords || [] : old?.keywords || []).join(', '),
     topics: [...(mine ? mine.topics || [] : old?.topics || [])],
-    axes: pad((mine?.axes || []).map(a => ({ name: a.name || '', text: a.text || '', papers: papersText(a.papers) })), PROFILE_MAX.axes, () => ({ name: '', text: '', papers: '' })),
-    timeline: pad((mine?.timeline || []).map(t => ({ years: t.years || '', text: t.text || '' })), PROFILE_MAX.timeline, () => ({ years: '', text: '' })),
-    resources: Object.fromEntries(RESOURCE_KINDS.map(([k]) => [k, mine?.resources?.[k] || ''])),
+    axes: pad((src.axes || []).map(a => ({ name: a.name || '', text: a.text || '', papers: papersText(a.papers) })), PROFILE_MAX.axes, () => ({ name: '', text: '', papers: '' })),
+    timeline: pad((src.timeline || []).map(t => ({ years: t.years || '', text: t.text || '' })), PROFILE_MAX.timeline, () => ({ years: '', text: '' })),
+    resources: Object.fromEntries(RESOURCE_KINDS.map(([k]) => [k, src.resources?.[k] || ''])),
     links: pad(mine ? (mine.links || []).map(l => ({ ...l })) : (old?.links || []).map(([url, label]) => ({ url, label })), PROFILE_MAX.links, () => ({ url: '', label: '' })),
   };
 }

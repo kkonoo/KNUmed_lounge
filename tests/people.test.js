@@ -61,6 +61,16 @@ test('공개 데이터(data/people.json)에 메일·연락처가 없음', () => 
     assert.match(p.id, /^[a-z2-9]{6}$/);
     if (p.photo) assert.equal(p.photo, `photos/${p.id}.jpg`);
   }
+  // 논문 초안: 교수님이 그대로 저장해도 통과하는 값 (칸 수가 넘쳐 잘리는 것도 없음)
+  for (const [id, d] of Object.entries(data.drafts || {})) {
+    assert.match(id, /^[a-z2-9]{6}$/);
+    for (const k of Object.keys(d)) assert.ok(['line', 'question', 'keywords', 'topics', 'axes', 'timeline', 'resources'].includes(k), `${id}: ${k}`);
+    assert.ok((d.axes || []).length <= P.PROFILE_MAX.axes && (d.timeline || []).length <= P.PROFILE_MAX.timeline, id);
+    for (const a of d.axes || []) assert.ok(a.papers.length <= P.PROFILE_MAX.papers && a.papers.every(x => /^https:\/\//.test(x.url)), id);
+    const base = data.people.find(p => p.id === id) || {};
+    assert.ok(base.line || d.line, `${id}: 이름북에 없는 분은 초안에 한 줄 소개가 있어야 해요`);
+    assert.equal(P.profileProblem(P.cleanProfile(P.profileForm(null, { ...base, ...d }))), '', id);
+  }
   // 이름북에 없는 분 사진: 번호 → 파일만 (이름은 적지 않음), 파일이 실제로 있음
   for (const [id, file] of Object.entries(data.photos || {})) {
     assert.match(id, /^[a-z2-9]{6}$/);
@@ -97,6 +107,34 @@ test('공개 목록 합치기: 본인 저장 → 그 내용, 아직 → 이름�
   assert.equal(before.find(p => p.id === 'bbbbbb').line, '다른 소개'); // 확인 전엔 이름북 소개 그대로
   assert.equal(before.find(p => p.id === 'bbbbbb').dept, '바뀐교실'); // 교실은 관리자가 고친 값
   assert.equal(before.find(p => p.id === 'bbbbbb').rank, '부교수');
+});
+
+test('논문 초안: 확인 전에만 보이고, 이름북 한 줄은 그대로. 이름북에 없는 분은 초안의 한 줄로', () => {
+  const drafts = {
+    bbbbbb: { question: '초안 질문', axes: [{ name: '초안 축', text: '설명', papers: [{ label: 'J 2024', url: 'https://doi.org/10.1/x' }] }], timeline: [{ years: '2010–2015', text: '시작' }], resources: { techniques: '단일세포' } },
+    aaaaaa: { question: '쓰이면 안 됨' },
+    eeeeee: { line: '초안 한 줄', keywords: ['초안'], topics: ['brain'], question: '초안 질문' },
+  };
+  const docs = [
+    { id: 'aaaaaa', name: '홍길동', dept: '가짜학교실', group: '기초', rank: '교수', hidden: false, line: '본인이 쓴 소개', question: '본인 질문', keywords: [], topics: [], axes: [], timeline: [], resources: {}, links: [], confirmedAt: 1000 },
+    { id: 'bbbbbb', name: '김철수', dept: '예시학교실', group: '기초', rank: '', hidden: false },
+    { id: 'eeeeee', name: '박영수', dept: '예시학교실', group: '기초', rank: '', hidden: false },
+  ];
+  const m = new Map(P.mergeProfiles(BOOK, docs, {}, drafts).map(p => [p.id, p]));
+  assert.equal(m.get('aaaaaa').question, '본인 질문'); // 저장했으면 초안은 안 씀
+  assert.equal(m.get('aaaaaa').drafted, undefined);
+  assert.equal(m.get('bbbbbb').line, '다른 소개'); // 이름북 한 줄은 그대로
+  assert.equal(m.get('bbbbbb').question, '초안 질문');
+  assert.equal(m.get('bbbbbb').drafted, true);
+  assert.equal(m.get('eeeeee').line, '초안 한 줄');
+  assert.equal(m.get('eeeeee').status, 'draft');
+  assert.equal(P.mergeProfiles(BOOK, [], {}, drafts).find(p => p.id === 'bbbbbb').question, '초안 질문'); // Firestore 전에도
+  const f = P.profileForm(null, { ...BOOK[1], ...drafts.bbbbbb }); // 내 프로필 칸도 초안으로 채워짐
+  assert.equal(f.question, '초안 질문');
+  assert.equal(f.axes[0].papers, 'J 2024 https://doi.org/10.1/x');
+  assert.equal(f.timeline[0].years, '2010–2015');
+  assert.equal(f.resources.techniques, '단일세포');
+  assert.equal(f.line, '다른 소개');
 });
 
 test('찾기: 본인이 쓴 연구 축·보유 자원도 찾음', () => {
