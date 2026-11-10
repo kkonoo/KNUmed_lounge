@@ -222,17 +222,18 @@ test('공동연구 찾기: 연구실 둘러보기와 같은 프로필(초안 포
   assert.deepEqual(r.body, { picks: [{ id: 'zzzzzz', name: '홍길동', dept: '가짜학교실', photo: 'photos/zzzzzz.jpg', fields: ['한 줄 소개'], why: '호중구를 연구해요', ask: '호중구 분리 프로토콜을 나눠 주실 수 있을까요?' }], note: '' });
 });
 
-test('공동연구 찾기: 없는 번호·본인·겹친 분은 빼고 3분까지, 이름·교실은 프로필에서', async () => {
+test('공동연구 찾기: 없는 번호·본인·겹친 분·숨긴 분은 빼고 맞는 분 모두, 이름·교실은 프로필에서', async () => {
   const env = setup();
   await env.LOUNGE.put('anthropic-key', GOOD_KEY);
-  state.profiles.push(fsDoc('dddddd', { name: '박영수', dept: '예시학교실', group: '기초', rank: '', hidden: false }));
+  state.profiles.push(fsDoc('dddddd', { name: '박영수', dept: '예시학교실', group: '기초', rank: '', hidden: false }), fsDoc('eeeeee', { name: '최예시', dept: '예시학교실', group: '기초', rank: '', hidden: false }));
   state.messagesReply = askReply([
     { id: 'nope99', fields: [], why: 'x', ask: 'x' }, { id: 'aaaaaa', fields: [], why: '본인', ask: 'x' },
     { id: 'cccccc', fields: ['보유 자원', '아무 칸'], why: 'a', ask: 'a' }, { id: 'cccccc', fields: [], why: 'b', ask: 'b' },
     { id: 'zzzzzz', fields: [], why: 'c', ask: 'c' }, { id: 'dddddd', fields: [], why: 'd', ask: 'd' }, { id: 'hhhhhh', fields: [], why: '숨김', ask: 'x' },
+    { id: 'eeeeee', fields: [], why: 'e', ask: 'e' },
   ]);
   const r = await call(env, 'POST', '/ai/ask', { uid: 'prof', token: await sign(claims('prof', { email: 'kim@example.com' })), body: { q: '마우스' } });
-  assert.deepEqual(r.body.picks.map(p => p.id), ['cccccc', 'zzzzzz', 'dddddd']);
+  assert.deepEqual(r.body.picks.map(p => p.id), ['cccccc', 'zzzzzz', 'dddddd', 'eeeeee']); // 몇 분이든 순서 그대로
   assert.equal(r.body.picks[0].name, '이영희');
   assert.equal(r.body.picks[0].photo, 'photos/cccccc.jpg'); // 이름북에 없는 분 사진도
   assert.deepEqual(r.body.picks[0].fields, ['보유 자원']);

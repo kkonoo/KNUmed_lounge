@@ -1,7 +1,7 @@
 // 경북의대 라운지 Worker (Cloudflare Workers): 브라우저가 할 수 없는 일만 해요. 배포는 worker/README.md
 //   GET    /status       Claude를 쓸 수 있는지 (교수님)
 //   POST   /ai/menu      메뉴판 사진 → 메뉴 이름 { images: [JPEG base64] } → { items: [{ name, temp }] } (교수님, 하루 한도)
-//   POST   /ai/ask       공동연구 찾기 { q } → { picks: [{ id, name, dept, photo, fields, why, ask }], note } (교수님, 하루 한도)
+//   POST   /ai/ask       공동연구 찾기 { q } → { picks: [{ id, name, dept, photo, fields, why, ask }], note } 맞는 분 모두 (교수님, 하루 한도)
 //   GET    /admin/key    키가 있는지, 끝 4자리, 오늘 쓴 횟수 (관리자)
 //   PUT    /admin/key    Claude API 키 넣기 { key } (관리자, 넣기 전에 Anthropic에 맞는 키인지 확인)
 //   DELETE /admin/key    키 지우기 (관리자)
@@ -182,10 +182,10 @@ const ASK_PROMPT = `경북대 의과대학 기초교실 교수님들의 공개 �
 - "누가 좋은 협업 상대인가"가 아니라 "누가 그 자원이나 경험을 갖고 있나"에 답해요. 교수님이나 연구를 평가하거나 순위를 매기지 않아요.
 - 모든 교수님을 똑같이 대해요. 이 사이트를 누가 운영하는지, 프로필이 얼마나 긴지, 직위는 고르는 데 쓰지 않아요.
 - 질문한 교수님 본인은 고르지 않아요.
-- 맞는 분이 있으면 2~3분(정말 한 분뿐이면 한 분)을 골라요. 맞는 분이 없으면 picks를 비우고 note에 이유를 짧게 써요.
+- 맞는 분은 모두 골라요. 프로필에 근거가 약한 분은 넣지 않아요. 맞는 분이 없으면 picks를 비우고 note에 이유를 짧게 써요.
 
 답 모양
-- picks: 고른 순서대로. id는 프로필의 [번호] 그대로.
+- picks: 질문과 가장 잘 맞는 분부터. id는 프로필의 [번호] 그대로.
 - fields: 근거가 된 프로필 칸 이름 (${ASK_FIELDS.join(', ')} 중에서)
 - why: 그 칸에 적힌 내용을 짧게 인용하거나 요약해서, 왜 이 질문과 맞는지 한두 문장 (150자 안쪽)
 - ask: 처음 연락할 때 물어볼 질문 하나. 그 교수님께 바로 보낼 수 있게 존댓말로 (100자 안쪽)
@@ -277,7 +277,7 @@ async function askPeople(apiKey, context, q, selfId) {
   if (body.stop_reason === 'refusal') throw new Fail(422, 'Claude가 이 질문에는 답하지 않았어요. 필요한 자원이나 기법으로 바꿔 물어봐 주세요');
   return body.content?.filter(b => b.type === 'text').at(-1)?.text || '';
 }
-// Claude 답 → 화면에 보낼 것. 없는 번호·본인은 빼고 3분까지, 이름·교실·사진은 프로필에서 (답을 믿지 않음)
+// Claude 답 → 화면에 보낼 것. 없는 번호·본인·겹친 분은 빼고, 이름·교실·사진은 프로필에서 (답을 믿지 않음)
 function askPicks(text, people, selfId) {
   let out;
   try { out = JSON.parse(text); } catch { return { picks: [], note: '답을 읽지 못했어요. 다시 해 주세요' }; }
@@ -287,7 +287,7 @@ function askPicks(text, people, selfId) {
     const ok = byId.has(x?.id) && x.id !== selfId && !seen.has(x.id);
     if (ok) seen.add(x.id);
     return ok;
-  }).slice(0, 3).map(x => {
+  }).map(x => {
     const p = byId.get(x.id);
     return {
       id: p.id, name: p.name, dept: p.dept, photo: p.photo || '',

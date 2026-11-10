@@ -1,5 +1,5 @@
 'use strict';
-// 공동연구 찾기 (DESIGN §11): 필요한 자원·기법을 적으면 Worker(/ai/ask)가 연구실 둘러보기 프로필로 2~3분을 찾아 줘요
+// 공동연구 찾기 (DESIGN §11): 필요한 자원·기법을 적으면 Worker(/ai/ask)가 연구실 둘러보기 프로필에서 맞는 분을 모두 찾아 줘요
 // 질문과 답은 어디에도 저장하지 않아요 (이 화면도 새로 고치면 사라짐). 한도는 메뉴판 읽기와 같이 써요
 const app = document.getElementById('app');
 const ASK_MAX = 500; // worker.js와 같음
@@ -37,7 +37,7 @@ function render() {
   acts.append(go, left);
   const out = h('div', 'ask-out');
   form.append(
-    h('p', 'hint', '필요한 모델·시료·장비·데이터·기법을 적으면, 연구실 둘러보기 프로필에서 갖고 계시거나 다뤄 온 교수님을 2~3분 찾아 드려요.'),
+    h('p', 'hint', '필요한 모델·시료·장비·데이터·기법을 적으면, 연구실 둘러보기 프로필에서 갖고 계시거나 다뤄 온 교수님을 모두 찾아 드려요.'),
     field('찾는 것', q),
     msg, acts,
   );
@@ -65,7 +65,7 @@ function render() {
   });
 }
 
-// 답: 교수님 2~3분 · 근거 칸 · 처음 물어볼 질문 하나
+// 답: 맞는 교수님 모두(잘 맞는 분부터) · 근거 칸 · 처음 물어볼 질문 하나
 function answer({ picks = [], note = '' }) {
   if (!picks.length) return [h('p', 'empty-note', note || '맞는 교수님을 찾지 못했어요. 다른 말로 물어봐 주세요.')];
   const nodes = picks.map(p => {
