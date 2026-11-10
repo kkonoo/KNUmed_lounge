@@ -71,10 +71,12 @@
     return img;
   }
 
-  // 연구실 위치 (본인이 '내 프로필'에서 넣으면 보여요)
-  function roomOf(p) {
+  // 연구실 위치 (본인이 '내 프로필'에서 넣으면 보여요). 카드는 아이콘만, 자세히는 '연구실' 글자도
+  function roomOf(p, label = true) {
     const r = h('p', 'room');
-    r.append(icon('map-pin'), h('span', 'k', '연구실'), h('span', 'v', p.room));
+    r.append(icon('map-pin'));
+    if (label) r.append(h('span', 'k', '연구실'));
+    r.append(h('span', 'v', p.room));
     return r;
   }
 
@@ -88,7 +90,7 @@
     const name = h('h3', '', p.name);
     if (p.rank) name.append(h('small', '', p.rank));
     body.append(name, h('p', 'dept', p.dept));
-    if (p.room) body.append(roomOf(p));
+    if (p.room) body.append(roomOf(p, false));
     body.append(p.line ? h('p', 'line', p.line) : h('p', 'line none', '아직 소개를 준비하고 있어요'));
     body.append(h('span', 'more', '더보기'));
     if (p.keywords?.length) {
