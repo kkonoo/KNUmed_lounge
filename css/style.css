@@ -136,6 +136,7 @@ main { width: 100%; max-width: 1200px; margin: 0 auto; padding: 4px 24px 32px; f
 .badge { padding: 2px 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); font-size: .75rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .badge.joined { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
 .badge.stopped { background: color-mix(in srgb, var(--bad) 12%, transparent); border-color: transparent; color: var(--bad); }
+.badge.new { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
 .empty-note { margin: 0; padding: 32px 16px; text-align: center; color: var(--muted); }
 
 /* ---------- 입력 ---------- */
@@ -222,6 +223,7 @@ a.door:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
 .door b { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
 .door span { color: var(--muted); font-size: .9rem; }
 .door small { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 12px; font-size: .8rem; color: var(--muted); }
+.door small .badge { font-size: .75rem; }
 a.door small::after { content: "→"; font-size: 1rem; color: var(--faint); transition: color .15s ease-out; }
 a.door:hover small::after { color: var(--accent); }
 .door.soon { background: transparent; border-style: dashed; }

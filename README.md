@@ -1,6 +1,6 @@
 # 경북의대 라운지
 
-경북대학교 의과대학 기초교실 교수님들이 쓰는 작은 사이트예요. 기초친목회 공지와 참석 체크, 교수님별 연구 소개를 한곳에 모았어요. 폰 홈 화면에 앱처럼 설치할 수 있어요.
+경북대학교 의과대학 기초교실 교수님들이 쓰는 작은 사이트예요. 기초친목회 공지와 참석 체크, 자유 게시판, 교수님별 연구 소개를 한곳에 모았어요. 폰 홈 화면에 앱처럼 설치할 수 있어요.
 
 주소: https://kkonoo.github.io/KNUmed_lounge/
 
@@ -10,8 +10,9 @@
 
 | 화면 | 누가 | 하는 일 |
 |---|---|---|
-| 기초친목회 | 회원 | 다가오는 친목회 날짜·장소, 참석·미정·불참 체크와 한마디, 누가 오는지. 관리자는 만들기·고치기·마감·공지 문구 복사, 아직 체크 안 한 분 보기 |
-| 연구실 둘러보기 | 누구나 | 교수님별 연구 소개와 키워드. 이름·교실·키워드로 찾고 교실·주제로 걸러요. 거른 상태는 주소 `#` 뒤에 남아 링크로 보낼 수 있어요(예: `people/#dept=생리학교실`) |
+| 기초친목회 | 회원 | 다가오는 친목회 날짜·장소, 참석·미정·불참 체크와 한마디(고른 것을 한 번 더 누르면 취소), 누가 오는지. 관리자는 만들기·고치기·마감·공지 문구 복사, 아직 체크 안 한 분 보기 |
+| 자유 게시판 | 회원 | 글과 댓글. 이름은 실명. 내 글은 고치고 지우고, 관리자는 아무 글·댓글이나 지워요. 홈 카드에 지난번 본 뒤 올라온 새 글 수가 보여요 |
+| 연구실 둘러보기 | 누구나 | 교수님별 연구 소개와 키워드. 이름·교실·키워드로 찾고 교실·주제로 걸러요(고른 칩을 한 번 더 누르면 풀려요). 거른 상태는 주소 `#` 뒤에 남아 링크로 보낼 수 있어요(예: `people/#dept=생리학교실`) |
 | 로그인 | 누구나 | 메일 주소 + PIN(숫자 4자리도 돼요). 처음엔 가입 코드를 같이 넣어요. 한 기기에서 한 번 로그인하면 계속 유지돼요 |
 | 관리자 | 관리자 | 명단 붙여 넣기·고치기·멈추기·지우기, 관리자 지정·해제, 가입 코드, 작업 기록 |
 | 공동연구 찾기 | 회원 | 준비 중이에요 |
@@ -43,8 +44,9 @@ PIN을 잊으신 분은 관리자 화면 명단의 ‘PIN 초기화’가 순서
 | 회원 | Firestore `members/{uid}` | 회원 |
 | 관리자 목록 · 가입 코드 | Firestore `config/admins` · `config/signup` | 누구나(계정 번호뿐) · 관리자 |
 | 친목회 · 참석 체크 | Firestore `events/{행사}` · `events/{행사}/rsvps/{uid}` | 회원 |
+| 자유 게시판 · 댓글 | Firestore `posts/{글}` · `posts/{글}/comments/{댓글}` | 회원 |
 | 관리 작업 기록 | Firestore `adminLog/` | 관리자 |
-| 화면 밝기·글씨 크기, 설치 배너 닫음 | 이 기기 localStorage `lounge-prefs`, `lounge-app` | 이 기기 |
+| 화면 밝기·글씨 크기, 설치 배너 닫음, 게시판 마지막으로 본 때 | 이 기기 localStorage `lounge-prefs`, `lounge-app`, `lounge-board` | 이 기기 |
 
 누가 무엇을 쓰고 읽는지는 화면이 아니라 `firestore.rules`가 지켜요. 가입 코드 확인, 마지막 관리자 보호, 멈춘 계정 막기, 마감 뒤 체크 막기도 규칙이 해요.
 
@@ -60,7 +62,12 @@ PIN을 잊으신 분은 관리자 화면 명단의 ‘PIN 초기화’가 순서
 powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:8767/  (다른 번호: $env:PORT=8770)
 ```
 
-- 확인(테스트): 저장소 맨 위에서 `node --test`. 계정·명단 붙여 넣기·친목회·찾기 계산과, 공개 데이터에 메일·연락처가 없는지 확인해요.
+- 확인(테스트): 저장소 맨 위에서 `node --test`. 계정·명단 붙여 넣기·친목회·게시판·찾기 계산과, 공개 데이터에 메일·연락처가 없는지 확인해요.
+- 규칙·화면 흐름 확인: `cd tests/emulator`, 처음 한 번 `npm install`, 그다음 `npm test` (Java 21 이상과 Playwright 필요). Firebase 에뮬레이터를 켜서
+  - `rules.spec.js`: `firestore.rules`가 화면이 하는 읽기·쓰기는 받고, 하면 안 되는 것은 막는지 봐요.
+  - `flow.spec.js`: Chromium으로 처음 설정 → 명단 65분 → 가입 코드로 가입 → 친목회 참석 체크 → 게시판 → PIN 바꾸기 → 멈춤까지 눌러 봐요.
+  - 사이트 코드는 그대로 두고 검사할 때만 설정을 가짜 프로젝트(`demo-lounge`)로 바꿔서, 실제 Firebase에는 닿지 않아요. 이름·메일은 모두 가짜예요.
+  - `firestore.rules`를 고치면 이 검사를 돌리고, Firebase 콘솔 › Firestore › 규칙에 다시 붙여 넣어요.
 - 연구 소개 다시 만들기: 이름북 저장소를 받아 두고 `python3 pipeline/from_namebook.py ../Biomed_KNUmed` (Pillow 필요). 이미 있는 분은 같은 번호를 그대로 써요.
 - 앱 아이콘 다시 그리기: `icons/icon.svg`를 고치고 `python3 tools/make-icons.py` (Playwright 필요).
 - 화면 아이콘 더하기: `tools/make-icon-set.py`의 `NAMES`에 Lucide 이름을 넣고, `npm i lucide-static` 한 폴더의 `node_modules/lucide-static/icons`를 넘겨 다시 돌려요.
@@ -71,8 +78,9 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 
 | 파일 | 내용 |
 |---|---|
-| `index.html` | 홈: 다음 친목회 한 줄, 입구 카드, 앱 설치 배너 |
+| `index.html` | 홈: 다음 친목회 한 줄, 입구 카드(게시판 새 글 수), 앱 설치 배너 |
 | `events/` | 기초친목회: `events.js`(화면) · `events-core.js`(계산) · `events-db.js`(Firestore) · `events.css` |
+| `board/` | 자유 게시판: `board.js` · `board-core.js` · `board-db.js` · `board.css` |
 | `people/` | 연구실 둘러보기: `people.js` · `people-core.js` · `people.css` |
 | `login/` | 로그인 · 처음 가입 · PIN 바꾸기 |
 | `admin/` | 관리자: `admin.js` · `admin-db.js` · `admin.css` |
@@ -88,7 +96,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 | `data/people.json` · `photos/` | 연구 소개 데이터와 사진 |
 | `pipeline/from_namebook.py` | 이름북 → 연구 소개 데이터 |
 | `tools/serve.ps1` · `tools/make-icons.py` · `tools/make-icon-set.py` | 로컬 서버 · 앱 아이콘 그리기 · 화면 아이콘 모으기 |
-| `tests/` | `node --test` |
+| `tests/` | `node --test` (계산) · `tests/emulator/` (`npm test`: 규칙·화면 흐름, 에뮬레이터) |
 
 ## 함께 쓰는 것
 

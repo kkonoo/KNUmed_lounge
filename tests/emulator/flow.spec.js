@@ -1,7 +1,7 @@
 'use strict';
 // 화면 흐름 검사: 실제 Firebase SDK + 에뮬레이터 + Chromium으로 사이트를 눌러 봄
 //   처음 설정 → 명단 65분 붙여 넣기 → 가입 코드로 가입(틀린 코드 먼저) → 친목회 올리기 → 참석 체크·한 번 더 눌러 취소
-//   → 홈 한 줄 → PIN 바꾸기·다시 로그인 → 멈춘 계정 막힘
+//   → 홈 한 줄 → 자유 게시판(글·새 글·댓글·고치기·지우기) → PIN 바꾸기·다시 로그인 → 멈춘 계정 막힘
 // 실행: tests/emulator 에서 npm test. 이름·메일은 모두 가짜
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
@@ -61,7 +61,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.getByText('65분을 읽었어요 (새로 64 · 이미 있음 1)').waitFor();
     await A.getByRole('button', { name: '65분 명단에 넣기' }).click();
     await toast(A, '새로 64분, 고침 0분');
-    assert.match(await A.locator('.summary').innerText(), /명단\s*65\s*가입\s*1\s*아직\s*64/);
+    await A.locator('.summary', { hasText: /명단\s*65\s*가입\s*1\s*아직\s*64/ }).waitFor(); // 알림 뒤 다시 읽어 그림
   });
 
   await t.test('가입: 틀린 코드는 막히고, 맞는 코드로 다시 하면 됨', async () => {
@@ -110,6 +110,44 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
   await t.test('홈: 다음 친목회 한 줄에 내 체크', async () => {
     await P.goto(site.url);
     await P.locator('#nextEvent:not([hidden])', { hasText: '미정' }).waitFor();
+  });
+
+  await t.test('자유 게시판: 글쓰기 → 홈 새 글 → 댓글 → 고치기 → 지우기', async () => {
+    await P.goto(`${site.url}board/`);
+    await P.getByText('아직 글이 없어요').waitFor();
+    await P.getByRole('button', { name: '글쓰기' }).click();
+    await P.getByLabel('제목').fill('원심분리기 나눠요');
+    await P.getByLabel('내용').fill('필요하신 분 연락 주세요\n사진: https://example.com/photo.');
+    await P.getByRole('button', { name: '올리기' }).click();
+    await toast(P, '올렸어요');
+    await P.getByRole('heading', { name: '원심분리기 나눠요' }).waitFor();
+    assert.equal(await P.locator('.post-body a').getAttribute('href'), 'https://example.com/photo');
+    assert.match(await P.locator('.post-meta').innerText(), new RegExp(`^${PROF.name} · `));
+
+    await A.goto(site.url);
+    await A.locator('#boardFoot', { hasText: '새 글 1' }).waitFor();
+    await A.goto(`${site.url}board/`);
+    await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).locator('.badge.new').waitFor();
+    await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).click();
+    await A.getByLabel('댓글').fill('저요');
+    await A.getByRole('button', { name: '달기' }).click();
+    await P.locator('.comment-list li', { hasText: '저요' }).getByText(ADMIN.name).waitFor(); // 글쓴이 화면에 바로 보임
+    await P.getByRole('heading', { name: '댓글 1' }).waitFor();
+    await A.locator('.topbar a.icon-btn').click(); // 목록으로
+    await A.locator('.post-item .pi-count', { hasText: '1' }).waitFor();
+    await A.goto(site.url);
+    await A.locator('.door[href="board/"]').waitFor();
+    assert.equal(await A.locator('#boardFoot').innerText(), '로그인'); // 이미 봤으니 새 글 없음
+
+    await P.getByRole('button', { name: '고치기' }).click();
+    await P.getByLabel('제목').fill('원심분리기 나눠요 (끝)');
+    await P.getByRole('button', { name: '저장' }).click();
+    await toast(P, '고쳤어요');
+    await P.getByRole('heading', { name: '원심분리기 나눠요 (끝)' }).waitFor();
+    await P.locator('.post-meta', { hasText: '고침' }).waitFor();
+    await P.locator('.post .form-actions').getByRole('button', { name: '지우기' }).click();
+    await toast(P, '지웠어요');
+    await P.getByText('아직 글이 없어요').waitFor(); // 남의 댓글이 있어도 글쓴이가 글째 지움
   });
 
   await t.test('PIN 바꾸기 → 로그아웃 → 새 PIN으로 로그인', async () => {

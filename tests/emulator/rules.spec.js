@@ -246,3 +246,71 @@ test('작업 기록: 관리자만 읽고 더하기만', async () => {
   await assertFails(getDocs(collection(as(PROF), 'adminLog')));
   await assertFails(addDoc(collection(as(PROF), 'adminLog'), { at: serverTimestamp(), by: PROF.uid, byName: PROF.name, action: 'x', target: '' }));
 });
+
+// ---------- 자유 게시판 ----------
+const post = (u, extra = {}) => ({ title: '장비 나눔', body: '원심분리기 하나 나눠요', by: u.uid, name: u.name, at: serverTimestamp(), editedAt: null, ...extra });
+const comment = (u, extra = {}) => ({ body: '저요', by: u.uid, name: u.name, at: serverTimestamp(), ...extra });
+async function withPost() {
+  await base();
+  await seed(async db => {
+    await setDoc(doc(db, 'posts/p1'), { ...post(PROF), at: now() });
+    await setDoc(doc(db, 'posts/p1/comments/c1'), { ...comment(ADMIN), at: now() });
+  });
+}
+
+test('게시판: 회원만 읽고 씀, 이름은 회원 이름 그대로', async () => {
+  await base();
+  const ref = await assertSucceeds(addDoc(collection(as(PROF), 'posts'), post(PROF)));
+  await assertSucceeds(getDocs(query(collection(as(ADMIN), 'posts'), orderBy('at', 'desc'), limit(30))));
+  await assertSucceeds(getDocs(query(collection(as(ADMIN), 'posts'), where('at', '>', Timestamp.fromMillis(0)), orderBy('at', 'desc'), limit(30))));
+  await assertFails(getDocs(collection(anon(), 'posts')));
+  await assertFails(getDoc(doc(as(OTHER), 'posts', ref.id))); // 가입 전
+  await assertFails(addDoc(collection(as(OTHER), 'posts'), post(OTHER)));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { name: '익명' })));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { by: ADMIN.uid, name: ADMIN.name })));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { at: now() })));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { title: '' })));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { body: 'ㄱ'.repeat(4001) })));
+  await assertSucceeds(addDoc(collection(as(PROF), 'posts'), post(PROF, { body: '가'.repeat(4000) }))); // 한글도 글자 수로 셈
+  const { editedAt, ...noEdited } = post(PROF);
+  await assertFails(addDoc(collection(as(PROF), 'posts'), noEdited));
+});
+
+test('게시판: 고치기는 쓴 사람만, 제목·내용만', async () => {
+  await withPost();
+  await assertSucceeds(updateDoc(doc(as(PROF), 'posts/p1'), { title: '장비 나눔 (끝)', body: '가져가셨어요', editedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(as(ADMIN), 'posts/p1'), { title: '관리자가 고침', editedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(as(PROF), 'posts/p1'), { name: '다른이름', editedAt: serverTimestamp() }));
+  await assertFails(updateDoc(doc(as(PROF), 'posts/p1'), { title: '시각 없이' }));
+  await assertFails(updateDoc(doc(as(PROF), 'posts/p1'), { by: ADMIN.uid, editedAt: serverTimestamp() }));
+});
+
+test('게시판 댓글: 회원만 달고, 지우기는 쓴 사람·관리자', async () => {
+  await withPost();
+  const ref = await assertSucceeds(addDoc(collection(as(PROF), 'posts/p1/comments'), comment(PROF)));
+  await assertSucceeds(getDocs(query(collection(as(PROF), 'posts/p1/comments'), orderBy('at'))));
+  await assertFails(addDoc(collection(as(OTHER), 'posts/p1/comments'), comment(OTHER)));
+  await assertFails(addDoc(collection(as(PROF), 'posts/p1/comments'), comment(PROF, { name: '익명' })));
+  await assertFails(addDoc(collection(as(PROF), 'posts/p1/comments'), comment(PROF, { body: 'ㄱ'.repeat(1001) })));
+  await assertFails(addDoc(collection(as(PROF), 'posts/none/comments'), comment(PROF)));
+  await assertFails(updateDoc(ref, { body: '고침' }));
+  await assertFails(deleteDoc(doc(as(PROF), 'posts/p1/comments/c1'))); // 내 글이어도 남의 댓글 하나만은 못 지움
+  await assertSucceeds(deleteDoc(ref));
+  await assertSucceeds(deleteDoc(doc(as(ADMIN), 'posts/p1/comments/c1')));
+});
+
+test('게시판: 글쓴이는 남의 댓글까지 한 번에 지우며 글을 지움, 남의 글은 관리자만', async () => {
+  await withPost();
+  const tryRemove = async (u) => {
+    const db = as(u);
+    const b = writeBatch(db);
+    (await getDocs(collection(db, 'posts/p1/comments'))).docs.forEach(d => b.delete(d.ref));
+    b.delete(doc(db, 'posts/p1'));
+    return b.commit();
+  };
+  await seed(db => setDoc(doc(db, 'members', OTHER.uid), memberDoc(OTHER)));
+  await assertFails(tryRemove(OTHER));
+  await assertSucceeds(tryRemove(PROF));
+  await withPost();
+  await assertSucceeds(tryRemove(ADMIN));
+});

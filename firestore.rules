@@ -11,6 +11,8 @@ rules_version = '2';
 // events/{행사}                      친목회 { title, date, time, place, mapUrl, deadline, note, audience, closed, at, by }
 // events/{행사}/rsvps/{uid}          참석 { status, name, comment, at }. 본인 것만, 마감 전에만
 // adminLog/{자동}                    관리 작업 기록. 관리자만 읽고 더하기만 (고치기·지우기 없음)
+// posts/{글}                         자유 게시판 { title, body, by, name, at, editedAt }. 회원만 읽음. 쓴 사람만 고침, 쓴 사람·관리자가 지움
+// posts/{글}/comments/{댓글}         댓글 { body, by, name, at }. 회원만 읽음. 고치기 없음, 쓴 사람·관리자가 지움 (글을 지울 때는 글쓴이도)
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
@@ -119,6 +121,42 @@ service cloud.firestore {
           && text(request.resource.data.comment, 60)
           && request.resource.data.at == request.time;
         allow delete: if isAdmin() || (isMember() && request.auth.uid == uid && isOpen(ev()));
+      }
+    }
+
+    // ---------- 자유 게시판 ----------
+    // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글을 먼저 지우고 글을 지워요(한 번에)
+    function postOk(d) {
+      return d.keys().hasOnly(['title', 'body', 'by', 'name', 'at', 'editedAt'])
+        && d.keys().hasAll(['title', 'body', 'by', 'name', 'at', 'editedAt'])
+        && filled(d.title, 80) && filled(d.body, 4000)
+        && d.by is string && d.name is string && d.at is timestamp
+        && (d.editedAt == null || d.editedAt is timestamp);
+    }
+    match /posts/{pid} {
+      allow read: if isMember();
+      allow create: if isMember() && postOk(request.resource.data)
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.name == me().name
+        && request.resource.data.at == request.time
+        && request.resource.data.editedAt == null;
+      allow update: if isMember() && resource.data.by == request.auth.uid && postOk(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'body', 'editedAt'])
+        && request.resource.data.editedAt == request.time;
+      allow delete: if isAdmin() || (isMember() && resource.data.by == request.auth.uid);
+
+      function postPath() { return /databases/$(database)/documents/posts/$(pid); }
+      match /comments/{cid} {
+        allow read: if isMember();
+        allow create: if isMember() && exists(postPath())
+          && request.resource.data.keys().hasOnly(['body', 'by', 'name', 'at'])
+          && filled(request.resource.data.body, 1000)
+          && request.resource.data.by == request.auth.uid
+          && request.resource.data.name == me().name
+          && request.resource.data.at == request.time;
+        allow delete: if isAdmin()
+          || (isMember() && resource.data.by == request.auth.uid)
+          || (isMember() && get(postPath()).data.by == request.auth.uid && !existsAfter(postPath()));
       }
     }
 

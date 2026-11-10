@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>경북의대 라운지</title>
-<meta name="description" content="경북대학교 의과대학 기초교실 교수님들의 친목회 공지와 연구 소개, 공동연구 찾기">
+<meta name="description" content="경북대학교 의과대학 기초교실 교수님들의 친목회 공지, 자유 게시판, 연구 소개, 공동연구 찾기">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <meta name="color-scheme" content="light dark">
 <link rel="manifest" href="manifest.webmanifest">
@@ -31,6 +31,10 @@
       <span class="door-icon"><span data-icon="utensils"></span></span><b>기초친목회</b><span>이번 달 날짜·장소를 보고 참석을 체크해요. 누가 오는지도 보여요</span>
       <small>로그인</small>
     </a>
+    <a class="door" href="board/">
+      <span class="door-icon"><span data-icon="messages-square"></span></span><b>자유 게시판</b><span>세미나 소식, 장비 나눔, 이런저런 이야기를 올려요. 회원만 봐요</span>
+      <small id="boardFoot">로그인</small>
+    </a>
     <a class="door" href="people/">
       <span class="door-icon"><span data-icon="microscope"></span></span><b>연구실 둘러보기</b><span>교수님별 연구와 키워드. 이름·교실·주제로 찾아요</span>
       <small>누구나</small>
@@ -49,6 +53,8 @@
 <script src="js/account-core.js"></script>
 <script src="js/session.js"></script>
 <script src="events/events-core.js"></script>
+<script src="board/board-core.js"></script>
+<script src="board/board-db.js"></script>
 <script src="js/home.js"></script>
 <script src="js/pwa.js"></script>
 </body>
