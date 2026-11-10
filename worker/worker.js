@@ -167,9 +167,12 @@ async function resetPin(projectId, sa, email) {
     const res = await fetch(`https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:${what}`, {
       method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body),
     });
-    if (res.status === 403) throw new Fail(502, '서비스 계정에 Firebase Authentication 관리 권한이 없어요. worker/README.md를 봐 주세요');
-    if (!res.ok) throw new Fail(502, `PIN을 바꾸지 못했어요 (${res.status})`);
-    return res.json();
+    if (res.ok) return res.json();
+    // Google이 준 이유(예: CONFIGURATION_NOT_FOUND)를 같이 보여 줘요. 메일·키는 들어 있지 않아요. 전체는 Workers 로그에
+    const why = String((await res.json().catch(() => null))?.error?.message || '').slice(0, 160);
+    console.error('identitytoolkit', what, res.status, why);
+    if (res.status === 403) throw new Fail(502, `서비스 계정에 Firebase Authentication 관리 권한이 없어요. worker/README.md를 봐 주세요 (${why || 403})`);
+    throw new Fail(502, `PIN을 바꾸지 못했어요 (${what} ${res.status}${why ? ` ${why}` : ''})`);
   };
   const uid = (await auth('lookup', { email: [email] })).users?.[0]?.localId;
   if (!uid) throw new Fail(404, '아직 가입하지 않은 분이에요');

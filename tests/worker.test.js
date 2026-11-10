@@ -74,6 +74,7 @@ test.before(async () => {
     if (idt) {
       const body = JSON.parse(opts.body);
       state.google.push({ project: idt[1], what: idt[2], auth: opts.headers.authorization, body });
+      if (state.authFail?.[idt[2]]) return json({ error: { code: 400, message: state.authFail[idt[2]], status: 'INVALID_ARGUMENT' } }, 400);
       if (idt[2] === 'lookup') { const uid = state.authUsers[body.email?.[0]]; return json(uid ? { users: [{ localId: uid, email: body.email[0] }] } : {}); }
       return json({ localId: body.localId });
     }
@@ -327,4 +328,14 @@ test('PIN 초기화: 관리자만, 명단에 있고 가입한 분만, 서비스 
   assert.equal(claim.iss, sa.email);
   assert.equal(claim.aud, 'https://oauth2.googleapis.com/token');
   assert.equal(claim.exp - claim.iat, 3600);
+
+  // Google이 거절하면 어느 단계에서 왜인지 보여 줌
+  state.authFail = { update: 'PASSWORD_DOES_NOT_MEET_REQUIREMENTS' };
+  const err = console.error;
+  console.error = () => {};
+  try {
+    const bad = await reset('admin', 'kim@example.com');
+    assert.equal(bad.status, 502);
+    assert.equal(bad.body.error, 'PIN을 바꾸지 못했어요 (update 400 PASSWORD_DOES_NOT_MEET_REQUIREMENTS)');
+  } finally { console.error = err; state.authFail = null; }
 });
