@@ -10,7 +10,12 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .pi-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: .82rem; color: var(--muted); }
 .pi-count { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; font-variant-numeric: tabular-nums; }
 .pi-count .lc { width: 14px; height: 14px; }
-.more { align-self: center; }
+.post-list.pinned { background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface)); }
+.badge.notice { background: var(--accent); border-color: transparent; color: var(--on-accent); }
+.post h2 .badge { vertical-align: middle; font-size: .72rem; }
+.pager { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.pager .btn { min-width: 2.2rem; justify-content: center; font-variant-numeric: tabular-nums; }
+.pager .btn.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 
 /* 글 하나 */
 .post { gap: .5rem; }

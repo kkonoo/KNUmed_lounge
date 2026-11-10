@@ -11,6 +11,21 @@ const boardDb = {
     const { F, db } = await fb();
     return F.onSnapshot(F.query(F.collection(db, 'posts'), F.orderBy('at', 'desc'), F.limit(n)), s => onPosts(s.docs.map(postOf)), onError);
   },
+  // 공지 (많지 않아서 순서는 화면이 새것부터로)
+  async watchPinned(onPosts, onError) {
+    const { F, db } = await fb();
+    return F.onSnapshot(F.query(F.collection(db, 'posts'), F.where('pinned', '==', true)),
+      s => onPosts(s.docs.map(postOf).sort((a, b) => (b.at || 0) - (a.at || 0))), onError);
+  },
+  // 글 수 (페이지 번호용)
+  async count() {
+    const { F, db } = await fb();
+    return (await F.getCountFromServer(F.collection(db, 'posts'))).data().count;
+  },
+  async setPinned(id, pinned) {
+    const { F, db } = await fb();
+    await F.updateDoc(F.doc(db, 'posts', id), { pinned });
+  },
   async watchPost(id, onPost, onError) {
     const { F, db } = await fb();
     return F.onSnapshot(F.doc(db, 'posts', id), d => onPost(d.exists() ? postOf(d) : null), onError);
@@ -32,9 +47,9 @@ const boardDb = {
     return (await F.getDocs(q)).docs.map(postOf);
   },
 
-  async add({ title, body }, me) {
+  async add({ title, body }, me, pinned = false) {
     const { F, db } = await fb();
-    const ref = await F.addDoc(F.collection(db, 'posts'), { title: title.trim(), body: body.trim(), by: me.uid, name: me.name, at: F.serverTimestamp(), editedAt: null });
+    const ref = await F.addDoc(F.collection(db, 'posts'), { title: title.trim(), body: body.trim(), by: me.uid, name: me.name, at: F.serverTimestamp(), editedAt: null, ...(pinned ? { pinned: true } : {}) }); // 공지일 때만 칸을 씀 (예전 규칙에서도 보통 글은 올라가게)
     return ref.id;
   },
   async edit(id, { title, body }) {

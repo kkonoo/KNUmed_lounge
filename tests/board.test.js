@@ -35,3 +35,22 @@ test('본문 링크: http(s) 주소만, 끝 문장부호는 글자로', () => {
   assert.deepEqual(B.linkParts('javascript:alert(1) ftp://x'), [['t', 'javascript:alert(1) ftp://x']]);
   assert.deepEqual(B.linkParts(''), []);
 });
+
+test('목록 페이지: 공지는 빼고 20개씩, 번호 단추는 가운데에', () => {
+  const posts = Array.from({ length: 45 }, (_, i) => ({ id: `p${i}`, pinned: i === 3 }));
+  assert.equal(B.pagePosts(posts, 1).length, 20);
+  assert.equal(B.pagePosts(posts, 1).some(p => p.pinned), false);
+  assert.deepEqual(B.pagePosts(posts, 3).map(p => p.id), ['p41', 'p42', 'p43', 'p44']);
+  assert.equal(B.pageCount(45, 1), 3);
+  assert.equal(B.pageCount(0, 0), 1);
+  assert.equal(B.pageCount(20, 0), 1);
+  assert.equal(B.pageCount(21, 0), 2);
+  assert.deepEqual(B.pageNumbers(1, 3), [1, 2, 3]);
+  assert.deepEqual(B.pageNumbers(6, 12), [4, 5, 6, 7, 8]);
+  assert.deepEqual(B.pageNumbers(12, 12), [8, 9, 10, 11, 12]);
+  assert.deepEqual(B.pageNumbers(1, 12), [1, 2, 3, 4, 5]);
+  assert.equal(B.readPage('#page=3'), 3);
+  assert.equal(B.readPage(''), 1);
+  assert.equal(B.readPage('#page=0'), 1);
+  assert.equal(B.readPage('#p=abc'), 1);
+});

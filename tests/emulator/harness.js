@@ -40,6 +40,8 @@ async function resetEmulators() {
   if (!r.ok) throw new Error(`auth 에뮬레이터를 비우지 못함 ${r.status}`);
 }
 const closeEmulators = () => env?.cleanup();
+// 규칙 없이 바로 넣기 (화면으로 하나씩 만들기엔 많은 것)
+const seed = fn => env.withSecurityRulesDisabled(ctx => fn(ctx.firestore()));
 
 // getAuth·getFirestore를 감싸 처음 부를 때 에뮬레이터에 붙임. 나머지는 실제 SDK 그대로
 const WRAP = {
@@ -77,4 +79,4 @@ async function person(browser) {
   return { ctx, page, errors };
 }
 
-module.exports = { serve, resetEmulators, closeEmulators, person };
+module.exports = { serve, resetEmulators, closeEmulators, person, seed };

@@ -432,3 +432,16 @@ test('지난 메뉴: 교수님 누구나 읽고 씀', async () => {
   await assertFails(setDoc(doc(as(PROF), 'menus/other'), { text: 'x', at: serverTimestamp() }));
   await assertFails(deleteDoc(doc(as(PROF), 'menus/cafe')));
 });
+
+test('게시판 공지: 관리자만 정하고 바꿈, 글쓴이가 고쳐도 그대로', async () => {
+  await withPost();
+  await assertSucceeds(addDoc(collection(as(ADMIN), 'posts'), post(ADMIN, { pinned: true })));
+  await assertFails(addDoc(collection(as(PROF), 'posts'), post(PROF, { pinned: true })));
+  await assertSucceeds(addDoc(collection(as(PROF), 'posts'), post(PROF, { pinned: false })));
+  await assertSucceeds(updateDoc(doc(as(ADMIN), 'posts/p1'), { pinned: true })); // 남의 글도 공지로
+  await assertFails(updateDoc(doc(as(PROF), 'posts/p1'), { pinned: false }));
+  await assertFails(updateDoc(doc(as(ADMIN), 'posts/p1'), { pinned: 'yes' }));
+  await assertFails(updateDoc(doc(as(ADMIN), 'posts/p1'), { pinned: false, title: '관리자가 고침' }));
+  await assertSucceeds(getDocs(query(collection(as(PROF), 'posts'), where('pinned', '==', true))));
+  await assertSucceeds(updateDoc(doc(as(PROF), 'posts/p1'), { title: '고친 제목', body: '고친 내용', editedAt: serverTimestamp() }));
+});

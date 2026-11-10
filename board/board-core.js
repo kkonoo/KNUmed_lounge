@@ -41,3 +41,17 @@ function linkParts(text) {
   if (last < s.length) out.push(['t', s.slice(last)]);
   return out;
 }
+
+// ---------- 목록 페이지 ----------
+// 공지(pinned)는 페이지마다 맨 위에 따로, 나머지 글을 한 페이지에 BOARD_PAGE개씩
+const BOARD_PAGE = 20;
+// 지금 페이지에 보일 글: 새것부터 정렬된 글들에서 공지를 빼고 page번째 묶음
+const pagePosts = (posts, page, per = BOARD_PAGE) => posts.filter(p => !p.pinned).slice((page - 1) * per, page * per);
+const pageCount = (total, pinned, per = BOARD_PAGE) => Math.max(1, Math.ceil(Math.max(0, total - pinned) / per));
+// 페이지 번호 단추: 지금 페이지를 가운데 두고 span개 (끝에서는 붙임)
+function pageNumbers(cur, pages, span = 5) {
+  const start = Math.max(1, Math.min(cur - Math.floor(span / 2), pages - span + 1));
+  return Array.from({ length: Math.min(span, pages) }, (_, i) => start + i);
+}
+// 주소 # → 페이지 (#page=3). 없거나 이상하면 1
+const readPage = hash => Math.max(1, Number((/^#page=(\d{1,4})$/.exec(hash || '') || [])[1]) || 1);

@@ -8,7 +8,8 @@ const path = require('node:path');
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
-const { serve, resetEmulators, closeEmulators, person } = require('./harness');
+const { serve, resetEmulators, closeEmulators, person, seed } = require('./harness');
+const { doc, setDoc, Timestamp } = require('firebase/firestore');
 
 const CODE = 'abc234';
 const ADMIN = { name: '홍길동', dept: '가짜학교실', email: 'hong@example.com', pin: '1234' };
@@ -249,6 +250,29 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.locator('.post .form-actions').getByRole('button', { name: '지우기' }).click();
     await toast(P, '지웠어요');
     await P.getByText('아직 글이 없어요').waitFor(); // 남의 댓글이 있어도 글쓴이가 글째 지움
+  });
+
+  await t.test('게시판 공지와 페이지: 25개면 2페이지, 관리자가 공지로 올리면 맨 위', async () => {
+    await seed(async db => {
+      for (let i = 1; i <= 25; i++) await setDoc(doc(db, 'posts', `seed${String(i).padStart(2, '0')}`), { title: `가짜 글 ${i}`, body: '내용', by: 'x', name: '가짜', at: Timestamp.fromMillis(Date.now() - (30 - i) * 60e3), editedAt: null });
+    });
+    await A.goto(`${site.url}board/`);
+    await A.locator('.post-item', { hasText: '가짜 글 25' }).waitFor(); // 새것부터
+    assert.equal(await A.locator('.post-list:not(.pinned) .post-item').count(), 20);
+    await A.locator('.pager').getByRole('button', { name: '2', exact: true }).click();
+    await A.waitForURL(/#page=2$/);
+    await A.locator('.post-item', { hasText: '가짜 글 5' }).waitFor();
+    assert.equal(await A.locator('.post-list:not(.pinned) .post-item').count(), 5);
+    await A.locator('.post-item', { hasText: '가짜 글 3' }).click();
+    await A.getByRole('button', { name: '공지로 올리기' }).click();
+    await toast(A, '공지로 올렸어요');
+    await A.locator('.topbar a.icon-btn').click(); // 목록으로 → 2페이지 그대로
+    await A.waitForURL(/#page=2$/);
+    await A.locator('.post-list.pinned .post-item', { hasText: '가짜 글 3' }).getByText('공지').waitFor();
+    assert.equal(await A.locator('.post-list:not(.pinned) .post-item').count(), 4); // 공지는 페이지에서 빠짐
+    await P.goto(`${site.url}board/`);
+    await P.locator('.post-list.pinned .post-item', { hasText: '가짜 글 3' }).waitFor(); // 교수님 화면에도 맨 위
+    assert.equal(await P.getByRole('button', { name: '공지로 올리기' }).count(), 0);
   });
 
   await t.test('PIN 바꾸기 → 로그아웃 → 새 PIN으로 로그인', async () => {

@@ -1,12 +1,12 @@
 'use strict';
-// 자유 게시판 화면: 글 목록(#) · 글 하나와 댓글(#p=글번호) · 글쓰기·고치기 창
+// 자유 게시판 화면: 글 목록(#, #page=2 …, 맨 위에 공지) · 글 하나와 댓글(#p=글번호) · 글쓰기·고치기 창
 // 데이터는 board-db.js, 계산은 board-core.js, 입력 부품은 js/form.js
 // 회원만 봐요. 공동연구 찾기(AI)의 문맥에는 넣지 않아요
 
 const app = $('app');
 const seen = store('board', { seen: 0 }); // 이 기기 localStorage 'lounge-board': 목록에서 본 가장 새 글 시각 (홈의 '새 글' 수)
 const back = document.querySelector('.topbar a.icon-btn');
-let S = null, me = null, posts = [], counts = {}, shown = 30, lastSeen = 0, fromList = false;
+let S = null, me = null, posts = [], pinned = [], total = 0, page = 1, counts = {}, lastSeen = 0, fromList = false;
 let stopList = null, view = 0, stops = [];
 
 const fail = (msg, e) => { console.error(e); toast(`${msg}: ${authMessage(e)}`, 3500); };
@@ -34,16 +34,23 @@ async function start() {
   lastSeen = seen.get().seen;
   back.addEventListener('click', e => { if (postId()) { e.preventDefault(); toList(); } });
   addEventListener('hashchange', route);
+  boardDb.watchPinned(list => { pinned = list; if (!postId()) { renderList(); loadCounts(false); } }, e => fail('공지를 읽지 못했어요', e));
+  page = readPage(location.hash);
   listen();
   route();
 }
 
+// 지금 페이지까지의 글을 지켜봄 (공지는 따로 빼고 셈). 글이 바뀌면 글 수도 다시 셈 (페이지 번호)
 function listen() {
   stopList?.();
-  boardDb.watchPosts(shown, list => {
+  stopList = null;
+  const p = page;
+  boardDb.watchPosts(p * BOARD_PAGE + pinned.length + 5, list => {
+    if (p !== page) return;
     posts = list;
+    boardDb.count().then(n => { total = n; if (!postId()) renderList(); }).catch(e => console.error(e));
     if (!postId()) { renderList(); loadCounts(false); }
-  }, e => fail('글을 읽지 못했어요', e)).then(s => { stopList = s; });
+  }, e => fail('글을 읽지 못했어요', e)).then(s => { if (p === page) stopList = s; else s(); });
 }
 
 function route() {
@@ -55,6 +62,8 @@ function route() {
   back.setAttribute('aria-label', back.title);
   if (id) return showPost(id);
   fromList = false;
+  const p = readPage(location.hash);
+  if (p !== page) { page = p; listen(); scrollTo(0, 0); }
   renderList();
   loadCounts(true);
 }
@@ -66,43 +75,65 @@ function toList() {
 }
 
 // ---------- 목록 ----------
+const shownPosts = () => [...pinned, ...pagePosts(posts, page)];
 async function loadCounts(all) {
-  const ids = posts.map(p => p.id).filter(id => all || !(id in counts));
+  const ids = shownPosts().map(p => p.id).filter(id => all || !(id in counts));
   if (!ids.length) return;
   try { Object.assign(counts, await boardDb.commentCounts(ids)); } catch (e) { console.error(e); return; }
   if (!postId()) renderList();
 }
 
+// 목록 한 줄: [공지] [새] 제목 / 글쓴이 · 시각 · 댓글 수
+function postItem(p) {
+  const a = h('a', 'post-item');
+  a.href = `#p=${p.id}`;
+  a.addEventListener('click', () => { fromList = true; });
+  const title = h('span', 'pi-title', p.title);
+  if (p.at > lastSeen && !isMine(p)) title.prepend(h('span', 'badge new', '새'));
+  if (p.pinned) title.prepend(h('span', 'badge notice', '공지'));
+  const meta = h('span', 'pi-meta', `${p.name} · ${fmtWhen(p.at)}`);
+  if (counts[p.id]) {
+    const c = h('span', 'pi-count');
+    c.append(icon('message-square'), String(counts[p.id]));
+    c.title = `댓글 ${counts[p.id]}`;
+    meta.append(c);
+  }
+  a.append(title, meta);
+  const li = h('li');
+  li.append(a);
+  return li;
+}
+
 function renderList() {
   if (!S) return;
-  if (!posts.length) {
-    app.replaceChildren(h('p', 'empty-note', '아직 글이 없어요. 위의 글쓰기로 처음 글을 올려 주세요.'));
+  const list = pagePosts(posts, page);
+  if (!list.length && !pinned.length) {
+    app.replaceChildren(h('p', 'empty-note', page > 1 ? '이 페이지에는 글이 없어요.' : '아직 글이 없어요. 위의 글쓰기로 처음 글을 올려 주세요.'));
     return;
   }
-  const ul = h('ul', 'post-list');
-  for (const p of posts) {
-    const a = h('a', 'post-item');
-    a.href = `#p=${p.id}`;
-    a.addEventListener('click', () => { fromList = true; });
-    const title = h('span', 'pi-title', p.title);
-    if (p.at > lastSeen && !isMine(p)) title.prepend(h('span', 'badge new', '새'));
-    const meta = h('span', 'pi-meta', `${p.name} · ${fmtWhen(p.at)}`);
-    if (counts[p.id]) {
-      const c = h('span', 'pi-count');
-      c.append(icon('message-square'), String(counts[p.id]));
-      c.title = `댓글 ${counts[p.id]}`;
-      meta.append(c);
-    }
-    a.append(title, meta);
-    const li = h('li');
-    li.append(a);
-    ul.append(li);
-  }
-  const nodes = [ul];
-  if (posts.length >= shown) nodes.push(button('더 보기', () => { shown += 30; listen(); }, 'btn more'));
+  const nodes = [];
+  if (pinned.length) { const ul = h('ul', 'post-list pinned'); ul.append(...pinned.map(postItem)); nodes.push(ul); }
+  if (list.length) { const ul = h('ul', 'post-list'); ul.append(...list.map(postItem)); nodes.push(ul); }
+  const pages = pageCount(total, pinned.length);
+  if (pages > 1) nodes.push(pager(pages));
   app.replaceChildren(...nodes);
-  const newest = Math.max(...posts.map(p => p.at || 0));
+  const newest = Math.max(0, ...shownPosts().map(p => p.at || 0));
   if (newest > seen.get().seen) seen.set({ seen: newest });
+}
+// 페이지 번호: ‹ 1 2 3 4 5 › (주소 #page=N에 남아서 글을 보고 돌아와도 그 페이지)
+function pager(pages) {
+  const nav = h('nav', 'pager');
+  nav.setAttribute('aria-label', '페이지');
+  const go = n => { location.hash = n > 1 ? `page=${n}` : ''; };
+  const step = (label, n, name) => { const b = button(label, () => go(n), 'btn small'); b.disabled = n < 1 || n > pages; b.setAttribute('aria-label', name); return b; };
+  nav.append(step('‹', page - 1, '앞 페이지'));
+  for (const n of pageNumbers(page, pages)) {
+    const b = button(String(n), () => go(n), `btn small${n === page ? ' on' : ''}`);
+    if (n === page) b.setAttribute('aria-current', 'page');
+    nav.append(b);
+  }
+  nav.append(step('›', page + 1, '다음 페이지'));
+  return nav;
 }
 
 // ---------- 글 하나 ----------
@@ -137,11 +168,16 @@ function showPost(id) {
   keep(v, boardDb.watchPost(id, p => {
     if (!p) { app.replaceChildren(h('p', 'empty-note', '지워졌거나 없는 글이에요.')); return; }
     if (!art.isConnected) app.replaceChildren(art, sec);
-    title.textContent = p.title;
+    title.replaceChildren(...(p.pinned ? [h('span', 'badge notice', '공지'), ' '] : []), p.title);
     meta.textContent = [p.name, fmtWhen(p.at), p.editedAt ? '고침' : ''].filter(Boolean).join(' · ');
     body.replaceChildren(...linkNodes(p.body));
     acts.replaceChildren();
     if (isMine(p)) acts.append(button('고치기', () => openForm(p), 'btn small'));
+    if (S.isAdmin) {
+      acts.append(button(p.pinned ? '공지 내리기' : '공지로 올리기', async () => {
+        try { await boardDb.setPinned(p.id, !p.pinned); toast(p.pinned ? '공지에서 내렸어요' : '공지로 올렸어요'); } catch (e) { fail('바꾸지 못했어요', e); }
+      }, 'btn small'));
+    }
     if (isMine(p) || S.isAdmin) acts.append(button('지우기', () => removePost(p), 'btn small danger'));
     acts.hidden = !acts.childElementCount;
   }, e => fail('글을 읽지 못했어요', e)));
@@ -197,6 +233,10 @@ function openForm(p) {
   Object.assign(body, { rows: 8, maxLength: POST_MAX.body, value: p?.body || '' });
   const save = h('button', 'btn primary', p ? '저장' : '올리기');
   save.type = 'submit';
+  const notice = h('input');
+  notice.type = 'checkbox';
+  const noticeRow = h('label', 'check');
+  noticeRow.append(notice, '공지로 올리기 (목록 맨 위)');
   // 쓰던 글을 실수로 닫지 않게 (Esc·취소)
   const dirty = () => title.value !== (p?.title || '') || body.value !== (p?.body || '');
   const leave = () => !dirty() || confirmBox('쓰던 글을 버릴까요?');
@@ -205,7 +245,7 @@ function openForm(p) {
   form.append(
     h('h2', '', p ? '글 고치기' : '글쓰기'),
     h('p', 'hint', '교수님들만 봐요. 미출판 결과, 환자 정보, 남의 연구에 대한 평가는 올리지 말아 주세요.'),
-    field('제목', title), field('내용', body), msg, acts,
+    field('제목', title), field('내용', body), ...(!p && S.isAdmin ? [noticeRow] : []), msg, acts,
   );
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -218,7 +258,7 @@ function openForm(p) {
         dlg.close();
         toast('고쳤어요');
       } else {
-        const id = await busy(save, '올리는 중…', () => boardDb.add(d, me));
+        const id = await busy(save, '올리는 중…', () => boardDb.add(d, me, S.isAdmin && notice.checked));
         dlg.close();
         toast('올렸어요');
         fromList = !postId();

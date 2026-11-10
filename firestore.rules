@@ -19,7 +19,8 @@ rules_version = '2';
 //                                     관리자: { name, dept, group, rank, hidden }
 //                                     본인: { rank, line, question, keywords, topics, axes, timeline, resources, links }, 저장하면 확인(confirmedAt, by)
 // profiles/{번호}/private/info       { seeking, now, contact, at } 찾는 것·요즘 한 줄·연락처. 회원만 읽음, 본인만 씀
-// posts/{글}                         자유 게시판 { title, body, by, name, at, editedAt }. 회원만 읽음. 쓴 사람만 고침, 쓴 사람·관리자가 지움
+// posts/{글}                         자유 게시판 { title, body, by, name, at, editedAt, pinned? }. 회원만 읽음. 쓴 사람만 고침, 쓴 사람·관리자가 지움
+//                                     pinned = 공지(목록 맨 위). 관리자만 정함
 // posts/{글}/comments/{댓글}         댓글 { body, by, name, at }. 회원만 읽음. 고치기 없음, 쓴 사람·관리자가 지움 (글을 지울 때는 글쓴이도)
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -203,8 +204,9 @@ service cloud.firestore {
     // ---------- 자유 게시판 ----------
     // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글을 먼저 지우고 글을 지워요(한 번에)
     function postOk(d) {
-      return d.keys().hasOnly(['title', 'body', 'by', 'name', 'at', 'editedAt'])
+      return d.keys().hasOnly(['title', 'body', 'by', 'name', 'at', 'editedAt', 'pinned'])
         && d.keys().hasAll(['title', 'body', 'by', 'name', 'at', 'editedAt'])
+        && (!('pinned' in d) || d.pinned is bool)
         && filled(d.title, 80) && filled(d.body, 4000)
         && d.by is string && d.name is string && d.at is timestamp
         && (d.editedAt == null || d.editedAt is timestamp);
@@ -215,10 +217,13 @@ service cloud.firestore {
         && request.resource.data.by == request.auth.uid
         && request.resource.data.name == me().name
         && request.resource.data.at == request.time
-        && request.resource.data.editedAt == null;
-      allow update: if isMember() && resource.data.by == request.auth.uid && postOk(request.resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'body', 'editedAt'])
-        && request.resource.data.editedAt == request.time;
+        && request.resource.data.editedAt == null
+        && (request.resource.data.get('pinned', false) == false || isAdmin());
+      allow update: if (isMember() && resource.data.by == request.auth.uid && postOk(request.resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'body', 'editedAt'])
+          && request.resource.data.editedAt == request.time)
+        || (isAdmin() && postOk(request.resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinned']));
       allow delete: if isAdmin() || (isMember() && resource.data.by == request.auth.uid);
 
       function postPath() { return /databases/$(database)/documents/posts/$(pid); }
