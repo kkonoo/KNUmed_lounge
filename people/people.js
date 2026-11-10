@@ -16,13 +16,6 @@
   const people = data.people;
   let f = readHash(location.hash);
 
-  // ---------- 위: 출처 안내 ----------
-  const about = h('p', 'about');
-  about.append(
-    h('b', '', '지금 소개는 대학원 체험 박람회 이름북(학부생용)에서 가져왔어요. '),
-    `교수님이 직접 확인하신 프로필로 차례로 바뀌어요. 지금은 의과학과 참여 교수님 ${people.length}분이 먼저 올라와 있어요.`,
-  );
-
   // ---------- 찾기·거르기 ----------
   const finder = h('section', 'finder');
   const search = h('div', 'search');
@@ -38,7 +31,7 @@
   finder.append(search, row('교실', deptPills), row('주제', topicPills), count);
 
   const list = h('div', '');
-  app.append(about, finder, list);
+  app.append(finder, list);
 
   const pill = (label, n, on, onClick) => {
     const b = button(label, onClick, '');

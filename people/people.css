@@ -1,6 +1,4 @@
 /* 연구실 둘러보기 */
-.about { margin: 0 0 1rem; padding: .7rem .9rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--muted); font-size: .85rem; }
-.about b { color: var(--text); font-weight: 600; }
 
 /* 찾기·거르기 */
 .finder { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.25rem; }
