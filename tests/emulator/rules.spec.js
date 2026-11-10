@@ -318,7 +318,7 @@ test('게시판: 글쓴이는 남의 댓글까지 한 번에 지우며 글을 �
 // ---------- 연구실 둘러보기 프로필 ----------
 const base0 = { name: PROF.name, dept: PROF.dept, group: '기초', rank: '', hidden: false };
 const content = (u, extra = {}) => ({
-  rank: '교수', line: '세포가 늙는 원리를 연구해요', question: '세포 노화는 어떻게 시작될까요?', keywords: ['노화', 'RNA'], topics: ['cancer'],
+  rank: '교수', room: '본관 3층 305호', line: '세포가 늙는 원리를 연구해요', question: '세포 노화는 어떻게 시작될까요?', keywords: ['노화', 'RNA'], topics: ['cancer'],
   axes: [{ name: '세포 노화', text: '노화는 어떻게 시작될까', papers: [{ label: '예시 2024', url: 'https://example.com/p1' }] }],
   timeline: [{ years: '2016–2020', text: '부임, 노화 모델 확립' }],
   resources: { models: '노화 마우스', samples: '', equipment: '공초점 현미경', data: '', techniques: 'RNA-seq' },
@@ -360,6 +360,8 @@ test('프로필: 누구나 읽음, 본인만 소개 칸을 씀 (저장 = 확인)
   await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { hidden: true })));
   await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { confirmedAt: now() })));
   await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { line: 'ㄱ'.repeat(161) })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { room: 'ㄱ'.repeat(41) })));
+  await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { room: 305 })));
   await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { resources: { models: '', secret: 'x' } })));
   await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { keywords: Array(11).fill('k') })));
   await assertFails(updateDoc(doc(as(PROF), 'profiles/abc234'), content(PROF, { axes: Array(4).fill({ name: 'x', text: '', papers: [] }) })));

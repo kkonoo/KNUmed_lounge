@@ -87,7 +87,7 @@ const BOOK = [
 
 test('공개 목록 합치기: 본인 저장 → 그 내용, 아직 → 이름북, 이름북에 없으면 이름·교실만, 숨김은 빼기', () => {
   const docs = [
-    { id: 'aaaaaa', name: '홍길동', dept: '가짜학교실', group: '기초', rank: '교수', hidden: false, line: '본인이 쓴 소개', question: '질문', keywords: ['새'], topics: [], axes: [{ name: '축', text: '설명', papers: [] }], timeline: [], resources: { models: '마우스' }, links: [{ url: 'https://example.com/lab', label: '연구실' }], confirmedAt: 1000 },
+    { id: 'aaaaaa', name: '홍길동', dept: '가짜학교실', group: '기초', rank: '교수', hidden: false, room: '본관 305호', line: '본인이 쓴 소개', question: '질문', keywords: ['새'], topics: [], axes: [{ name: '축', text: '설명', papers: [] }], timeline: [], resources: { models: '마우스' }, links: [{ url: 'https://example.com/lab', label: '연구실' }], confirmedAt: 1000 },
     { id: 'bbbbbb', name: '김철수', dept: '바뀐교실', group: '기초', rank: '', hidden: true },
     { id: 'cccccc', name: '이영희', dept: '예시학교실', group: '기초', rank: '', hidden: false },
     { id: 'dddddd', name: '박영수', dept: '예시학교실', group: '기초', rank: '', hidden: false },
@@ -96,6 +96,8 @@ test('공개 목록 합치기: 본인 저장 → 그 내용, 아직 → 이름�
   assert.equal(m.size, 3);
   assert.equal(m.get('aaaaaa').status, 'confirmed');
   assert.equal(m.get('aaaaaa').line, '본인이 쓴 소개');
+  assert.equal(m.get('aaaaaa').room, '본관 305호');
+  assert.equal(m.get('cccccc').room, undefined); // 연구실은 본인이 저장해야 보여요
   assert.equal(m.get('aaaaaa').photo, 'photos/aaaaaa.jpg');
   assert.deepEqual(m.get('aaaaaa').links, [['https://example.com/lab', '연구실']]);
   assert.equal(m.has('bbbbbb'), false);
@@ -153,14 +155,16 @@ test('1년 넘게 확인 안 한 프로필', () => {
 test('고치기 칸: 처음엔 이름북에서, 저장한 뒤엔 내 값. 축 3칸·발자취 4칸·링크 4칸', () => {
   const f = P.profileForm(null, BOOK[0]);
   assert.equal(f.line, '이름북 소개');
+  assert.equal(f.room, '');
   assert.equal(f.keywords, '가짜');
   assert.deepEqual(f.topics, ['brain']);
   assert.equal(f.axes.length, 3);
   assert.equal(f.timeline.length, 4);
   assert.equal(f.links.length, 4);
   assert.deepEqual(f.links[0], { url: 'https://example.com/a', label: '교수 소개 페이지' });
-  const g = P.profileForm({ confirmedAt: 1, rank: '교수', line: '내 소개', keywords: ['a', 'b'], topics: [], axes: [{ name: '축', text: '설명', papers: [{ label: 'Brain 2023', url: 'https://example.com/p' }] }], timeline: [{ years: '2010–2015', text: '시작' }], resources: { data: '코호트' }, links: [] }, BOOK[0]);
+  const g = P.profileForm({ confirmedAt: 1, rank: '교수', room: '본관 305호', line: '내 소개', keywords: ['a', 'b'], topics: [], axes: [{ name: '축', text: '설명', papers: [{ label: 'Brain 2023', url: 'https://example.com/p' }] }], timeline: [{ years: '2010–2015', text: '시작' }], resources: { data: '코호트' }, links: [] }, BOOK[0]);
   assert.equal(g.line, '내 소개');
+  assert.equal(g.room, '본관 305호');
   assert.equal(g.keywords, 'a, b');
   assert.equal(g.axes[0].papers, 'Brain 2023 https://example.com/p');
   assert.equal(g.resources.data, '코호트');
@@ -170,17 +174,20 @@ test('고치기 칸: 처음엔 이름북에서, 저장한 뒤엔 내 값. 축 3�
 test('저장 값 다듬기와 확인', () => {
   const v = P.profileForm(null, BOOK[0]);
   v.keywords = '노화, RNA, 노화,  ';
+  v.room = '  본관 3층 305호 ';
   v.axes[0] = { name: '세포 노화', text: '어떻게 시작될까', papers: 'Brain 2023 https://example.com/p1\nhttps://example.com/p2' };
   v.timeline[1] = { years: '2016–2020', text: '부임' };
   v.links[1] = { url: 'https://scholar.google.com/citations?user=x', label: '' };
   const c = P.cleanProfile(v);
   assert.deepEqual(c.keywords, ['노화', 'RNA']);
+  assert.equal(c.room, '본관 3층 305호');
   assert.equal(c.axes.length, 1);
   assert.deepEqual(c.axes[0].papers, [{ label: 'Brain 2023', url: 'https://example.com/p1' }, { label: '논문', url: 'https://example.com/p2' }]);
   assert.deepEqual(c.timeline, [{ years: '2016–2020', text: '부임' }]);
   assert.equal(c.links[1].label, 'Google Scholar');
   assert.equal(P.profileProblem(c), '');
   assert.equal(P.profileProblem({ ...c, line: '' }), '한 줄 소개를 넣어 주세요');
+  assert.equal(P.profileProblem({ ...c, room: 'ㄱ'.repeat(41) }), '연구실은 40자까지예요');
   assert.equal(P.profileProblem({ ...c, axes: [{ name: '', text: '설명만', papers: [] }] }), '연구 축 1의 이름을 넣어 주세요');
   assert.equal(P.profileProblem({ ...c, axes: [{ name: '축', text: '', papers: [{ label: 'a', url: 'https://x.y/1' }, { label: 'b', url: 'https://x.y/2' }, { label: 'c', url: 'https://x.y/3' }] }] }), '대표 논문은 축마다 2편까지예요');
   assert.equal(P.profileProblem({ ...c, timeline: [{ years: '2010', text: '' }] }), '연구 발자취는 기간과 한 줄을 같이 넣어 주세요');

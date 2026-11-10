@@ -17,7 +17,7 @@ rules_version = '2';
 // adminLog/{자동}                    관리 작업 기록. 관리자만 읽고 더하기만 (고치기·지우기 없음)
 // profiles/{번호}                    연구실 둘러보기 프로필. 누구나 읽음
 //                                     관리자: { name, dept, group, rank, hidden }
-//                                     본인: { rank, line, question, keywords, topics, axes, timeline, resources, links }, 저장하면 확인(confirmedAt, by)
+//                                     본인: { rank, room, line, question, keywords, topics, axes, timeline, resources, links }, 저장하면 확인(confirmedAt, by)
 // profiles/{번호}/private/info       { seeking, now, contact, at } 찾는 것·요즘 한 줄·연락처. 회원만 읽음, 본인만 씀
 // posts/{글}                         자유 게시판 { title, body, by, name, at, editedAt, pinned? }. 회원만 읽음. 쓴 사람만 고침, 쓴 사람·관리자가 지움
 //                                     pinned = 공지(목록 맨 위). 관리자만 정함
@@ -168,7 +168,7 @@ service cloud.firestore {
     }
     function profileContentOk(d) {
       let r = d.resources;
-      return text(d.line, 160) && text(d.question, 600)
+      return text(d.get('room', ''), 40) && text(d.line, 160) && text(d.question, 600)
         && d.keywords is list && d.keywords.size() <= 10
         && d.topics is list && d.topics.size() <= 8
         && d.links is list && d.links.size() <= 4
@@ -188,7 +188,7 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'dept', 'group', 'rank', 'hidden'])
           && profileBaseOk(request.resource.data))
         || (ownsProfile(pid)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rank', 'line', 'question', 'keywords', 'topics', 'axes', 'timeline', 'resources', 'links', 'confirmedAt', 'by'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rank', 'room', 'line', 'question', 'keywords', 'topics', 'axes', 'timeline', 'resources', 'links', 'confirmedAt', 'by'])
           && profileBaseOk(request.resource.data) && profileContentOk(request.resource.data));
       allow delete: if isAdmin();
 

@@ -61,6 +61,7 @@ function render(S, pid, doc, priv, book) {
 
   // 소개
   const rank = textInput('text', { value: v.rank, maxLength: M.rank, placeholder: '예: 교수' });
+  const room = textInput('text', { value: v.room, maxLength: M.room, placeholder: '예: 의대 본관 3층 305호' });
   const line = area(v.line, M.line, 2, '무엇을 연구하는지 한 문장으로');
   const question = area(v.question, M.question, 3, '지금 묻고 있는 질문을 2~3문장으로');
   const keywords = textInput('text', { value: v.keywords, placeholder: '쉼표로 나눠요' });
@@ -106,7 +107,7 @@ function render(S, pid, doc, priv, book) {
   const contact = textInput('text', { value: priv.contact || '', maxLength: M.contact, placeholder: '예: 연구실 내선, 담당 연구원' });
 
   const form = h('form', 'me-form'), msg = msgBox();
-  const intro = section('소개', '', field('직위', rank), field('한 줄 소개', line), field('연구 질문', question), field('키워드', keywords, `${M.keywords}개까지`), block('주제', topicPills));
+  const intro = section('소개', '', field('직위', rank), field('연구실', room), field('한 줄 소개', line), field('연구 질문', question), field('키워드', keywords, `${M.keywords}개까지`), block('주제', topicPills));
   const save = h('button', 'btn primary', '확인하고 저장');
   save.type = 'submit';
   const view = h('a', 'btn', '연구실 둘러보기에서 보기');
@@ -136,7 +137,7 @@ function render(S, pid, doc, priv, book) {
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const pub = cleanProfile({
-      rank: rank.value, line: line.value, question: question.value, keywords: keywords.value, topics: [...topics],
+      rank: rank.value, room: room.value, line: line.value, question: question.value, keywords: keywords.value, topics: [...topics],
       axes: axes.map(a => ({ name: a.name.value, text: a.text.value, papers: a.papers.value })),
       timeline: steps.map(s => ({ years: s.years.value, text: s.text.value })),
       resources: Object.fromEntries(res.map(([k, , t]) => [k, t.value])),

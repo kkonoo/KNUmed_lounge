@@ -71,7 +71,14 @@
     return img;
   }
 
-  // 대문 카드: 사진·이름·교실·한 줄·키워드. 누르면 자세히
+  // 연구실 위치 (본인이 '내 프로필'에서 넣으면 보여요)
+  function roomOf(p) {
+    const r = h('p', 'room');
+    r.append(icon('map-pin'), h('span', 'k', '연구실'), h('span', 'v', p.room));
+    return r;
+  }
+
+  // 대문 카드: 사진·이름·교실·연구실·한 줄·키워드. 누르면 자세히
   //   카드 크기를 맞추려고 한 줄 소개는 세 줄까지(넘치면 … 더보기), 키워드는 한 줄까지만 보여요
   function card(p) {
     const a = h('a', `prof${p.status === 'listed' ? ' listed' : ''}${isStale(p.confirmedAt) ? ' stale' : ''}`);
@@ -81,6 +88,7 @@
     const name = h('h3', '', p.name);
     if (p.rank) name.append(h('small', '', p.rank));
     body.append(name, h('p', 'dept', p.dept));
+    if (p.room) body.append(roomOf(p));
     body.append(p.line ? h('p', 'line', p.line) : h('p', 'line none', '아직 소개를 준비하고 있어요'));
     body.append(h('span', 'more', '더보기'));
     if (p.keywords?.length) {
@@ -155,7 +163,9 @@
     const state = p.confirmedAt
       ? `마지막 확인 ${fmtDay(p.confirmedAt)}${isStale(p.confirmedAt) ? ' · 1년이 넘었어요' : ''}`
       : p.drafted ? '아직 교수님 확인 전이에요. 연구 질문·축·발자취는 논문으로 만든 초안이에요' : '아직 교수님 확인 전이에요';
-    who.append(name, h('p', 'dept', p.dept), h('p', 'state', state));
+    who.append(name, h('p', 'dept', p.dept));
+    if (p.room) who.append(roomOf(p));
+    who.append(h('p', 'state', state));
     head.append(photoOf(p), who);
     const nodes = [head];
 

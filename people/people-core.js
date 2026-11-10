@@ -1,7 +1,7 @@
 'use strict';
 // 연구실 둘러보기 계산 (화면 없음): people.js가 쓰고, tests/people.test.js 가 Node에서 확인
 // 사람 = { id, name, rank, dept, group, line, keywords: [], topics: [], links: [[주소, 글자]], photo, source, status }
-//   본인이 저장한 프로필은 여기에 question, axes [{ name, text, papers: [{ label, url }] }], timeline [{ years, text }],
+//   본인이 저장한 프로필은 여기에 room(연구실 위치), question, axes [{ name, text, papers: [{ label, url }] }], timeline [{ years, text }],
 //   resources { models, samples, equipment, data, techniques }, confirmedAt(ms)가 더해짐
 
 // 찾기용 글자: 띄어쓰기·대소문자·가운뎃점 무시 ('생화학 세포' = '생화학·세포')
@@ -66,7 +66,7 @@ function writeHash({ q = '', dept = '', topic = '' }) {
 // 모든 교수님이 같은 칸, 같은 길이 한도예요 (DESIGN §8). 칸 수 한도는 firestore.rules도 확인
 const RESOURCE_KINDS = [['models', '모델'], ['samples', '시료·코호트'], ['equipment', '장비'], ['data', '데이터'], ['techniques', '기법']];
 const PROFILE_MAX = {
-  rank: 20, line: 160, question: 600, keyword: 30, keywords: 10, resource: 300, links: 4, label: 40, url: 300,
+  rank: 20, room: 40, line: 160, question: 600, keyword: 30, keywords: 10, resource: 300, links: 4, label: 40, url: 300,
   axes: 3, axisName: 40, axisText: 200, papers: 2, timeline: 4, years: 20, step: 120,
   seeking: 300, now: 160, contact: 200,
 };
@@ -86,7 +86,7 @@ function mergeProfiles(base, docs, photos = {}, drafts = {}) {
     const head = { id: d.id, name: d.name, dept: d.dept || old?.dept || '', group: d.group || '기초', rank: d.rank || old?.rank || '', photo: old?.photo || photos[d.id] || '' };
     if (d.confirmedAt) {
       out.set(d.id, {
-        ...head, line: d.line || '', question: d.question || '', keywords: d.keywords || [], topics: d.topics || [],
+        ...head, room: d.room || '', line: d.line || '', question: d.question || '', keywords: d.keywords || [], topics: d.topics || [],
         axes: d.axes || [], timeline: d.timeline || [], resources: d.resources || {},
         links: (d.links || []).map(l => [l.url, l.label]), confirmedAt: d.confirmedAt, status: 'confirmed',
       });
@@ -132,6 +132,7 @@ function profileForm(doc, old) {
   const pad = (list, n, empty) => [...list, ...Array.from({ length: Math.max(0, n - list.length) }, empty)].slice(0, n);
   return {
     rank: doc?.rank || old?.rank || '',
+    room: doc?.room || '',
     line: mine ? mine.line || '' : old?.line || '',
     question: src.question || '',
     keywords: (mine ? mine.keywords || [] : old?.keywords || []).join(', '),
@@ -146,7 +147,7 @@ function profileForm(doc, old) {
 // 저장할 값으로 다듬기 (빈 줄은 빼고, 이름 없는 링크는 주소로 짐작)
 function cleanProfile(v) {
   return {
-    rank: v.rank.trim(), line: v.line.trim(), question: v.question.trim(),
+    rank: v.rank.trim(), room: v.room.trim(), line: v.line.trim(), question: v.question.trim(),
     keywords: parseKeywords(v.keywords), topics: [...v.topics],
     axes: v.axes.map(a => ({ name: a.name.trim(), text: a.text.trim(), papers: parsePapers(a.papers) })).filter(a => a.name || a.text || a.papers.length),
     timeline: v.timeline.map(t => ({ years: t.years.trim(), text: t.text.trim() })).filter(t => t.years || t.text),
@@ -158,6 +159,7 @@ function profileProblem(c) {
   const M = PROFILE_MAX;
   if (!c.line) return '한 줄 소개를 넣어 주세요';
   if (c.rank.length > M.rank) return `직위는 ${M.rank}자까지예요`;
+  if (c.room.length > M.room) return `연구실은 ${M.room}자까지예요`;
   if (c.line.length > M.line) return `한 줄 소개는 ${M.line}자까지예요`;
   if (c.question.length > M.question) return `연구 질문은 ${M.question}자까지예요`;
   if (c.keywords.length > M.keywords) return `키워드는 ${M.keywords}개까지예요`;
