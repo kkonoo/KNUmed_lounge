@@ -1,6 +1,7 @@
 .claude/
 CLAUDE.md
 lounge-*.json
+pipeline/work/
 __pycache__/
 node_modules/
 *-debug.log

@@ -79,6 +79,11 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
   - `firestore.rules`를 고치면 이 검사를 돌리고, Firebase 콘솔 › Firestore › 규칙에 다시 붙여 넣어요.
 - 연구 소개 다시 만들기: 이름북 저장소를 받아 두고 `python3 pipeline/from_namebook.py ../Biomed_KNUmed` (Pillow 필요). 이미 있는 분은 같은 번호를 그대로 써요.
 - 이름북에 없는 분 사진: `python3 pipeline/school_photos.py`. 공개 프로필을 학교 홈페이지 교수소개와 이름·교실로 맞춰 사진만 가져와요. 교수님을 새로 더한 뒤 다시 돌려요.
+- 논문 초안 만들기 (DESIGN §9): 초안이 없고 본인이 확인하지 않은 분만 골라서 세 번에 걸쳐 해요.
+  1. `python3 pipeline/collect.py` — 학교 교수소개의 영문 이름·학력·경력과 NCBI 후보 논문을 `pipeline/work/`에 모아요.
+  2. `ANTHROPIC_API_KEY=... python3 pipeline/draft_batch.py submit` — 교수님 한 분이 요청 하나인 배치를 보내고, `fetch`로 결과를 받아요 (`probe <번호>`로 한 분만 미리 볼 수 있어요. `pip install anthropic` 필요).
+  3. `python3 pipeline/apply_drafts.py --write` — 한도를 통과하고 대표 논문이 정말 후보 논문인 초안만 `data/people.json`의 `drafts`에 넣어요. 보고서는 `pipeline/work/report.md`.
+  - `pipeline/work/`는 작업 파일이라 저장소에 올리지 않아요. API 키는 환경 변수로만 읽고 어디에도 적지 않아요.
 - 앱 아이콘 다시 그리기: `icons/icon.svg`를 고치고 `python3 tools/make-icons.py` (Playwright 필요).
 - 화면 아이콘 더하기: `tools/make-icon-set.py`의 `NAMES`에 Lucide 이름을 넣고, `npm i lucide-static` 한 폴더의 `node_modules/lucide-static/icons`를 넘겨 다시 돌려요.
 - 화면 파일을 더하면 `sw.js`의 `SHELL`에도 적어요(오프라인).
@@ -107,6 +112,9 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 | `data/people.json` · `photos/` | 연구 소개 데이터와 사진 |
 | `pipeline/from_namebook.py` | 이름북 → 연구 소개 데이터 |
 | `pipeline/school_photos.py` | 이름북에 없는 분 사진 (학교 홈페이지 교수소개) |
+| `pipeline/collect.py` | 초안 재료 모으기 (학교 교수소개 · NCBI 후보 논문) |
+| `pipeline/draft_batch.py` | 초안 쓰기 (Anthropic Message Batches, 한 분 = 요청 하나) |
+| `pipeline/apply_drafts.py` · `pipeline/check_drafts.js` | 초안 재 보고 `drafts`에 넣기 (한도는 `PROFILE_MAX`) |
 | `tools/serve.ps1` · `tools/make-icons.py` · `tools/make-icon-set.py` | 로컬 서버 · 앱 아이콘 그리기 · 화면 아이콘 모으기 |
 | `worker/` | Cloudflare Worker: `worker.js`(메뉴판 읽기 · 관리자 Claude 키), 배포 안내 `README.md` |
 | `wrangler.jsonc` | Worker 설정 (이름·KV). main에 올리면 Cloudflare가 저절로 배포 |
