@@ -29,7 +29,15 @@ a.prof:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
 .prof h3 { display: flex; align-items: baseline; flex-wrap: wrap; gap: .1rem .4rem; margin: 0; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
 .prof h3 small { font-size: .8rem; font-weight: 500; color: var(--muted); }
 .prof .dept { margin: .1rem 0 .5rem; font-size: .8rem; color: var(--muted); }
-.prof .line { margin: 0 0 .6rem; font-size: .9rem; line-height: 1.55; }
+.prof .line {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+  min-height: calc(1.55em * 3); margin: 0 0 .6rem; font-size: .9rem; line-height: 1.55;
+}
+.prof .more { display: block; margin: -.5rem 0 .55rem; font-size: .8rem; color: var(--muted); visibility: hidden; } /* 안 잘린 카드도 자리는 남겨서 높이가 같게 */
+.prof.cut .more { visibility: visible; }
+a.prof:hover .more { color: var(--accent); }
+/* 카드 키워드는 한 줄만 (넘치는 칩은 숨김, 자세히에서 다 보임) */
+.prof .kw { max-height: 1.55rem; overflow: hidden; }
 .kw { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
 .kw li { padding: .12rem .55rem; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: .78rem; }
 .links { display: flex; flex-wrap: wrap; gap: .2rem .8rem; margin: .6rem 0 0; font-size: .8rem; }

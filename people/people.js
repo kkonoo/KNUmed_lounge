@@ -72,6 +72,7 @@
   }
 
   // 대문 카드: 사진·이름·교실·한 줄·키워드. 누르면 자세히
+  //   카드 크기를 맞추려고 한 줄 소개는 세 줄까지(넘치면 … 더보기), 키워드는 한 줄까지만 보여요
   function card(p) {
     const a = h('a', `prof${p.status === 'listed' ? ' listed' : ''}${isStale(p.confirmedAt) ? ' stale' : ''}`);
     a.href = `#p=${p.id}`;
@@ -81,6 +82,7 @@
     if (p.rank) name.append(h('small', '', p.rank));
     body.append(name, h('p', 'dept', p.dept));
     body.append(p.line ? h('p', 'line', p.line) : h('p', 'line none', '아직 소개를 준비하고 있어요'));
+    body.append(h('span', 'more', '더보기'));
     if (p.keywords?.length) {
       const kw = h('ul', 'kw');
       for (const k of p.keywords) kw.append(h('li', '', k));
@@ -109,7 +111,14 @@
       block.append(title, grid);
       return block;
     }));
+    requestAnimationFrame(markMore);
   }
+  // 세 줄을 넘겨 잘린 소개에만 '더보기' (화면 폭이 바뀌면 다시)
+  function markMore() {
+    for (const line of list.querySelectorAll('.prof .line')) line.closest('.prof').classList.toggle('cut', line.scrollHeight > line.clientHeight + 1);
+  }
+  let resizeTimer;
+  addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(markMore, 150); });
 
   function set(patch) {
     f = { ...f, ...patch };
