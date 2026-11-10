@@ -109,6 +109,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 | `pipeline/school_photos.py` | 이름북에 없는 분 사진 (학교 홈페이지 교수소개) |
 | `tools/serve.ps1` · `tools/make-icons.py` · `tools/make-icon-set.py` | 로컬 서버 · 앱 아이콘 그리기 · 화면 아이콘 모으기 |
 | `worker/` | Cloudflare Worker: `worker.js`(메뉴판 읽기 · 관리자 Claude 키), 배포 안내 `README.md` |
+| `wrangler.jsonc` | Worker 설정 (이름·KV). main에 올리면 Cloudflare가 저절로 배포 |
 | `js/worker-config.js` | Worker 주소 (배포한 뒤 넣음, 비어 있으면 사진 읽기 단추가 안 보임) |
 | `tests/` | `node --test` (계산 · Worker) · `tests/emulator/` (`npm test`: 규칙·화면 흐름, 에뮬레이터) |
 

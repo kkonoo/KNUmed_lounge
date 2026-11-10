@@ -1,0 +1,10 @@
+// Cloudflare Worker 설정 (worker/README.md). main에 올리면 Cloudflare가 이 파일을 보고 worker/worker.js를 배포해요
+// KV ID는 비밀 값이 아니에요 (Cloudflare 계정에 로그인해야 쓸 수 있어요)
+{
+  "name": "knumed-lounge",
+  "main": "worker/worker.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "kv_namespaces": [{ "binding": "LOUNGE", "id": "9b5c3d8594134f578107ab9f3dce0d99" }]
+}
