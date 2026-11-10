@@ -333,7 +333,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.waitForURL(site.url);
   });
 
-  await t.test('관리자 PIN 초기화: 0000으로 바뀌고 0000으로 들어감', async () => {
+  await t.test('관리자 PIN 초기화: 0000으로 바뀌고, 0000으로 들어오면 새 PIN으로 바꾸게 함', async () => {
     // Worker는 가짜로: 받은 메일의 로그인 계정 비밀번호를 Auth 에뮬레이터에서 바꿈 (실제 Worker 코드는 tests/worker.test.js가 확인)
     const { pinToPassword } = require('../load')('js/account-core.js');
     const AUTH = 'http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/projects/demo-lounge/accounts';
@@ -364,6 +364,20 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.getByRole('button', { name: '들어가기' }).click();
     await P.getByText('메일 주소나 PIN이 맞지 않아요').waitFor();
     await P.getByLabel('PIN').fill('0000');
+    await P.getByRole('button', { name: '들어가기' }).click();
+    await P.getByText('PIN이 0000이에요. 새 PIN으로 바꿔 주세요.').waitFor(); // 라운지로 가지 않고 PIN 바꾸기만
+    assert.equal(await P.getByRole('link', { name: '라운지로' }).isVisible(), false);
+    assert.equal(await P.getByLabel('지금 PIN').isVisible(), false); // 방금 넣은 0000이라 감춤
+    await P.getByLabel('새 PIN').fill('0000');
+    await P.locator('form button[type=submit]', { hasText: 'PIN 바꾸기' }).click();
+    await P.getByText('0000 말고 다른 PIN으로 해 주세요').waitFor();
+    await P.getByLabel('새 PIN').fill('2468');
+    await P.locator('form button[type=submit]', { hasText: 'PIN 바꾸기' }).click();
+    await P.getByText('PIN을 바꿨어요').waitFor();
+    await P.getByRole('link', { name: '라운지로' }).waitFor(); // 이제 평소 화면
+    await P.getByRole('button', { name: '로그아웃' }).click();
+    await P.getByLabel('메일').fill(PROF.email);
+    await P.getByLabel('PIN').fill('2468');
     await P.getByRole('button', { name: '들어가기' }).click();
     await P.waitForURL(site.url);
   });

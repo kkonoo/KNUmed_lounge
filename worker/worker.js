@@ -130,7 +130,7 @@ async function count(kv, uid) {
 
 // ---------- PIN 초기화 (Firebase 서비스 계정) ----------
 // 비밀값 FIREBASE_SA = 서비스 계정 키 JSON 통째로 (worker/README.md). Firebase Authentication 관리 권한만 있으면 돼요
-const RESET_PIN = '0000';
+const RESET_PIN = account.RESET_PIN; // '0000', 로그인 화면이 이 PIN으로 들어오면 바꾸게 해요
 const toB64url = bytes => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const textB64url = s => toB64url(new TextEncoder().encode(s));
 function readSa(raw) {

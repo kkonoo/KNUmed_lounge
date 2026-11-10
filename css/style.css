@@ -163,6 +163,7 @@ textarea { resize: vertical; }
 .msg { margin: 0; padding: 9px 12px; border-radius: 9px; font-size: .88rem; }
 .msg.err { background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); }
 .msg.ok { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
+.msg.info { background: var(--surface-2); color: var(--text); }
 .pin-wrap { position: relative; }
 .pin-wrap .text-input { padding-right: 44px; letter-spacing: .15em; }
 .pin-wrap button { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); }

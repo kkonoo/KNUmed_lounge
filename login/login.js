@@ -39,6 +39,7 @@ function renderSignedOut(mode = 'in') {
         await busy(go, '들어가는 중…', async () => {
           const s = await account.signIn(email.value, pin.input.value);
           if (!s.member) return renderSignedIn(s); // 가입을 덜 마침 → 가입 코드 받기
+          if (cleanPin(pin.input.value) === RESET_PIN) return renderSignedIn(s, true); // 관리자가 초기화한 PIN → 새 PIN으로
           location.href = nextUrl();
         });
       } catch (err) { say(msg, authMessage(err)); }
@@ -71,7 +72,8 @@ function renderSignedOut(mode = 'in') {
 }
 
 // ---------- 로그인함: 내 계정 ----------
-function renderSignedIn(s) {
+// reset: 초기화된 PIN(0000)으로 막 들어옴 → PIN 바꾸기만 보이고, 바꾸면 나머지 단추가 보여요
+function renderSignedIn(s, reset = false) {
   const panel = h('section', 'panel stack');
   const out = button('로그아웃', async () => { await account.signOut(); renderSignedOut(); }, 'btn');
 
@@ -107,15 +109,17 @@ function renderSignedIn(s) {
   save.type = 'submit';
   const pa = h('div', 'form-actions');
   pa.append(save);
-  pinBox.append(field('지금 PIN', oldPin.wrap), field('새 PIN', newPin.wrap, '규칙 없어요. 숫자 4자리도 돼요'), msg, pa);
+  const oldField = field('지금 PIN', oldPin.wrap);
+  pinBox.append(oldField, field('새 PIN', newPin.wrap, `규칙 없어요. 숫자 4자리도 돼요(${RESET_PIN}만 빼고)`), msg, pa);
   pinBox.addEventListener('submit', async e => {
     e.preventDefault();
-    say(msg, pinProblem(oldPin.input.value) || pinProblem(newPin.input.value));
+    say(msg, pinProblem(oldPin.input.value) || pinProblem(newPin.input.value) || (cleanPin(newPin.input.value) === RESET_PIN ? `${RESET_PIN} 말고 다른 PIN으로 해 주세요` : ''));
     if (!msg.hidden) return;
     try {
       await busy(save, '바꾸는 중…', () => account.changePin(oldPin.input.value, newPin.input.value));
       say(msg, 'PIN을 바꿨어요', 'ok');
       oldPin.input.value = newPin.input.value = '';
+      if (reset) { note.remove(); oldField.hidden = false; actions.hidden = false; } // 이제 평소 화면 (PIN 바꾸기 칸은 평소처럼 열어 둔 채로)
     } catch (err) { say(msg, /invalid-credential|wrong-password/.test(err.code) ? '지금 PIN이 맞지 않아요' : authMessage(err)); }
   });
 
@@ -127,8 +131,17 @@ function renderSignedIn(s) {
   actions.append(button('PIN 바꾸기', () => { pinBox.hidden = !pinBox.hidden; if (!pinBox.hidden) oldPin.input.focus(); }, 'btn'));
   if (s.isAdmin) { const ad = h('a', 'btn', '관리자'); ad.href = `${LOUNGE_ROOT}admin/`; actions.append(ad); }
   actions.append(out);
+  const note = h('p', 'msg info', `PIN이 ${RESET_PIN}이에요. 새 PIN으로 바꿔 주세요.`);
+  if (reset) { // 지금 PIN은 방금 넣은 0000이라 감춰 둠
+    oldPin.input.value = RESET_PIN;
+    oldField.hidden = true;
+    pinBox.hidden = false;
+    actions.hidden = true;
+    panel.append(note);
+  }
   panel.append(actions, pinBox);
   app.replaceChildren(panel);
+  if (reset) newPin.input.focus();
 }
 
 session()

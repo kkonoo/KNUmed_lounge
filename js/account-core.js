@@ -10,6 +10,8 @@ const isEmail = s => /^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(s);
 const PIN_MAX = 40;
 const cleanPin = s => String(s ?? '').trim();
 const pinToPassword = pin => `lounge:${cleanPin(pin)}:knumed`;
+// 관리자가 PIN을 초기화하면 이 PIN이 돼요 (Worker가 바꿈). 이걸로 들어오면 로그인 화면이 새 PIN으로 바꾸게 해요
+const RESET_PIN = '0000';
 const pinProblem = pin => (!cleanPin(pin) ? 'PIN을 넣어 주세요' : cleanPin(pin).length > PIN_MAX ? `PIN은 ${PIN_MAX}자까지예요` : '');
 
 // 가입 코드: 띄어쓰기 빼고 소문자 (친목회 공지 메일에서 옮겨 적을 때 대소문자·공백이 달라도 맞게)
@@ -92,4 +94,4 @@ function authMessage(err) {
 }
 
 // Worker(worker/worker.js, 관리자 PIN 초기화)도 같은 PIN → 비밀번호 규칙을 써요. 브라우저에는 module이 없어 건너뜀
-if (typeof module === 'object' && module.exports) module.exports = { pinToPassword };
+if (typeof module === 'object' && module.exports) module.exports = { pinToPassword, RESET_PIN };
