@@ -115,12 +115,11 @@ function render(S, pid, doc, priv, book) {
   const acts = h('div', 'form-actions');
   acts.append(save, view);
   const privBox = section('로그인한 교수님만 보는 칸', '',
-    field('찾는 것', seeking, '자원이나 기법 수준으로 적어 주세요(예: 마우스 혈장 지질 정량, 환자 PBMC). 미출판 가설은 적지 마세요'),
+    field('찾는 것', seeking, '자원이나 기법 수준으로 적어 주세요(예: 마우스 혈장 지질 정량, 환자 PBMC)'),
     field('요즘 한 줄', now), field('연락처·담당자', contact));
   privBox.classList.add('private');
   form.append(
     who, state,
-    h('p', 'hint', '출판된 내용과 교수님이 직접 확인하신 내용만 적어 주세요. 미출판 결과나 계획, 남의 연구에 대한 평가는 적지 않아요. 모든 교수님이 같은 칸을 써요. 이름·교실·사진은 관리자에게 말씀해 주세요.'),
     intro,
     section('연구 축', `${M.axes}개까지. 출판된 논문으로 보여 줄 수 있는 것만 적어 주세요`, ...axes.map(a => a.slot)),
     section('연구 발자취', `기간마다 한 줄, ${M.timeline}줄까지`, ...steps.map(s => s.row)),
