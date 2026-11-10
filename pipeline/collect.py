@@ -145,6 +145,8 @@ def extra_for(pid):
 
     20분 넘게 교수소개의 학력·경력이 비어 있어요. 경력을 모르면 소속으로 본인 논문을
     가릴 수 없어서, 본인 공개 자료에서 옮겨 적을 자리를 뒀어요.
+    name_en 도 덮어쓸 수 있어요. 교수소개 표기가 논문 표기와 다르면(Gwonmu Park ↔ Park KM)
+    이름으로 찾는 길이 아예 막혀요.
     """
     if not EXTRA.exists():
         return {}
@@ -433,7 +435,7 @@ def pick(papers, cap):
     return keep, len(papers) - len(keep)
 
 
-CAP = 70
+CAP = 70          # 후보를 이만큼까지만 (extra.json 의 cap 으로 한 분만 올릴 수 있어요)
 WEAK_CAP = 25     # 이니셜만 맞는 논문은 이만큼까지만
 INIT_MAX = 400    # 이니셜 검색이 이보다 넓으면 좁히거나 버려요
 
@@ -451,7 +453,7 @@ DEPT_WORDS = {
 }
 
 
-def collect_one(p, detail):
+def collect_one(p, detail, cap=None):
     initials, full_forms, surs = name_variants(detail['name_en'], p['name'])
     if not initials:
         return None
@@ -499,7 +501,7 @@ def collect_one(p, detail):
             rec['rank'] = (2 if rec['exact'] else 0) + (1 if rec['aff_hit'] else 0)
             papers.append(rec)
     papers.sort(key=lambda r: (r['year'] or '0'), reverse=True)
-    kept, dropped = pick(papers, CAP)
+    kept, dropped = pick(papers, cap or CAP)
     return {
         'name_en': detail['name_en'], 'edu': detail['edu'], 'career': detail['career'],
         'info': detail['info'], 'variants': initials + full_forms, 'surnames': surs,
@@ -550,14 +552,14 @@ def main():
         detail['rank_site'] = same[0][1]
         detail['homonym'] = homonym
         ex = extra_for(p['id'])
-        for k in ('edu', 'career', 'info'):
+        for k in ('edu', 'career', 'info', 'name_en'):
             if ex.get(k):
                 detail[k] = ex[k]
         if ex.get('source'):
             detail['extra_source'] = ex['source']
             print(f"    학력·경력은 extra.json 에서 ({ex['source']})")
         print(f"    영문 이름 {detail['name_en'] or '없음'}, 학력 {len(detail['edu'])}줄, 경력 {len(detail['career'])}줄")
-        rec = collect_one(p, detail)
+        rec = collect_one(p, detail, cap=ex.get('cap'))
         if rec is None:
             out[p['id']] = {'error': '영문 이름을 못 읽음', 'detail': detail}
         else:
