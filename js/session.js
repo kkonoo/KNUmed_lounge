@@ -133,3 +133,21 @@ function mountAccountChip(s, { myProfile = false } = {}) {
   end.prepend(accountButton(s));
   if (myProfile && isActiveMember(s)) end.prepend(myProfileButton());
 }
+
+// Worker 부르기 (js/worker-config.js WORKER_URL): 로그인 토큰을 붙여 보내고, 오류는 Worker가 준 말로
+async function workerCall(path, { method = 'GET', body } = {}) {
+  if (typeof WORKER_URL === 'undefined' || !WORKER_URL) throw new Error('Worker가 아직 연결되지 않았어요');
+  const { auth } = await fb();
+  if (!auth.currentUser) throw new Error('다시 로그인해 주세요');
+  let res;
+  try {
+    res = await fetch(WORKER_URL.replace(/\/+$/, '') + path, {
+      method,
+      headers: { authorization: `Bearer ${await auth.currentUser.getIdToken()}`, ...(body ? { 'content-type': 'application/json' } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch { throw new Error('인터넷 연결을 확인해 주세요'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `잠시 문제가 생겼어요 (${res.status})`);
+  return data;
+}

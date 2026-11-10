@@ -147,7 +147,7 @@ function eventCard(e) {
       b.disabled = !open;
     }
     comment.disabled = saveC.disabled = !open;
-    const meals = e.meals || [];
+    const meals = e.mealPick ? e.meals || [] : []; // 미리 고르기를 켠 친목회만
     mealBox.hidden = !meals.length;
     mealPills.replaceChildren(...meals.map(m => {
       const b = button(m, () => pickMeal(m), mine?.meal === m ? 'on' : '');
@@ -230,8 +230,20 @@ function openForm(e) {
   const note = h('textarea');
   Object.assign(note, { rows: 3, maxLength: 1000, value: e?.note || '', placeholder: '회비, 주차, 메뉴 등' });
   const audience = select([['기초', '기초교실'], ['전체', '전체 (기초·임상)'], ['임상', '임상교실']], e?.audience || '기초');
-  const meals = h('textarea');
-  Object.assign(meals, { rows: 3, value: (e?.meals || []).join('\n'), placeholder: '한 줄에 메뉴 하나\n예: 김치찌개' });
+  // 메뉴: 미리 넣어 두면 그날 주문판이 이 메뉴로 바로 열려요 (사진 읽기는 Worker를 붙였을 때)
+  const area = (value, placeholder) => { const t = h('textarea'); Object.assign(t, { rows: 4, value: (value || []).join('\n'), placeholder }); return t; };
+  const cafeMenu = area(e?.cafeMenu, '한 줄에 메뉴 하나\n아메리카노 (아이스/따뜻한)\n자몽에이드');
+  const meals = area(e?.meals, '한 줄에 메뉴 하나\n김치찌개\n된장찌개');
+  const mealPick = h('input');
+  Object.assign(mealPick, { type: 'checkbox', checked: !!e?.mealPick });
+  const pickRow = h('label', 'check');
+  pickRow.append(mealPick, '참석 체크 때 식당 메뉴를 하나씩 미리 고르기');
+  const menuField = (label, ta, hint) => {
+    const f = field(label, ta, hint);
+    const photo = menuPhotoButton(() => ta.value, v => { ta.value = v; });
+    if (photo) f.append(photo);
+    return f;
+  };
   let titleTouched = !!e;
   title.addEventListener('input', () => { titleTouched = true; });
   const autoTitle = () => { if (!titleTouched) title.value = defaultTitle(date.value, audience.value); };
@@ -248,11 +260,15 @@ function openForm(e) {
     h('h2', '', e ? '친목회 고치기' : '새 친목회'),
     two, field('제목', title), field('장소', place), field('지도 링크', mapUrl, '없어도 돼요'),
     field('참석 체크 마감', deadline, '비워 두면 직접 ‘마감’을 누를 때까지 받아요'),
-    field('메모', note), field('식당 메뉴 미리 받기', meals, '적으면 참석 체크 때 메뉴를 하나씩 골라요. 비우면 안 받아요'), field('대상', audience), msg, acts,
+    field('메모', note), field('대상', audience),
+    h('p', 'hint form-note', '메뉴를 미리 넣어 두면 그날 카페·식당 주문판이 이 메뉴로 바로 열려요. 비워 두면 그 자리에서 적어요.'),
+    menuField('카페 메뉴', cafeMenu, '아이스·따뜻한을 나눠 셀 메뉴는 끝에 (아이스/따뜻한), 하나만 되면 (아이스만)·(따뜻한만)'),
+    menuField('식당 메뉴', meals), pickRow, msg, acts,
   );
   form.addEventListener('submit', async ev => {
     ev.preventDefault();
-    const d = { title: title.value, date: date.value, time: time.value, place: place.value, mapUrl: mapUrl.value.trim(), deadline: fromLocalInput(deadline.value), note: note.value, audience: audience.value, meals: parseMeals(meals.value) };
+    const d = { title: title.value, date: date.value, time: time.value, place: place.value, mapUrl: mapUrl.value.trim(), deadline: fromLocalInput(deadline.value), note: note.value, audience: audience.value,
+      cafeMenu: parseMenu(cafeMenu.value), meals: parseMenu(meals.value), mealPick: mealPick.checked && parseMenu(meals.value).length > 0 };
     say(msg, eventProblem(d));
     if (!msg.hidden) return;
     try { await busy(save, '저장 중…', () => eventsDb.save(e?.id || null, d, S.user.uid)); dlg.close(); toast(e ? '고쳤어요' : '올렸어요'); } catch (err) { say(msg, authMessage(err)); }

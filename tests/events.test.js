@@ -79,10 +79,7 @@ test('만들기 확인과 공지 글', () => {
   assert.equal(text, '[11월 기초친목회]\n일시: 11월 24일 (화) 오후 6:30\n장소: 복현동 ○○식당\n참석 체크 마감: 11월 20일 (금) 오후 6:00\n\n회비 3만 원\n\n참석 체크: https://x/events/');
 });
 
-test('식당 메뉴 미리 받기: 줄 나누기와 메뉴별 고른 분', () => {
-  assert.deepEqual(E.parseMeals(' 김치찌개 \n\n된장찌개\n김치찌개'), ['김치찌개', '된장찌개']);
-  assert.deepEqual(E.parseMeals(''), []);
-  assert.equal(E.parseMeals(Array.from({ length: 30 }, (_, i) => `메뉴${i}`).join('\n')).length, 20);
+test('식당 메뉴 미리 고르기: 메뉴별 고른 분', () => {
   const rsvps = [
     { name: '홍길동', status: 'yes', meal: '된장찌개' }, { name: '김철수', status: 'maybe', meal: '김치찌개' },
     { name: '이영희', status: 'no', meal: '김치찌개' }, { name: '박가짜', status: 'yes', meal: '' }, { name: '가나다', status: 'yes', meal: '없는메뉴' },

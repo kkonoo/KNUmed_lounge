@@ -3,6 +3,7 @@
 //   메뉴를 적고(지난번 메뉴가 미리 채워짐) → 메뉴마다 ＋ 추가 / − 취소 → 개수는 바를 정(正)과 숫자로
 //   커피처럼 나누는 메뉴는 아이스 · 따뜻한을 따로(하나만 되는 메뉴는 그 하나만)
 //   개수는 Firestore에 같이 쌓여서, 각자 폰으로 눌러도 되고 폰 한 대를 돌려도 돼요
+//   관리자가 친목회에 메뉴를 미리 넣어 두었으면(cafeMenu·meals) 그 메뉴로 바로 세기 화면이 열려요
 // 데이터는 order-db.js, 계산은 order-core.js (장난감 상자에서 가져옴)
 
 const app = $('app');
@@ -26,7 +27,8 @@ const svgEl = (tag, attrs) => {
   return e;
 };
 const buzz = pattern => { try { navigator.vibrate?.(pattern); } catch { /* 진동 없음 */ } };
-const menuOf = () => board?.menu || [];
+const eventMenu = () => parseMenu(((kind === 'cafe' ? ev?.cafeMenu : ev?.meals) || []).join('\n'));
+const menuOf = () => board?.menu || (board ? [] : eventMenu());
 const countsOf = () => board?.counts || {};
 
 async function start() {
@@ -97,7 +99,10 @@ function menuPanel() {
   if (ta.value.trim()) ph.append(button('비우기', () => { draft = ''; render(); }, 'btn small'));
   panel.append(ph);
   if (fromLast) panel.append(h('p', 'hint', '지난번 메뉴를 불러왔어요. 오늘 메뉴에 맞게 고쳐 주세요.'));
-  panel.append(ta, info, go);
+  const photo = menuPhotoButton(() => ta.value, v => { draft = ta.value = v; check(); });
+  panel.append(ta);
+  if (photo) panel.append(photo);
+  panel.append(info, go);
   if (kind === 'cafe') panel.append(h('p', 'hint', '아이스와 따뜻한을 나눠 셀 메뉴는 이름 끝에 (아이스/따뜻한), 하나만 되는 메뉴는 (아이스만)이나 (따뜻한만)을 붙여요. HOT/ICE, ICE ONLY라고 적어도 돼요.'));
   if (has) panel.append(button('고치지 않고 돌아가기', () => { editing = false; draft = null; render(); }, 'btn'));
   return panel;
@@ -181,7 +186,10 @@ async function change(key, d) {
   if (d < 0 && !(countsOf()[key] > 0)) return;
   if (d > 0) fresh = key;
   buzz(d > 0 ? 15 : [10, 50, 10]);
-  try { await orderDb.change(eid, kind, key, d); } catch (e) { fail('바꾸지 못했어요', e); }
+  try {
+    if (!board) await orderDb.setMenu(eid, kind, menuOf(), {}); // 친목회에 넣어 둔 메뉴로 처음 누를 때 판을 만듦
+    await orderDb.change(eid, kind, key, d);
+  } catch (e) { fail('바꾸지 못했어요', e); }
 }
 // 메뉴에 없는 것: 메뉴 끝에 넣고 1개 (아이스·따뜻한을 둘 다 고르는 메뉴는 어느 쪽인지 몰라서 넣기만)
 async function addMenu(value) {

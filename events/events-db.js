@@ -29,7 +29,8 @@ const eventsDb = {
     const { F, db } = await fb();
     const data = {
       title: d.title.trim(), date: d.date, time: d.time || '', place: d.place.trim(), mapUrl: d.mapUrl.trim(),
-      deadline: d.deadline == null ? null : F.Timestamp.fromMillis(d.deadline), note: d.note.trim(), audience: d.audience, meals: d.meals || [],
+      deadline: d.deadline == null ? null : F.Timestamp.fromMillis(d.deadline), note: d.note.trim(), audience: d.audience,
+      cafeMenu: d.cafeMenu || [], meals: d.meals || [], mealPick: !!d.mealPick,
     };
     if (eid) await F.updateDoc(F.doc(db, 'events', eid), data);
     else await F.addDoc(F.collection(db, 'events'), { ...data, closed: false, at: F.serverTimestamp(), by: uid });

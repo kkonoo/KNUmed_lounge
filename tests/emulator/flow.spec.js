@@ -119,9 +119,10 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('.t-row.yet b', { hasText: '아직 64' }).waitFor(); // 관리자 화면: 김철수가 빠짐
   });
 
-  await t.test('식당 메뉴 미리 고르기: 관리자가 메뉴를 적으면 참석 체크 때 하나', async () => {
+  await t.test('식당 메뉴 미리 고르기: 관리자가 메뉴를 넣고 켜면 참석 체크 때 하나', async () => {
     await A.locator('.ev').getByRole('button', { name: '고치기' }).click();
-    await A.getByLabel('식당 메뉴 미리 받기').fill('김치찌개\n된장찌개');
+    await A.getByLabel('식당 메뉴', { exact: true }).fill('김치찌개\n된장찌개');
+    await A.getByLabel('참석 체크 때 식당 메뉴를 하나씩 미리 고르기').check();
     await A.locator('dialog').getByRole('button', { name: '저장' }).click();
     await toast(A, '고쳤어요');
     const pick = P.locator('.ev-meal').getByRole('button', { name: '된장찌개' });
@@ -150,7 +151,8 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.getByText('모두 2잔').waitFor();
     await P.getByRole('button', { name: '식당 주문' }).click(); // 판 바꾸기
     await P.getByRole('heading', { name: '식당 주문' }).waitFor();
-    await P.getByLabel('메뉴').waitFor();
+    await P.getByRole('button', { name: '김치찌개 하나 추가' }).click(); // 관리자가 친목회에 넣어 둔 메뉴로 바로
+    await P.getByText('모두 1개').waitFor();
     await P.goto(`${site.url}events/`);
   });
 

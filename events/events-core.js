@@ -86,9 +86,6 @@ function eventProblem(d) {
   return '';
 }
 
-// 식당 메뉴 미리 받기: 한 줄에 메뉴 하나 (20개까지, 이름 40자까지, 같은 것은 한 번만). 비우면 안 받음
-const parseMeals = text => [...new Set(String(text || '').split('\n').map(l => l.trim().slice(0, 40)).filter(Boolean))].slice(0, 20);
-
 // 메뉴별로 고른 분 (참석·미정인 분만, 메뉴 순서): [{ meal, names: [] }]
 function mealTally(meals, rsvps) {
   const picked = rsvps.filter(r => r.status !== 'no' && r.meal && meals.includes(r.meal));

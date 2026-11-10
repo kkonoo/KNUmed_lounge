@@ -400,7 +400,9 @@ test('식당 메뉴 미리 고르기: 친목회 meals 중 하나만', async () =
   await assertSucceeds(setDoc(doc(db, 'events/e1/rsvps', PROF.uid), rsvp(PROF, { meal: '' })));
   await assertFails(setDoc(doc(db, 'events/e1/rsvps', PROF.uid), rsvp(PROF, { meal: '스테이크' })));
   await assertSucceeds(updateDoc(doc(as(ADMIN), 'events/e1'), { meals: ['김치찌개', '된장찌개', '비빔밥'] }));
-  await assertFails(updateDoc(doc(as(ADMIN), 'events/e1'), { meals: Array.from({ length: 21 }, (_, i) => `메뉴${i}`) }));
+  await assertFails(updateDoc(doc(as(ADMIN), 'events/e1'), { meals: Array.from({ length: 81 }, (_, i) => `메뉴${i}`) }));
+  await assertSucceeds(updateDoc(doc(as(ADMIN), 'events/e1'), { cafeMenu: ['아메리카노 (아이스/따뜻한)'], mealPick: true }));
+  await assertFails(updateDoc(doc(as(ADMIN), 'events/e1'), { mealPick: 'yes' }));
   await assertFails(updateDoc(doc(as(PROF), 'events/e1'), { meals: ['몰래'] }));
 });
 

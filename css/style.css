@@ -259,3 +259,11 @@ button.banner-go { cursor: pointer; }
   .door small { padding-top: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* 체크 칸 (글자를 눌러도 켜짐) */
+.check { display: flex; align-items: center; gap: .5rem; font-size: .92rem; cursor: pointer; }
+.check input { flex: none; width: 1.1rem; height: 1.1rem; margin: 0; accent-color: var(--accent); }
+.form-note { margin: .2rem 0 0; line-height: 1.5; }
+.photo-read { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; margin-top: .3rem; }
+.photo-read .hint { margin: 0; }
+.photo-read .err { color: var(--bad); }
