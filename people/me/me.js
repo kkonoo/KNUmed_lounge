@@ -121,7 +121,7 @@ function render(S, pid, doc, priv, book) {
   form.append(
     who, state,
     intro,
-    section('연구 축', `${M.axes}개까지. 출판된 논문으로 보여 줄 수 있는 것만 적어 주세요`, ...axes.map(a => a.slot)),
+    section('연구 축', `${M.axes}개까지`, ...axes.map(a => a.slot)),
     section('연구 발자취', `기간마다 한 줄, ${M.timeline}줄까지`, ...steps.map(s => s.row)),
     section('보유 자원', '다른 교수님과 같이 쓰거나 빌려드릴 수 있는 것. 없는 칸은 비워 두셔도 돼요', ...res.map(([, label, t]) => field(label, t))),
     section('링크', '연구실 홈페이지, Google Scholar, ORCID 같은 곳', ...links.map(l => l.row)),
