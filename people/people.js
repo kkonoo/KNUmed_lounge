@@ -87,14 +87,12 @@
 
   function paintList() {
     const shown = filterPeople(people, f);
-    const any = f.q.trim() || f.dept || f.topic;
     const n = h('span');
     n.append(h('b', '', shown.length), `명 / ${people.length}명`);
     count.replaceChildren(n);
-    if (any) count.append(button('거르기 지우기', () => { input.value = ''; set({ q: '', dept: '', topic: '' }); }, 'btn small'));
 
     if (!shown.length) {
-      list.replaceChildren(h('p', 'empty-note', '맞는 분이 없어요. 다른 말로 찾거나 거르기를 지워 보세요.'));
+      list.replaceChildren(h('p', 'empty-note', '맞는 분이 없어요. 다른 말로 찾거나, 고른 칩을 한 번 더 눌러 풀어 보세요.'));
       return;
     }
     list.replaceChildren(...groupByDept(shown).map(([dept, ps]) => {
