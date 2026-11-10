@@ -241,7 +241,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('.post-item .pi-count', { hasText: '1' }).waitFor();
     await A.goto(site.url);
     await A.locator('.door[href="board/"]').waitFor();
-    assert.equal(await A.locator('#boardFoot').innerText(), '로그인'); // 이미 봤으니 새 글 없음
+    assert.equal(await A.locator('#boardFoot').innerText(), ''); // 이미 봤으니 새 글 없음 (꼬리표 없이 빈 칸)
 
     await P.getByRole('button', { name: '고치기' }).click();
     await P.getByLabel('제목').fill('원심분리기 나눠요 (끝)');
