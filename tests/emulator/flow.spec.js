@@ -1,7 +1,7 @@
 'use strict';
 // 화면 흐름 검사: 실제 Firebase SDK + 에뮬레이터 + Chromium으로 사이트를 눌러 봄
 //   처음 설정 → 명단 65분 붙여 넣기 → 가입 코드로 가입(틀린 코드 먼저) → 친목회 올리기 → 참석 체크·한 번 더 눌러 취소
-//   → 홈 한 줄 → 자유 게시판(글·새 글·댓글·고치기·지우기) → PIN 바꾸기·다시 로그인 → 멈춘 계정 막힘
+//   → 홈 한 줄 → 자유 게시판(글·새 글·댓글·고치기·지우기) → PIN 바꾸기·다시 로그인 → 멈춘 계정 막힘 → 한 분 더하기
 // 실행: tests/emulator 에서 npm test. 이름·메일은 모두 가짜
 const fs = require('node:fs');
 const path = require('node:path');
@@ -69,11 +69,13 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('.summary', { hasText: /명단\s*65\s*가입\s*1\s*아직\s*64/ }).waitFor(); // 알림 뒤 다시 읽어 그림
   });
 
-  await t.test('프로필 잇기: 이름북에 없는 65분께 새 프로필', async () => {
-    await A.getByText('연구실 둘러보기 프로필 잇기 0/65').waitFor();
-    await A.getByRole('button', { name: '65분 새 프로필 만들기' }).click();
-    await toast(A, '65분 프로필을 만들었어요');
-    await A.getByText('연구실 둘러보기 프로필 잇기 65/65').waitFor();
+  await t.test('명단을 넣으면 프로필이 저절로 생기고, 붙여 넣기 칸은 사라짐', async () => {
+    assert.equal(await A.locator('details.paste summary', { hasText: '명단 붙여 넣기' }).count(), 0);
+    await A.locator('details.roster-list summary', { hasText: '교수님 65분' }).click();
+    await A.locator('.r-row', { hasText: PROF.email }).waitFor();
+    assert.equal(await A.locator('.r-row', { hasText: '프로필 없음' }).count(), 0);
+    await guest.page.goto(`${site.url}people/`);
+    await guest.page.locator('.prof', { hasText: PROF.name }).waitFor(); // 연구실 둘러보기에 이름·교실로
   });
 
   await t.test('가입: 틀린 코드는 막히고, 맞는 코드로 다시 하면 됨', async () => {
@@ -303,6 +305,25 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await guest.page.goto(`${site.url}people/#q=${encodeURIComponent(PROF.name)}`); // 연구실 둘러보기에서도 숨김
     await guest.page.reload(); // # 뒤만 바뀌면 새로 읽지 않으니까
     await guest.page.getByText('맞는 분이 없어요').waitFor();
+  });
+
+  await t.test('교수님 한 분 더하기: 명단에 들어가고 프로필도 저절로', async () => {
+    const box = A.locator('details', { hasText: '교수님 한 분 더하기' });
+    await box.locator('summary').click();
+    await box.getByLabel('이름').fill('나예시');
+    await box.getByLabel('메일').fill('Na@Example.com');
+    await box.getByLabel('교실').fill('가짜학교실');
+    await box.getByRole('button', { name: '더하기' }).click();
+    await toast(A, '나예시 교수님을 더했어요');
+    await A.locator('.summary', { hasText: /명단\s*66/ }).waitFor();
+    await box.locator('summary').click(); // 다시 그려져 접혀 있음
+    await box.getByLabel('이름').fill('나예시'); // 같은 메일은 다시 못 넣음
+    await box.getByLabel('메일').fill('na@example.com');
+    await box.getByRole('button', { name: '더하기' }).click();
+    await box.getByText('이미 명단에 있는 메일이에요').waitFor();
+    await guest.page.goto(`${site.url}people/#q=${encodeURIComponent('나예시')}`);
+    await guest.page.reload();
+    await guest.page.locator('.prof', { hasText: '가짜학교실' }).waitFor();
   });
 
   assert.deepEqual([...admin.errors, ...prof.errors, ...guest.errors], []);

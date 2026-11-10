@@ -101,6 +101,18 @@ const adminDb = {
     return { added, changed };
   },
 
+  // 한 분 더하기: 명단 줄(프로필 번호까지)과 프로필을 한 번에
+  async addOne(row, link) {
+    const { F, db } = await fb();
+    const b = F.writeBatch(db);
+    b.set(F.doc(db, 'roster', row.email), { name: row.name, dept: row.dept, group: row.group, status: 'active', profile: link.pid, at: F.serverTimestamp() });
+    const ref = F.doc(db, 'profiles', link.pid);
+    if (link.exists) b.update(ref, { name: row.name, dept: link.base.dept, group: row.group, hidden: false });
+    else b.set(ref, { ...link.base, hidden: false });
+    await b.commit();
+    await this.log('명단 더함', `${row.name} (${row.email})`);
+  },
+
   // 이름·교실·구분 고치기: 명단과, 그 메일로 가입한 회원 문서, 이어진 프로필을 같이
   async editRoster(email, patch, mems, pid) {
     const { F, db } = await fb();

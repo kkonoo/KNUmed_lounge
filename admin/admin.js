@@ -1,5 +1,5 @@
 'use strict';
-// 관리자 화면: 처음 설정 · 명단(연구실 둘러보기 프로필 잇기 포함) · 관리자 · 가입 코드 · Claude 키(Worker) · 기록
+// 관리자 화면: 처음 설정 · 명단(한 분 더하기, 처음엔 붙여 넣기. 연구실 둘러보기 프로필은 저절로) · 관리자 · 가입 코드 · Claude 키(Worker) · 기록
 // 데이터는 admin-db.js, 계산은 js/account-core.js · people/people-core.js, 입력 부품은 js/form.js
 
 const app = $('app');
@@ -85,9 +85,9 @@ function renderRoster(body) {
     summary.append(withIcon(button('아직 안 한 분 메일 복사', () => copyText(rows.filter(r => r.state === 'waiting').map(r => r.email).join(', '), `${count.waiting}분 메일을 복사했어요`), 'btn small'), 'copy'));
   }
 
-  // 붙여 넣어 넣기
+  // 붙여 넣어 넣기: 처음(명단이 관리자 한 분뿐)일 때만. 그다음엔 '한 분 더하기'
   const paste = h('details', 'paste');
-  if (D.roster.length <= 1) paste.open = true; // 처음(관리자 한 분뿐)엔 열어 둠
+  paste.open = true;
   paste.append(h('summary', '', '명단 붙여 넣기'));
   const pform = h('div', 'form');
   const ta = h('textarea');
@@ -118,7 +118,12 @@ function renderRoster(body) {
   ta.addEventListener('input', look);
   put.addEventListener('click', async () => {
     try {
-      const r = await busy(put, '넣는 중…', () => adminDb.addRoster(parsed.rows, grp.value, D.roster));
+      const r = await busy(put, '넣는 중…', async () => {
+        const res = await adminDb.addRoster(parsed.rows, grp.value, D.roster);
+        D = await adminDb.loadAll();
+        await linkAll(); // 프로필은 저절로
+        return res;
+      });
       toast(`새로 ${r.added}분, 고침 ${r.changed}분`);
       ta.value = '';
       await reload();
@@ -145,8 +150,56 @@ function renderRoster(body) {
   paintRows();
   const top = h('div', 'stack');
   people.append(peopleSum, list);
-  top.append(summary, paste, profileBox(), search, people);
+  // 처음(명단이 관리자 한 분뿐)엔 붙여 넣기를 맨 위에, 그다음엔 목록과 찾기가 맨 위
+  if (D.roster.length <= 1) top.append(summary, paste, search, people, addOneBox());
+  else top.append(summary, search, people, addOneBox());
   body.append(top);
+}
+
+// 교수님 한 분 더하기: 명단에 넣고 연구실 둘러보기 프로필도 저절로 (이름북에 같은 이름이 한 분뿐이면 그 프로필, 아니면 새로)
+function addOneBox() {
+  const box = h('details', 'paste');
+  box.append(h('summary', '', '교수님 한 분 더하기'));
+  const form = h('form', 'form'), msg = msgBox();
+  const name = textInput('text', { maxLength: 20, placeholder: '홍길동' });
+  const email = textInput('email', { placeholder: '친목회 공지를 받는 메일' });
+  const dept = textInput('text', { maxLength: 30, placeholder: '예: 생리학교실' });
+  const grp = select([['기초', '기초'], ['임상', '임상']], '기초');
+  const go = h('button', 'btn primary', '더하기');
+  go.type = 'submit';
+  const two = h('div', 'row2');
+  two.append(field('이름', name), field('구분', grp));
+  form.append(two, field('메일', email), field('교실', dept), h('p', 'hint', '더하면 연구실 둘러보기 프로필이 저절로 생겨요. 가입 코드를 알려 드리면 처음 가입에서 PIN을 정하세요.'), msg, actsRow(go));
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const row = { name: name.value.trim(), email: normEmail(email.value), dept: dept.value.trim(), group: grp.value, status: 'active' };
+    say(msg, !row.name ? '이름을 넣어 주세요' : !isEmail(row.email) ? '메일 주소를 다시 확인해 주세요' : D.roster.some(r => r.email === row.email) ? '이미 명단에 있는 메일이에요' : '');
+    if (!msg.hidden) return;
+    try {
+      await busy(go, '더하는 중…', () => adminDb.addOne(row, autoLink(row)));
+      toast(`${row.name} 교수님을 더했어요`);
+      await reload();
+    } catch (err) { say(msg, authMessage(err)); }
+  });
+  box.append(form);
+  return box;
+}
+// 한 분의 프로필 잇기 값: 아무도 안 쓰는 이름북 프로필 중 같은 이름이 한 분뿐이면 그것, 아니면 새 번호
+function autoLink(r, taken = new Set(D.roster.map(x => x.profile).filter(Boolean))) {
+  const same = D.book.filter(p => p.name === r.name);
+  if (same.length === 1 && !taken.has(same[0].id) && D.roster.filter(x => x.name === r.name && x.email !== r.email).length === 0) return linkOf(r, same[0].id, same[0]);
+  return linkOf(r, newProfileId(new Set([...D.book.map(p => p.id), ...D.profiles.map(p => p.id), ...taken])), null);
+}
+// 명단에서 프로필이 없는 분 모두 잇기 (붙여 넣은 뒤)
+async function linkAll() {
+  const taken = new Set(D.roster.map(x => x.profile).filter(Boolean));
+  const links = [];
+  for (const r of D.roster.filter(x => !x.profile)) {
+    const l = autoLink(r, taken);
+    taken.add(l.pid);
+    links.push(l);
+  }
+  if (links.length) await adminDb.linkProfiles(links, `${links.length}분 프로필 저절로`);
 }
 
 function rosterRow(r) {
@@ -230,51 +283,6 @@ const linkOf = (r, pid, person) => ({
   base: { name: r.name, dept: r.dept || person?.dept || '', group: r.group, rank: person?.rank || '', hidden: r.status !== 'active' },
 });
 const actsRow = (...nodes) => { const a = h('div', 'form-actions'); a.append(...nodes); return a; };
-
-function profileBox() {
-  const linked = D.roster.filter(r => r.profile).length;
-  const box = h('details', 'paste');
-  box.open = D.roster.length > 1 && linked < D.roster.length;
-  box.append(h('summary', '', `연구실 둘러보기 프로필 잇기 ${linked}/${D.roster.length}`));
-  const body = h('div', 'form');
-  body.append(h('p', 'hint', '명단의 교수님과 연구실 둘러보기 프로필을 이어요. 이어진 교수님만 자기 프로필을 고칠 수 있어요. 한 분씩은 아래 명단의 ‘고치기’에서 골라요.'));
-
-  const sugg = nameLinks(D.roster, D.book, new Set(D.roster.map(r => r.profile).filter(Boolean)));
-  if (sugg.length) {
-    const ul = h('ul', 'link-preview');
-    for (const { row, person } of sugg) ul.append(h('li', '', `${row.name}${row.dept ? ` (${row.dept})` : ''} → 이름북 ${person.name} · ${person.dept}`));
-    const go = button(`${sugg.length}분 이름북 프로필과 잇기`, async () => {
-      try {
-        await busy(go, '잇는 중…', () => adminDb.linkProfiles(sugg.map(x => linkOf(x.row, x.person.id, x.person)), `이름북과 ${sugg.length}분`));
-        toast(`${sugg.length}분을 이었어요`);
-        await reload();
-      } catch (e) { fail('잇지 못했어요', e); }
-    }, 'btn primary');
-    body.append(block('이름이 같은 이름북 프로필', ul, '이름으로 맞춘 거예요. 틀린 분이 없는지 보고 눌러 주세요'), actsRow(go));
-  }
-
-  const bookNames = new Set(D.book.map(p => p.name));
-  const fresh = D.roster.filter(r => !r.profile && !bookNames.has(r.name));
-  if (fresh.length) {
-    const go = button(`${fresh.length}분 새 프로필 만들기`, async () => {
-      if (!confirmBox(`이름북에 없는 ${fresh.length}분께 새 프로필을 만들까요? 연구실 둘러보기에는 이름과 교실만 보이고, 교수님이 저장하시면 소개가 보여요.`)) return;
-      const ids = new Set([...D.book.map(p => p.id), ...D.profiles.map(p => p.id)]);
-      const links = fresh.map(r => { const pid = newProfileId(ids); ids.add(pid); return linkOf(r, pid, null); });
-      try {
-        await busy(go, '만드는 중…', () => adminDb.linkProfiles(links, `새 프로필 ${fresh.length}분`));
-        toast(`${fresh.length}분 프로필을 만들었어요`);
-        await reload();
-      } catch (e) { fail('만들지 못했어요', e); }
-    }, 'btn');
-    body.append(block('이름북에 없는 분', h('p', 'hint', fresh.map(r => r.name).join(' · '))), actsRow(go));
-  }
-
-  const left = D.roster.filter(r => !r.profile && bookNames.has(r.name) && !sugg.some(x => x.row.email === r.email));
-  if (left.length) body.append(h('p', 'hint', `이름북에 같은 이름이 여럿이거나 이미 이어진 분: ${left.map(r => r.name).join(' · ')}. 명단의 ‘고치기’에서 직접 골라 주세요.`));
-  if (linked === D.roster.length) body.append(h('p', 'hint', '모두 이어졌어요.'));
-  box.append(body);
-  return box;
-}
 
 // PIN 초기화: Worker를 붙이기 전까지는 Firebase 콘솔에서 로그인 계정을 지우고 다시 가입
 function pinResetHelp(r) {
