@@ -21,7 +21,7 @@ Cloudflare 무료 요금제로 돼요. Worker를 GitHub 저장소에 이어 두�
 1. [Cloudflare 대시보드](https://dash.cloudflare.com)에 가입하고 로그인해요.
 2. **Workers & Pages › Create › Import a repository**에서 이 저장소를 고르고, 이름을 `knumed-lounge`로 정해 **Deploy**를 눌러요. 이때는 아직 사이트 파일만 올라가요.
 3. **Storage & databases › Workers KV › Create**에서 이름을 `lounge`로 만들고, 그 **ID**를 복사해요.
-4. 저장소 맨 위 `wrangler.jsonc`의 `kv_namespaces`에 그 ID를 넣고 main에 올려요. Claude에게 ID만 알려 줘도 돼요. KV ID는 비밀 값이 아니에요(계정에 로그인해야 쓸 수 있어요).
+4. 그 ID를 Claude에게 알려 줘요. Claude가 저장소의 설정 파일(`wrangler.jsonc`)에 넣어 올려요. ID는 비밀 값이 아니라 보내도 괜찮아요.
 5. 올리면 Worker의 **Deployments**에 새 배포가 생겨요. 끝나면 주소(`https://knumed-lounge.<계정 하위 도메인>.workers.dev`)가 켜져요(`workers_dev: true`).
 6. 그 주소를 `js/worker-config.js`의 `WORKER_URL`에 넣고 커밋해요. 이 주소는 사이트 코드에 그대로 보여요.
 7. 사이트의 **관리자 › Claude 키**에서 키를 넣어요.
