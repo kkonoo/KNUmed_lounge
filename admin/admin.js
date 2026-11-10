@@ -130,7 +130,11 @@ function renderRoster(body) {
   paste.append(pform);
 
   const search = textInput('search', { value: find, placeholder: '이름·메일·교실로 찾기' });
-  search.addEventListener('input', () => { find = search.value; paintRows(); });
+  // 교수님 목록은 처음엔 접어 둠 (65분이라 길어서). 찾거나 고치는 중이면 펼침
+  const people = h('details', 'paste roster-list');
+  people.open = !!find || !!editing;
+  const peopleSum = h('summary', '', `교수님 ${D.roster.length}분`);
+  search.addEventListener('input', () => { find = search.value; if (find) people.open = true; paintRows(); });
 
   const list = h('div', 'rows');
   const paintRows = () => {
@@ -140,7 +144,8 @@ function renderRoster(body) {
   };
   paintRows();
   const top = h('div', 'stack');
-  top.append(summary, paste, profileBox(), search, list);
+  people.append(peopleSum, list);
+  top.append(summary, paste, profileBox(), search, people);
   body.append(top);
 }
 

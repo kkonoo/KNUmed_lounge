@@ -34,3 +34,4 @@ pre.notice { margin: 0; padding: .8rem; border-radius: 10px; background: var(--s
   .summary .btn { margin-left: 0; }
 }
 .link-preview { margin: 0; padding-left: 1.1rem; max-height: 14rem; overflow: auto; font-size: .85rem; line-height: 1.6; }
+.roster-list .rows { margin-top: .6rem; }
