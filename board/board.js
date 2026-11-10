@@ -154,7 +154,7 @@ function showPost(id) {
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    if (!me) return toast('관리자 계정이 회원 명단에 없어요');
+    if (!me) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
     const text = ta.value.trim();
     if (!text) return;
     try { await busy(send, '다는 중…', () => boardDb.comment(id, text, me)); ta.value = ''; } catch (err) { fail('댓글을 달지 못했어요', err); }
@@ -189,7 +189,7 @@ async function removePost(p) {
 
 // ---------- 글쓰기·고치기 ----------
 function openForm(p) {
-  if (!me) return toast('관리자 계정이 회원 명단에 없어요');
+  if (!me) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
   const dlg = h('dialog', 'post-form');
   const form = h('form', 'form'), msg = msgBox();
   const title = textInput('text', { value: p?.title || '', maxLength: POST_MAX.title });

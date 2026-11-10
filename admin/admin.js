@@ -166,7 +166,7 @@ function rosterRow(r) {
     }, 'btn small'));
   }
   acts.append(button('지우기', async () => {
-    if (!confirmBox(`${r.name} 교수님을 명단에서 지울까요? 가입한 회원 정보도 같이 지워져요.`)) return;
+    if (!confirmBox(`${r.name} 교수님을 명단에서 지울까요? 가입 정보도 같이 지워져요.`)) return;
     try { await adminDb.removeRoster(r.email, r.mems, r.name); await reload(); } catch (e) { fail('지우지 못했어요', e); }
   }, 'btn small danger'));
   row.append(who, badge, acts);
@@ -231,7 +231,7 @@ function renderAdmins(body) {
     const m = byUid.get(uid);
     const row = h('div', 'r-row');
     const who = h('div', 'r-who');
-    const name = h('b', '', m ? m.name : '(회원 정보 없음)');
+    const name = h('b', '', m ? m.name : '(가입 정보 없음)');
     if (uid === S.user.uid) name.append(h('small', '', '나'));
     who.append(name, h('span', '', m ? m.email : uid));
     const off = button('해제', async () => {
@@ -258,9 +258,9 @@ function renderAdmins(body) {
     }, 'btn primary');
     const row = h('div', 'inline');
     row.append(pick, go);
-    add.append(field('관리자 더하기', row, '가입을 마친 회원 중에서 골라요'));
+    add.append(field('관리자 더하기', row, '가입을 마친 교수님 중에서 골라요'));
   } else {
-    add.append(h('p', 'hint', '관리자로 지정할 수 있는 회원이 아직 없어요. 가입을 마친 분만 지정할 수 있어요.'));
+    add.append(h('p', 'hint', '관리자로 지정할 수 있는 교수님이 아직 없어요. 가입을 마친 분만 지정할 수 있어요.'));
   }
   const wrap = h('div', 'stack');
   wrap.append(list, add, h('p', 'hint', '관리자는 명단·계정·가입 코드·친목회를 고칠 수 있어요. 마지막 한 분은 뺄 수 없어요.'));

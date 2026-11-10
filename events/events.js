@@ -102,7 +102,7 @@ function eventCard(e) {
 
   const myRsvp = () => c.rsvps.find(r => r.uid === S.user.uid);
   async function answer(status) {
-    if (!S.member) return toast('관리자 계정이 회원 명단에 없어요');
+    if (!S.member) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
     try { await eventsDb.rsvp(c.e.id, S.user.uid, { status, name: S.member.name, comment: comment.value }); toast('체크했어요'); } catch (err) { fail('체크하지 못했어요', err); }
   }
   async function cancel() {
