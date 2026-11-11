@@ -75,15 +75,16 @@ const isUrl = s => /^https?:\/\/\S+$/.test(s);
 // 공개 목록: 이름북(people.json) 위에 Firestore 프로필을 얹음
 //   본인이 저장했으면(confirmedAt) 그 내용 · 아직이면 이름북 소개, 이름북에도 없으면 이름·교실만(status 'listed') · 숨김이면 빼기
 //   photos: 이름북에 없는 분의 사진 { 번호: 'photos/번호.jpg' } (people.json의 photos, 학교 홈페이지 교수소개에서)
+//   ranks: 이름북에 없는 분의 직위 { 번호: '조교수' } (people.json의 ranks, 학교 홈페이지 교수소개에서)
 //   drafts: 논문으로 만든 초안 { 번호: { question, axes, timeline, resources, 이름북에 없는 분은 line·keywords·topics도 } }
 //           (people.json의 drafts, DESIGN §9). 본인이 저장하기 전에만 보이고, 저장하면 본인 내용으로 바뀜
-function mergeProfiles(base, docs, photos = {}, drafts = {}) {
+function mergeProfiles(base, docs, photos = {}, drafts = {}, ranks = {}) {
   const withDraft = (p, id) => (drafts[id] ? { ...p, ...drafts[id], drafted: true } : p);
   const out = new Map(base.map(p => [p.id, withDraft(p, p.id)]));
   for (const d of docs) {
     const old = out.get(d.id);
     if (d.hidden) { out.delete(d.id); continue; }
-    const head = { id: d.id, name: d.name, dept: d.dept || old?.dept || '', group: d.group || '기초', rank: d.rank || old?.rank || '', photo: old?.photo || photos[d.id] || '' };
+    const head = { id: d.id, name: d.name, dept: d.dept || old?.dept || '', group: d.group || '기초', rank: d.rank || old?.rank || ranks[d.id] || '', photo: old?.photo || photos[d.id] || '' };
     if (d.confirmedAt) {
       out.set(d.id, {
         ...head, room: d.room || '', line: d.line || '', question: d.question || '', keywords: d.keywords || [], topics: d.topics || [],

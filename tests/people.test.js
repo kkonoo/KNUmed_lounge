@@ -77,6 +77,11 @@ test('공개 데이터(data/people.json)에 메일·연락처가 없음', () => 
     assert.equal(file, `photos/${id}.jpg`);
     assert.ok(fs.existsSync(path.join(__dirname, '..', file)), file);
   }
+  // 이름북에 없는 분 직위: 번호 → 직위만 (이름은 적지 않음)
+  for (const [id, rank] of Object.entries(data.ranks || {})) {
+    assert.match(id, /^[a-z2-9]{6}$/);
+    assert.ok(rank && rank.length <= P.PROFILE_MAX.rank, id);
+  }
 });
 
 // ---------- 프로필 ----------
@@ -92,7 +97,7 @@ test('공개 목록 합치기: 본인 저장 → 그 내용, 아직 → 이름�
     { id: 'cccccc', name: '이영희', dept: '예시학교실', group: '기초', rank: '', hidden: false },
     { id: 'dddddd', name: '박영수', dept: '예시학교실', group: '기초', rank: '', hidden: false },
   ];
-  const m = new Map(P.mergeProfiles(BOOK, docs, { dddddd: 'photos/dddddd.jpg' }).map(p => [p.id, p]));
+  const m = new Map(P.mergeProfiles(BOOK, docs, { dddddd: 'photos/dddddd.jpg' }, {}, { dddddd: '조교수' }).map(p => [p.id, p]));
   assert.equal(m.size, 3);
   assert.equal(m.get('aaaaaa').status, 'confirmed');
   assert.equal(m.get('aaaaaa').line, '본인이 쓴 소개');
@@ -105,6 +110,7 @@ test('공개 목록 합치기: 본인 저장 → 그 내용, 아직 → 이름�
   assert.equal(m.get('cccccc').line, '');
   assert.equal(m.get('cccccc').photo, '');
   assert.equal(m.get('dddddd').photo, 'photos/dddddd.jpg'); // 이름북에 없는 분은 photos에서
+  assert.equal(m.get('dddddd').rank, '조교수'); // 직위도 ranks에서
   const before = P.mergeProfiles(BOOK, [{ id: 'bbbbbb', name: '김철수', dept: '바뀐교실', group: '기초', rank: '', hidden: false }]);
   assert.equal(before.find(p => p.id === 'bbbbbb').line, '다른 소개'); // 확인 전엔 이름북 소개 그대로
   assert.equal(before.find(p => p.id === 'bbbbbb').dept, '바뀐교실'); // 교실은 관리자가 고친 값

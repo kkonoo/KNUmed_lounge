@@ -292,7 +292,7 @@ async function loungePeople(projectId, idToken) {
   if (!bookRes.ok || !fsRes.ok) throw new Fail(502, '프로필을 읽지 못했어요. 잠시 뒤에 다시 해 주세요');
   const book = await bookRes.json();
   const docs = ((await fsRes.json()).documents || []).map(d => ({ id: d.name.split('/').pop(), ...plain({ mapValue: { fields: d.fields || {} } }) }));
-  return { people: core.mergeProfiles(book.people || [], docs, book.photos || {}, book.drafts || {}), topics: book.topics || [] };
+  return { people: core.mergeProfiles(book.people || [], docs, book.photos || {}, book.drafts || {}, book.ranks || {}), topics: book.topics || [] };
 }
 // 후보 거르기: 지금은 모두 통과. 임상교실이 들어오면 주제·키워드로 먼저 거르는 자리 (DESIGN §11)
 const askCandidates = people => people;

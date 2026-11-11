@@ -15,7 +15,7 @@
     app.append(h('p', 'empty-note', '교수님 목록을 읽지 못했어요. 잠시 뒤 새로 고쳐 주세요.'));
     return;
   }
-  let people = mergeProfiles(data.people, [], data.photos, data.drafts); // Firestore를 읽기 전에도 초안까지
+  let people = mergeProfiles(data.people, [], data.photos, data.drafts, data.ranks); // Firestore를 읽기 전에도 초안까지
   let S = null, myPid = '', fromList = false, listScroll = 0;
   let f = readHash(location.hash);
   const detailId = () => (/^#p=([a-z2-9]{6})$/.exec(location.hash) || [])[1] || '';
@@ -272,7 +272,7 @@
       try { myPid = await profileDb.myId(S.user.email); } catch (e) { console.error(e); }
     }
   } else console.error(s.reason);
-  if (docs.status === 'fulfilled') people = mergeProfiles(data.people, docs.value, data.photos, data.drafts);
+  if (docs.status === 'fulfilled') people = mergeProfiles(data.people, docs.value, data.photos, data.drafts, data.ranks);
   else console.error(docs.reason);
   route();
 })();
