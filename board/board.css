@@ -23,7 +23,7 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .post-meta { margin: 0; font-size: .85rem; color: var(--muted); }
 .post-body, .c-body { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
 .post-body { margin-top: .3rem; }
-.post .form-actions { margin-top: .4rem; }
+.post .form-actions { margin-top: .4rem; justify-content: flex-end; }
 
 /* 댓글 */
 .comments { display: flex; flex-direction: column; gap: .6rem; }
