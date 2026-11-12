@@ -2,7 +2,7 @@
 
 경북대학교 의과대학 기초교실 교수님들이 쓰는 작은 사이트예요. 기초친목회 공지와 참석 체크, 자유 게시판, 교수님별 연구 소개를 한곳에 모았어요. 폰 홈 화면에 앱처럼 설치할 수 있어요.
 
-주소: https://kkonoo.github.io/KNUmed_lounge/
+주소: https://med-lounge.knu.ac.kr
 
 무엇을 왜 이렇게 만드는지는 [DESIGN.md](DESIGN.md)에 있어요.
 
