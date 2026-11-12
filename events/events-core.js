@@ -1,7 +1,7 @@
 'use strict';
 // 친목회 계산 (화면 없음): events.js가 쓰고, tests/events.test.js 가 Node에서 확인
 // 행사 = { id, title, date: 'YYYY-MM-DD', time: '' | 'HH:MM', place, mapUrl, deadline: ms | null, note, audience: '기초'|'임상'|'전체', closed }
-// 응답 = { uid, status: 'yes'|'maybe'|'no', name, comment }
+// 응답 = { uid, status: 'yes'|'maybe'|'no', name, comment, by? } (uid = 문서 번호: 계정 번호 또는 'p-프로필번호', by = 대신 체크한 관리자)
 
 const STATUS = [['yes', '참석', '🙋'], ['maybe', '미정', '🤔'], ['no', '불참', '🙅']];
 const WEEK = '일월화수목금토';
@@ -58,13 +58,30 @@ function tally(rsvps) {
   return out;
 }
 
-// 아직 체크 안 한 분 (관리자만 봄): 명단에서 사용 중이고 이 행사 대상인 분 중, 그 메일로 가입한 계정의 응답이 없는 분
-// 아직 가입 안 한 분도 들어가요. roster = [{ email, name, group, status }], members = [{ uid, email }]
+// 관리자가 대신 체크한(메일 회신 등) 아직 가입 안 한 분의 응답 문서 번호: 'p-' + 연구실 둘러보기 프로필 번호
+// 응답은 회원 모두가 읽어서 메일을 번호로 쓰지 않아요. 그분이 가입해 직접 체크하면 이 문서는 지워져요
+const MANUAL = 'p-';
+// 명단 한 줄 → 응답 문서 번호: 가입한 분은 계정 번호, 아직이면 'p-프로필번호', 프로필도 없으면 ''
+function rsvpIdOf(row, members) {
+  const m = members.find(x => String(x.email).toLowerCase() === row.email);
+  return m ? m.uid : row.profile ? MANUAL + row.profile : '';
+}
+// 응답 문서 번호 → 명단 한 줄 (모르면 null)
+function rowOfRsvp(id, roster, members) {
+  if (id.startsWith(MANUAL)) return roster.find(r => r.profile && MANUAL + r.profile === id) || null;
+  const m = members.find(x => x.uid === id);
+  return m ? roster.find(r => r.email === String(m.email).toLowerCase()) || null : null;
+}
+
+// 아직 체크 안 한 분 (관리자만 봄): 명단에서 사용 중이고 이 행사 대상인 분 중, 응답이 없는 분
+// (가입한 분은 그 메일로 가입한 계정의 응답, 아직 가입 안 한 분은 관리자가 대신 넣은 'p-프로필번호' 응답)
+// roster = [{ email, name, group, status, profile? }], members = [{ uid, email }]
 function notYet(roster, rsvps, members, audience) {
   const emailOf = new Map(members.map(m => [m.uid, String(m.email).toLowerCase()]));
   const done = new Set(rsvps.map(r => emailOf.get(r.uid)).filter(Boolean));
+  const ids = new Set(rsvps.map(r => r.uid));
   return roster
-    .filter(r => r.status === 'active' && (audience === '전체' || r.group === audience) && !done.has(r.email))
+    .filter(r => r.status === 'active' && (audience === '전체' || r.group === audience) && !done.has(r.email) && !(r.profile && ids.has(MANUAL + r.profile)))
     .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 }
 

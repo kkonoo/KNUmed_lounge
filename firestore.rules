@@ -11,7 +11,9 @@ rules_version = '2';
 //                                     본인 가입: 명단에 있고(사용 중), 가입 코드가 맞고, 이름·교실·구분이 명단과 같을 때만
 // events/{행사}                      친목회 { title, date, time, place, mapUrl, deadline, note, audience, closed, at, by, cafeMenu?, meals?, mealPick? }
 //                                     cafeMenu·meals = 관리자가 미리 넣은 카페·식당 메뉴 (그날 주문판이 이 메뉴로 열림), mealPick = 참석 체크 때 식당 메뉴 미리 고르기
-// events/{행사}/rsvps/{uid}          참석 { status, name, comment, meal?, at }. 본인 것만, 마감 전에만. meal은 meals 중 하나 또는 ''
+// events/{행사}/rsvps/{uid}          참석 { status, name, comment, meal?, at, by? }. 본인 것만, 마감 전에만. meal은 meals 중 하나 또는 ''
+//                                     관리자는 누구 것이든 마감 뒤에도 대신 체크(메일 회신 등, by = 관리자). 가입 안 한 분은 문서 번호가 'p-프로필번호'
+//                                     (응답은 회원 모두가 읽어서 메일을 번호로 안 씀). 그분이 가입해 직접 체크하면 그 'p-' 문서를 지울 수 있음
 // events/{행사}/orders/{판}          주문판 { menu, counts, at }. 판 = cafe(카페) · meal(식당). 교수님 누구나 메뉴를 적고 ＋/−, 관리자만 지움
 // menus/{판}                         지난번 메뉴 { text, at }. 새 주문판을 열 때 불러옴
 // adminLog/{자동}                    관리 작업 기록. 관리자만 읽고 더하기만 (고치기·지우기 없음)
@@ -126,16 +128,29 @@ service cloud.firestore {
 
       function ev() { return get(/databases/$(database)/documents/events/$(eid)).data; }
       function forMe() { return ev().audience in ['전체', me().group]; }
+      // 관리자가 대신 체크 (메일 회신 등): 가입한 분은 그분 계정 번호, 아직 가입 안 한 분은 'p-프로필번호'. 마감 뒤에도
+      function byAdminOk(uid, d) {
+        return (uid.matches('p-[a-z2-9]{6}') || exists(/databases/$(database)/documents/members/$(uid)))
+          && d.keys().hasOnly(['status', 'name', 'comment', 'meal', 'at', 'by'])
+          && d.status in ['yes', 'maybe', 'no']
+          && (!('meal' in d) || d.meal == '' || d.meal in ev().get('meals', []))
+          && filled(d.name, 20) && text(d.comment, 60)
+          && d.at == request.time && d.by == request.auth.uid;
+      }
+      // 내 'p-프로필번호' (명단의 내 줄에 이어진 프로필). 프로필이 없으면 'p-'라 어떤 문서와도 안 맞음
+      function myManual() { return 'p-' + get(/databases/$(database)/documents/roster/$(me().email)).data.get('profile', ''); }
       match /rsvps/{uid} {
         allow read: if isAdmin() || isMember();
-        allow create, update: if isMember() && request.auth.uid == uid && forMe() && isOpen(ev())
+        allow create, update: if (isMember() && request.auth.uid == uid && forMe() && isOpen(ev())
           && request.resource.data.keys().hasOnly(['status', 'name', 'comment', 'meal', 'at'])
           && request.resource.data.status in ['yes', 'maybe', 'no']
           && (!('meal' in request.resource.data) || request.resource.data.meal == '' || request.resource.data.meal in ev().get('meals', []))
           && request.resource.data.name == me().name
           && text(request.resource.data.comment, 60)
-          && request.resource.data.at == request.time;
-        allow delete: if isAdmin() || (isMember() && request.auth.uid == uid && isOpen(ev()));
+          && request.resource.data.at == request.time)
+          || (isAdmin() && byAdminOk(uid, request.resource.data));
+        // 본인 것, 그리고 가입 전에 관리자가 대신 넣어 둔 내 'p-' 응답 (직접 체크할 때 같이 지워 두 번 세지 않게)
+        allow delete: if isAdmin() || (isMember() && isOpen(ev()) && (request.auth.uid == uid || uid == myManual()));
       }
       // 주문판: 그 자리에서 쓰는 것이라 마감과 상관없이. 개수 칸 하나하나의 값은 화면이 봄(＋/−는 1씩 increment)
       match /orders/{kind} {

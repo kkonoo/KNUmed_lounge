@@ -1,10 +1,10 @@
 'use strict';
 // 친목회 화면: 다가오는 친목회마다 참석·미정·불참 체크와 한마디(식당 메뉴를 받으면 메뉴 하나), 누가 오는지,
-// 카페·식당 주문판(order/) 입구. 관리자는 만들기·고치기·마감·공지 문구 복사
+// 카페·식당 주문판(order/) 입구. 관리자는 만들기·고치기·마감·공지 문구 복사, 이름을 눌러 대신 체크(메일 회신 등)
 // 데이터는 events-db.js, 계산은 events-core.js, 입력 부품은 js/form.js
 
 const app = $('app');
-let S = null, members = [], roster = [], events = [];
+let S = null, members = [], roster = [], events = [], myPid = ''; // myPid = 내 연구실 둘러보기 프로필 번호
 const cards = new Map(); // 행사 id → { el, stop, paint }
 
 const fail = (msg, e) => { console.error(e); toast(`${msg}: ${authMessage(e)}`, 3500); };
@@ -30,6 +30,7 @@ async function start() {
   if (S.isAdmin) {
     try { [members, roster] = await Promise.all([eventsDb.members(), eventsDb.roster()]); } catch (e) { console.error(e); }
   }
+  try { myPid = await eventsDb.myProfile(S.user.email); } catch (e) { console.error(e); } // 가입 전에 대신 넣은 응답을 지울 때
   await eventsDb.watchEvents(list => { events = list; render(); }, e => fail('친목회를 읽지 못했어요', e));
 }
 
@@ -68,7 +69,7 @@ function render() {
 // ---------- 행사 카드 ----------
 function eventCard(e) {
   const el = h('article', 'panel ev');
-  const c = { el, e, rsvps: [], stop: null };
+  const c = { el, e, rsvps: [], stop: null, pick: null }; // pick = 관리자가 눌러 옮기려는 분
 
   const top = h('div', 'ev-top');
   const title = h('h2');
@@ -112,7 +113,8 @@ function eventCard(e) {
   const myRsvp = () => c.rsvps.find(r => r.uid === S.user.uid);
   async function answer(status, meal = myRsvp()?.meal || '') {
     if (!S.member) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
-    try { await eventsDb.rsvp(c.e.id, S.user.uid, { status, name: S.member.name, comment: comment.value, meal }); toast('체크했어요'); } catch (err) { fail('체크하지 못했어요', err); }
+    const drop = myPid && c.rsvps.some(r => r.uid === MANUAL + myPid) ? MANUAL + myPid : ''; // 가입 전에 관리자가 대신 넣은 응답
+    try { await eventsDb.rsvp(c.e.id, S.user.uid, { status, name: S.member.name, comment: comment.value, meal }, drop); toast('체크했어요'); } catch (err) { fail('체크하지 못했어요', err); }
   }
   function pickMeal(meal) {
     const mine = myRsvp();
@@ -121,6 +123,51 @@ function eventCard(e) {
   }
   async function cancel() {
     try { await eventsDb.unrsvp(c.e.id, S.user.uid); toast('체크를 취소했어요'); } catch (err) { fail('취소하지 못했어요', err); }
+  }
+
+  // 관리자: 이름을 눌러 참석·미정·불참·아직으로 옮기기 (메일로 회신 주신 분, 가입 안 한 분, 마감 뒤에도)
+  //   가입한 분은 그분 응답 자리(계정 번호)에, 아직이면 'p-프로필번호'에 넣어요
+  const who = (name, row, id) => {
+    const b = button(name, () => { c.pick = { name, row, id }; paint(); }, 't-name');
+    b.title = '눌러서 옮기기';
+    return b;
+  };
+  const has = id => c.rsvps.some(r => r.uid === id);
+  function picked() {
+    const p = c.pick, target = p.row ? rsvpIdOf(p.row, members) : p.id;
+    // 같은 분의 다른 응답 (가입하기 전에 대신 넣은 'p-' 응답 등): 옮길 때 같이 정리
+    const others = [...new Set([p.id, p.row?.profile ? MANUAL + p.row.profile : ''])].filter(x => x && x !== target && has(x));
+    const cur = c.rsvps.find(r => r.uid === target) || c.rsvps.find(r => others.includes(r.uid));
+    return { p, target, others, cur };
+  }
+  async function move(status) {
+    const { p, target, others, cur } = picked();
+    if (!target) return toast('명단에서 이 교수님 프로필을 이어야 옮길 수 있어요');
+    try {
+      if (status) {
+        await eventsDb.rsvpFor(c.e.id, target, { status, name: p.row?.name || p.name, comment: cur?.comment || '', meal: cur?.meal || '' }, S.user.uid, others);
+        toast(`${p.name} 교수님을 ${STATUS.find(s => s[0] === status)[1]}으로 옮겼어요`);
+      } else {
+        const ids = [target, ...others].filter(has);
+        if (ids.length) { await eventsDb.clearFor(c.e.id, ids); toast(`${p.name} 교수님을 '아직'으로 되돌렸어요`); }
+      }
+      c.pick = null;
+      paint();
+    } catch (err) { fail('옮기지 못했어요', err); }
+  }
+  function moveRow() {
+    const { p, target, cur } = picked();
+    const box = h('div', 'ev-move');
+    const seg = h('div', 'seg wide');
+    for (const [k, label, ic] of STATUS) seg.append(button(`${ic} ${label}`, () => move(k), cur?.status === k ? 'on' : ''));
+    seg.append(button('아직', () => move(''), cur ? '' : 'on'));
+    const x = button('', () => { c.pick = null; paint(); }, 'icon-btn small');
+    x.append(icon('x'));
+    x.title = '닫기';
+    x.setAttribute('aria-label', '닫기');
+    box.append(h('b', '', p.name), x, seg); // 윗줄 이름·닫기, 아랫줄 버튼
+    if (!target) box.append(h('p', 'hint', '명단에서 이 교수님 프로필을 이어야 옮길 수 있어요'));
+    return box;
   }
 
   function paint() {
@@ -166,7 +213,7 @@ function eventCard(e) {
       const names = h('span', 'names');
       t[k].forEach((r, i) => {
         if (i) names.append(' · ');
-        names.append(r.name);
+        names.append(S.isAdmin ? who(r.name, rowOfRsvp(r.uid, roster, members), r.uid) : r.name);
         if (r.comment) names.append(h('small', '', ` (${r.comment})`));
       });
       row.append(names);
@@ -187,10 +234,13 @@ function eventCard(e) {
       const yet = notYet(roster, c.rsvps, members, e.audience);
       if (yet.length) {
         const row = h('div', 't-row yet');
-        row.append(h('b', '', `아직 ${yet.length}`), h('span', 'names', yet.map(m => m.name).join(' · ')));
+        const names = h('span', 'names');
+        yet.forEach((m, i) => { if (i) names.append(' · '); names.append(who(m.name, m, '')); });
+        row.append(h('b', '', `아직 ${yet.length}`), names);
         row.append(withIcon(button('메일 복사', () => copyText(yet.map(m => m.email).join(', '), `${yet.length}분 메일을 복사했어요`), 'btn small'), 'copy'));
         tallyBox.append(row);
       }
+      tallyBox.append(c.pick ? moveRow() : h('p', 'hint ev-move-hint', '이름을 누르면 참석·미정·불참·아직으로 옮겨요 (메일로 회신 주신 분 등)'));
     }
 
     adminBox.replaceChildren();

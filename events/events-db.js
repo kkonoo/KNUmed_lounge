@@ -1,5 +1,5 @@
 'use strict';
-// 친목회 데이터 (Firestore): events/{행사} · events/{행사}/rsvps/{uid}
+// 친목회 데이터 (Firestore): events/{행사} · events/{행사}/rsvps/{uid 또는 'p-프로필번호'}
 // 연결은 js/session.js의 fb(), 누가 무엇을 할 수 있는지는 firestore.rules
 const ms = t => (t ? t.toMillis() : null);
 
@@ -49,9 +49,34 @@ const eventsDb = {
     await b.commit();
   },
 
-  async rsvp(eid, uid, { status, name, comment, meal = '' }) {
+  // 내 체크. drop = 내가 가입하기 전에 관리자가 대신 넣어 둔 'p-프로필번호' 응답이 있으면 같이 지움 (두 번 세지 않게)
+  async rsvp(eid, uid, { status, name, comment, meal = '' }, drop = '') {
     const { F, db } = await fb();
-    await F.setDoc(F.doc(db, 'events', eid, 'rsvps', uid), { status, name, comment: (comment || '').trim().slice(0, 60), meal, at: F.serverTimestamp() });
+    const b = F.writeBatch(db);
+    b.set(F.doc(db, 'events', eid, 'rsvps', uid), { status, name, comment: (comment || '').trim().slice(0, 60), meal, at: F.serverTimestamp() });
+    if (drop) b.delete(F.doc(db, 'events', eid, 'rsvps', drop));
+    await b.commit();
+  },
+  // 관리자가 대신 체크 (메일 회신 등): id = 계정 번호 또는 'p-프로필번호'. drop = 같이 지울 응답(같은 분의 옛 'p-' 응답)
+  async rsvpFor(eid, id, { status, name, comment = '', meal = '' }, by, drop = []) {
+    const { F, db } = await fb();
+    const b = F.writeBatch(db);
+    b.set(F.doc(db, 'events', eid, 'rsvps', id), { status, name, comment, meal, at: F.serverTimestamp(), by });
+    for (const x of drop) b.delete(F.doc(db, 'events', eid, 'rsvps', x));
+    await b.commit();
+  },
+  // 관리자가 '아직'으로 되돌림: 그분 응답을 모두 지움
+  async clearFor(eid, ids) {
+    const { F, db } = await fb();
+    const b = F.writeBatch(db);
+    for (const x of ids) b.delete(F.doc(db, 'events', eid, 'rsvps', x));
+    await b.commit();
+  },
+  // 내 연구실 둘러보기 프로필 번호 (명단의 내 줄, 본인은 읽을 수 있음). 없으면 ''
+  async myProfile(email) {
+    const { F, db } = await fb();
+    const r = await F.getDoc(F.doc(db, 'roster', email));
+    return r.exists() ? r.data().profile || '' : '';
   },
   async unrsvp(eid, uid) {
     const { F, db } = await fb();

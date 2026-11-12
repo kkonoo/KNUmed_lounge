@@ -24,6 +24,14 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .t-row .names { flex: 1; min-width: 10rem; }
 .t-row .names small { color: var(--muted); }
 .t-row.yet { padding-top: .35rem; border-top: 1px dashed var(--line); color: var(--muted); }
+/* 관리자: 이름을 눌러 옮기기 (메일 회신 등) */
+.t-row .t-name { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted var(--faint); text-underline-offset: 3px; }
+.t-row .t-name:hover { color: var(--accent); }
+.ev-move { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .6rem; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.ev-move .seg { flex-basis: 100%; background: var(--surface); }
+.ev-move .icon-btn { margin-left: auto; }
+.ev-move .hint { flex-basis: 100%; }
+.ev-move-hint { font-size: .8rem; }
 .ev-meal { display: flex; align-items: baseline; gap: .6rem; }
 .ev-meal[hidden] { display: none; }
 .ev-meal > .label { flex: none; font-size: .8rem; font-weight: 600; color: var(--muted); }

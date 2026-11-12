@@ -122,6 +122,28 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('.t-row.yet b', { hasText: '아직 64' }).waitFor(); // 관리자 화면: 김철수가 빠짐
   });
 
+  await t.test('관리자가 대신 체크 (메일 회신): 아직인 분 이름을 눌러 참석으로, 다시 아직으로. 가입한 분 응답도 옮김', async () => {
+    const yetName = A.locator('.t-row.yet .t-name').first(); // 가입 안 한 분
+    const name = (await yetName.innerText()).trim();
+    await yetName.click();
+    await A.locator('.ev-move').getByRole('button', { name: '🙋 참석', exact: true }).click();
+    await toast(A, `${name} 교수님을 참석으로 옮겼어요`);
+    await A.locator('.t-row.yet b', { hasText: '아직 63' }).waitFor();
+    await P.locator('.t-row', { hasText: '참석 1' }).getByText(name).waitFor(); // 회원 화면에도
+    await A.locator('.t-row', { hasText: '참석 1' }).getByRole('button', { name, exact: true }).click();
+    await A.locator('.ev-move').getByRole('button', { name: '아직', exact: true }).click();
+    await toast(A, `${name} 교수님을 '아직'으로 되돌렸어요`);
+    await A.locator('.t-row.yet b', { hasText: '아직 64' }).waitFor();
+    await P.locator('.t-row b', { hasText: /^참석 0$/ }).waitFor();
+    // 가입한 분(김철수)이 메일로 못 온다고 하면: 미정 → 불참, 한마디는 그대로
+    await A.locator('.t-row', { hasText: '미정 1' }).getByRole('button', { name: PROF.name, exact: true }).click();
+    await A.locator('.ev-move').getByRole('button', { name: '🙅 불참', exact: true }).click();
+    await P.locator('.t-row', { hasText: '불참 1' }).getByText('(30분 늦어요)').waitFor();
+    assert.equal(await P.getByRole('button', { name: '🙅 불참', exact: true }).getAttribute('aria-pressed'), 'true'); // 본인 화면도
+    await P.getByRole('button', { name: '🤔 미정', exact: true }).click(); // 본인이 다시 고칠 수 있음
+    await P.locator('.t-row', { hasText: '미정 1' }).getByText('(30분 늦어요)').waitFor();
+  });
+
   await t.test('식당 메뉴 미리 고르기: 관리자가 메뉴를 넣고 켜면 참석 체크 때 하나', async () => {
     await A.locator('.ev').getByRole('button', { name: '고치기' }).click();
     await A.getByLabel('식당 메뉴', { exact: true }).fill('김치찌개\n된장찌개');

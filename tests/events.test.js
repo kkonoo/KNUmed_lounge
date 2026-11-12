@@ -67,6 +67,26 @@ test('응답 모으기와 아직 안 한 분', () => {
   assert.deepEqual(E.notYet(roster, rsvps, members, '전체').map(m => m.name), ['라마바', '사아자', '파하가']);
 });
 
+test('관리자가 대신 체크 (메일 회신): 가입한 분은 계정 번호, 아직이면 p-프로필번호', () => {
+  const members = [{ uid: 'u1', email: 'A@x' }];
+  const roster = [
+    { email: 'a@x', name: '가나다', group: '기초', status: 'active', profile: 'aaa222' }, // 가입함
+    { email: 'e@x', name: '사아자', group: '기초', status: 'active', profile: 'eee222' }, // 가입 안 함
+    { email: 'f@x', name: '차카타', group: '기초', status: 'active' },                     // 프로필도 없음
+  ];
+  assert.equal(E.rsvpIdOf(roster[0], members), 'u1');
+  assert.equal(E.rsvpIdOf(roster[1], members), 'p-eee222');
+  assert.equal(E.rsvpIdOf(roster[2], members), '');
+  assert.equal(E.rowOfRsvp('u1', roster, members).name, '가나다');
+  assert.equal(E.rowOfRsvp('p-eee222', roster, members).name, '사아자');
+  assert.equal(E.rowOfRsvp('p-zzz222', roster, members), null);
+  assert.equal(E.rowOfRsvp('u9', roster, members), null);
+  // 대신 넣은 응답이 있으면 '아직'에서 빠지고, 집계에는 그대로 들어감
+  const rsvps = [{ uid: 'p-eee222', status: 'yes', name: '사아자', comment: '', by: 'u-admin' }];
+  assert.deepEqual(E.notYet(roster, rsvps, members, '기초').map(m => m.name), ['가나다', '차카타']);
+  assert.deepEqual(E.tally(rsvps).yes.map(r => r.name), ['사아자']);
+});
+
 test('만들기 확인과 공지 글', () => {
   const d = { title: '11월 기초친목회', date: '2026-11-24', time: '18:30', place: '복현동 ○○식당', mapUrl: '', deadline: null, note: '', audience: '기초' };
   assert.equal(E.eventProblem(d), '');

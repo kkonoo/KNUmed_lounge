@@ -208,6 +208,39 @@ test('참석 체크: 마감했거나 마감 시각이 지나면 못 바꿈 (관�
   await assertFails(setDoc(doc(as(PROF), 'events/e1/rsvps', PROF.uid), rsvp(PROF)));
 });
 
+test('참석 체크: 관리자가 대신 (메일 회신) — 가입한 분은 계정 번호, 아직이면 p-프로필번호, 마감 뒤에도 (events-db.js rsvpFor 모양)', async () => {
+  await withEvent({ closed: true });
+  await seed(db => updateDoc(doc(db, 'roster', OTHER.email), { profile: 'oth222' })); // OTHER: 명단엔 있고 가입 전
+  const db = as(ADMIN);
+  const by = (extra = {}) => ({ status: 'no', name: PROF.name, comment: '', meal: '', at: serverTimestamp(), by: ADMIN.uid, ...extra });
+  await assertSucceeds(setDoc(doc(db, 'events/e1/rsvps', PROF.uid), by()));                                    // 가입한 분: 그분 자리
+  await assertSucceeds(setDoc(doc(db, 'events/e1/rsvps', 'p-oth222'), by({ name: OTHER.name, status: 'yes' }))); // 가입 전: p-프로필번호
+  await assertSucceeds(deleteDoc(doc(db, 'events/e1/rsvps', 'p-oth222')));                                     // '아직'으로 되돌리기
+  await assertFails(setDoc(doc(db, 'events/e1/rsvps', 'nobody'), by()));                                        // 회원도 p-도 아닌 번호
+  await assertFails(setDoc(doc(db, 'events/e1/rsvps', 'p-oth222'), by({ by: PROF.uid })));                      // by는 넣는 관리자 본인
+  await assertFails(setDoc(doc(db, 'events/e1/rsvps', 'p-oth222'), by({ name: '' })));
+  await assertFails(setDoc(doc(db, 'events/e1/rsvps', 'p-oth222'), by({ email: OTHER.email })));               // 메일은 안 넣음
+  await seed(db2 => setDoc(doc(db2, 'events/e1'), eventData()));                                                // 다시 열어도
+  await assertFails(setDoc(doc(as(PROF), 'events/e1/rsvps', 'p-oth222'), rsvp(PROF)));                         // 회원은 p- 응답을 못 씀
+  await assertFails(setDoc(doc(as(PROF), 'events/e1/rsvps', 'p-oth222'), { ...rsvp(OTHER), by: PROF.uid }));
+});
+
+test('참석 체크: 가입 전에 대신 넣은 내 p- 응답은 직접 체크하며 같이 지움 (events-db.js rsvp 모양), 남의 것은 못 지움', async () => {
+  await withEvent();
+  await seed(async db => {
+    await updateDoc(doc(db, 'roster', PROF.email), { profile: 'kim222' });
+    await updateDoc(doc(db, 'roster', OTHER.email), { profile: 'oth222' });
+    await setDoc(doc(db, 'events/e1/rsvps/p-kim222'), { status: 'maybe', name: PROF.name, comment: '', meal: '', at: now(), by: ADMIN.uid });
+    await setDoc(doc(db, 'events/e1/rsvps/p-oth222'), { status: 'yes', name: OTHER.name, comment: '', meal: '', at: now(), by: ADMIN.uid });
+  });
+  const db = as(PROF);
+  const b = writeBatch(db);
+  b.set(doc(db, 'events/e1/rsvps', PROF.uid), rsvp(PROF, { meal: '' }));
+  b.delete(doc(db, 'events/e1/rsvps', 'p-kim222'));
+  await assertSucceeds(b.commit());
+  await assertFails(deleteDoc(doc(db, 'events/e1/rsvps', 'p-oth222')));
+});
+
 test('참석 체크: 대상이 아닌 모임(임상)에는 못 하고, 전체 모임에는 됨', async () => {
   await withEvent({ audience: '임상' });
   await assertFails(setDoc(doc(as(PROF), 'events/e1/rsvps', PROF.uid), rsvp(PROF)));
