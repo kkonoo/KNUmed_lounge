@@ -49,7 +49,7 @@ test.before(async () => {
   globalThis.fetch = async (url, opts = {}) => {
     url = String(url);
     if (url.startsWith('https://www.googleapis.com/service_accounts/')) return json({ keys: [jwk] }, 200, { 'cache-control': 'public, max-age=3600' });
-    if (url === 'https://kkonoo.github.io/KNUmed_lounge/data/people.json') return json(state.book);
+    if (url === 'https://med-lounge.knu.ac.kr/data/people.json') return json(state.book);
     if (url.includes('/documents/profiles?')) return json({ documents: state.profiles });
     const fs = /documents\/(.+)$/.exec(url);
     if (fs) {
@@ -131,6 +131,7 @@ test('Origin과 CORS: 라운지 주소만, 미리 묻기(OPTIONS)는 204', async
   assert.equal(pre.headers.get('access-control-allow-origin'), ORIGIN);
   assert.equal((await call(env, 'GET', '/status', { uid: 'prof', origin: 'https://evil.example' })).status, 403);
   assert.equal((await call(env, 'GET', '/status', { uid: 'prof', origin: 'http://localhost:8767' })).status, 200);
+  assert.equal((await call(env, 'GET', '/status', { uid: 'prof', origin: 'https://med-lounge.knu.ac.kr' })).status, 200);
 });
 
 test('교수님 확인: 토큰 없음 401, 가입 안 함·멈춤 403', async () => {

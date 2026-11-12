@@ -19,13 +19,13 @@ import core from '../people/people-core.js'; // 연구실 둘러보기와 같은
 import account from '../js/account-core.js'; // PIN → Firebase 비밀번호 규칙 (로그인 화면과 같아야 해요)
 
 const PROJECT = 'knumed-lounge';
-const ORIGINS = ['https://kkonoo.github.io', 'http://localhost:8767'];
+const ORIGINS = ['https://med-lounge.knu.ac.kr', 'https://kkonoo.github.io', 'http://localhost:8767']; // 옛 주소는 옮기는 동안만
 const MODEL = 'claude-opus-5-5';
 const LIMITS = { perUser: 20, all: 300 }; // 하루 (한국 시간)
 const PHOTO_MAX = 6, PHOTO_CHARS = 4_000_000; // 사진 수, 사진 한 장 base64 글자 수 (화면이 긴 쪽 2000px로 줄여 보냄)
 const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const KEY = 'anthropic-key';
-const SITE = 'https://kkonoo.github.io/KNUmed_lounge/'; // 공개 데이터(data/people.json)를 읽는 곳
+const SITE = 'https://med-lounge.knu.ac.kr/'; // 공개 데이터(data/people.json)를 읽는 곳
 const ASK_MAX = 500; // 질문 글자 수
 
 // ---------- 메뉴판 읽기: Claude에게 보내는 글과 받을 모양 (장난감 상자 주문 모으기와 같음) ----------
