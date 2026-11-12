@@ -10,6 +10,7 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .ev-place a { margin-left: .2rem; }
 .ev-note { white-space: pre-wrap; color: var(--muted); }
 .ev .hint { margin: 0; }
+.ev > .form-actions { justify-content: flex-end; } /* 관리자 버튼 (게시판 글 카드와 같이 오른쪽) */
 
 .ev-me { display: flex; flex-direction: column; gap: .5rem; margin-top: .3rem; padding: .8rem; border-radius: 12px; background: var(--surface-2); }
 .ev-seg { display: flex; background: var(--surface); }

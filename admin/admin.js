@@ -243,7 +243,7 @@ function editRow(r, row) {
   const save = h('button', 'btn primary', '저장');
   save.type = 'submit';
   const acts = h('div', 'form-actions');
-  acts.append(save, button('취소', () => { editing = ''; render(); }, 'btn'));
+  acts.append(button('취소', () => { editing = ''; render(); }, 'btn'), save); // 오른쪽 끝이 저장
   form.append(h('p', 'hint', r.email), two, field('교실', dept), field('연구실 둘러보기 프로필', prof, '이은 프로필만 이 교수님이 고칠 수 있어요'), acts);
   form.addEventListener('submit', async e => {
     e.preventDefault();

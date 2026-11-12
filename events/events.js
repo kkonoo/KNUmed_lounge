@@ -258,7 +258,7 @@ function openForm(e) {
   const save = h('button', 'btn primary', e ? '저장' : '올리기');
   save.type = 'submit';
   const acts = h('div', 'form-actions');
-  acts.append(save, button('취소', () => dlg.close(), 'btn'));
+  acts.append(button('취소', () => dlg.close(), 'btn'), save); // 오른쪽 끝이 올리기
   form.append(
     h('h2', '', e ? '친목회 고치기' : '새 친목회'),
     two, field('제목', title), field('장소', place), field('지도 링크', mapUrl, '없어도 돼요'),

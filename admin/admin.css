@@ -22,6 +22,7 @@ details.paste .form { margin-top: .6rem; }
 .r-acts { display: flex; flex-wrap: wrap; gap: .3rem; }
 .r-row.editing { background: var(--surface-2); }
 .r-row.editing .form { flex: 1; }
+.r-row.editing .form-actions { justify-content: flex-end; }
 
 .code-now { display: flex; align-items: center; gap: .6rem; }
 .code-now b { padding: .3rem .8rem; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--line); font-size: 1.4rem; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
