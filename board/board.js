@@ -266,7 +266,7 @@ function openForm(p) {
   const dirty = () => title.value !== (p?.title || '') || body.value !== (p?.body || '') || pick !== cat0;
   const leave = () => !dirty() || confirmBox('쓰던 글을 버릴까요?');
   const acts = h('div', 'form-actions');
-  acts.append(save, button('취소', () => { if (leave()) dlg.close(); }, 'btn'));
+  acts.append(button('취소', () => { if (leave()) dlg.close(); }, 'btn'), save); // 오른쪽 끝이 올리기
   form.append(
     h('h2', '', p ? '글 고치기' : '글쓰기'),
     block('말머리', seg), field('제목', title), field('내용', body), ...(!p && S.isAdmin ? [noticeRow] : []), msg, acts,
