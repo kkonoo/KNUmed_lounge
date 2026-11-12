@@ -6,6 +6,7 @@
 - 메일·담당자 연락처·연구 스타일(style)은 빼요. 공개 디렉터리에는 메일을 넣지 않아요 (DESIGN.md §3).
 - 프로필 번호는 메일과 무관한 값이에요. 이미 data/people.json에 있는 분은 같은 번호를 그대로 써요.
 - 이름북에 없어 손으로 더한 분(status가 'namebook'이 아닌 분)은 그대로 두어요. 이름북에 들어오면 이름북 쪽으로 바뀌어요.
+- 이름북에 없는 주제(라운지에서 더한 '피부·모발' 등)는 주제 목록과 교수님별 주제에 그대로 남겨요.
 - 사진은 photos/<번호>.jpg로 줄여서 옮겨요 (긴 쪽 480px).
 """
 import json
@@ -42,13 +43,17 @@ def main(namebook):
     quiz = json.loads((nb / 'data' / 'quiz.json').read_text(encoding='utf-8'))
 
     old, photos, ranks, drafts, extra = {}, {}, {}, {}, {}
+    known = {k for k, _, _ in quiz['topics']}
+    my_topics, my_tags = [], {}  # 이름북에 없는 주제 (라운지에서 더함)
     if OUT.exists():
         prev = json.loads(OUT.read_text(encoding='utf-8'))
         photos = prev.get('photos', {})  # 이름북에 없는 분 사진 (pipeline/school_photos.py)
         ranks = prev.get('ranks', {})    # 이름북에 없는 분 직위 (pipeline/school_photos.py)
         drafts = prev.get('drafts', {})  # 논문으로 만든 프로필 초안 (DESIGN §9)
+        my_topics = [t for t in prev.get('topics', []) if t['key'] not in known]
         for p in prev['people']:
             old[(p['name'], p['dept'])] = p['id']
+            my_tags[(p['name'], p['dept'])] = [t for t in p.get('topics', []) if t not in known]
             if p.get('status') != 'namebook':
                 extra[(p['name'], p['dept'])] = p  # 이름북에 없어 학교 교수소개에서 더한 분
     taken = set(old.values())
@@ -79,7 +84,7 @@ def main(namebook):
             'group': '기초',
             'line': p['line'],
             'keywords': p['keywords'],
-            'topics': p.get('topics', []),
+            'topics': p.get('topics', []) + my_tags.get(key, []),
             'links': links,
             'photo': photo,
             'source': p.get('source', ''),
@@ -94,7 +99,7 @@ def main(namebook):
             'from': 'Biomed_KNUmed namebook (의과학과 교수진 소개, 학부생용)',
             'note': '공개 파일이에요. 메일·연락처를 넣지 않아요.',
         },
-        'topics': [{'key': k, 'emoji': emoji(e), 'label': label} for k, e, label in quiz['topics']],
+        'topics': [{'key': k, 'emoji': emoji(e), 'label': label} for k, e, label in quiz['topics']] + my_topics,
         'people': people,
         'photos': photos,
         'ranks': ranks,
