@@ -5,9 +5,11 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register(new URL('../sw.js', document.currentScript.src)).catch(() => {});
 }
 
-// 크롬·엣지가 설치할 수 있다고 알려 주면(안드로이드·PC, 이미 설치했으면 안 옴) 홈 위에 '앱으로 설치하기' 배너.
+// 크롬·엣지·삼성 인터넷이 설치할 수 있다고 알려 주면(안드로이드·PC, 이미 설치했으면 안 옴) 홈 위에 '앱으로 설치하기' 배너도.
+// 브라우저 자체 설치 버튼(주소창·메뉴)은 가로채지 않고 그대로 둬요. 가로채면 배너가 없는 화면에선 설치 버튼이
+// 아예 사라지고, 삼성 인터넷은 주소창의 설치 버튼이 안 보여요
 // 아이폰은 이 알림이 없어서 '공유 › 홈 화면에 추가' 안내를 대신 띄움 (홈 화면에서 열었거나, 홈 화면에 추가가 없는 카톡 등 앱 안 브라우저면 안 띄움)
-// ✕(닫기)를 누르면 이 기기에선 다시 안 띄우고 브라우저 기본 안내에 맡김
+// ✕(닫기)를 누르면 이 기기에선 배너를 다시 안 띄우고 브라우저 버튼에 맡김
 (() => {
   const KEY = 'lounge-app', banner = document.getElementById('installBanner');
   const closed = () => { try { return !!JSON.parse(localStorage.getItem(KEY))?.installClosed; } catch { return false; } };
@@ -15,7 +17,6 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   let installEvt = null;
   addEventListener('beforeinstallprompt', e => {
     if (closed()) return;
-    e.preventDefault(); // 브라우저가 따로 띄우는 설치 안내 대신 배너로
     installEvt = e;
     render();
   });
