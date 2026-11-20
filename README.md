@@ -103,7 +103,7 @@ powershell -ExecutionPolicy Bypass -File tools/serve.ps1     # http://localhost:
 | `people/` | 연구실 둘러보기(목록·자세히): `people.js` · `people-core.js`(계산) · `profile-db.js`(Firestore) · `people.css`. `people/me/`는 내 프로필 고치기 |
 | `login/` | 로그인 · 처음 가입 · PIN 바꾸기 |
 | `admin/` | 관리자: `admin.js` · `admin-db.js` · `admin.css` |
-| `css/style.css` | 공통 디자인 토큰(kkonoo 웹앱 공통) + 크림슨 강조색 + 공용 부품 + 홈 |
+| `css/style.css` | 공통 디자인 토큰(kkonoo 웹앱 공통)을 덮어쓴 유리 디자인 + 버건디 강조색 + 배경 색 덩어리 + 공용 부품 + 홈 |
 | `js/session.js` | Firebase 연결, 로그인 상태, 가입, 계정 단추 |
 | `js/account-core.js` | PIN·메일·가입 코드·명단 붙여 넣기 계산 |
 | `js/form.js` · `js/ui.js` | 입력 부품 · 화면 만들기·토스트 |

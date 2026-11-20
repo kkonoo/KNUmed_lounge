@@ -40,7 +40,7 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .ev-orders { display: flex; flex-wrap: wrap; gap: 6px; }
 
 details.past summary { cursor: pointer; color: var(--muted); font-weight: 600; }
-.past-list { margin: .5rem 0 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.past-list { margin: .5rem 0 0; padding: 0; list-style: none; background: var(--glass); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); border: 1px solid var(--glass-border); border-radius: var(--radius); box-shadow: var(--glass-shadow); overflow: hidden; }
 .past-list li { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .7rem; padding: .55rem .8rem; border-top: 1px solid var(--line); font-size: .9rem; }
 .past-list li:first-child { border-top: none; }
 .past-list .when, .past-list .where { color: var(--muted); }

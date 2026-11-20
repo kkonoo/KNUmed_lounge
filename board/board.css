@@ -1,8 +1,8 @@
 /* 자유 게시판 */
 main { display: flex; flex-direction: column; gap: 1rem; }
 
-/* 목록 */
-.post-list { margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+/* 목록: 상자는 .panel 모양(유리), 줄에는 흐림 없음 */
+.post-list { margin: 0; padding: 0; list-style: none; background: var(--glass); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); border: 1px solid var(--glass-border); border-radius: var(--radius); box-shadow: var(--glass-shadow); overflow: hidden; }
 .post-list li + li { border-top: 1px solid var(--line); }
 .post-item { display: flex; flex-direction: column; gap: 3px; padding: 12px 16px; text-decoration: none; transition: background-color .15s ease-out; }
 .post-item:hover { background: var(--surface-2); }
@@ -10,7 +10,7 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .pi-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: .82rem; color: var(--muted); }
 .pi-count { display: inline-flex; align-items: center; gap: 3px; margin-left: 6px; font-variant-numeric: tabular-nums; }
 .pi-count .lc { width: 14px; height: 14px; }
-.post-list.pinned { background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface)); }
+.post-list.pinned { background: linear-gradient(color-mix(in srgb, var(--accent-soft) 45%, transparent), color-mix(in srgb, var(--accent-soft) 45%, transparent)), var(--glass); }
 .badge.notice { background: var(--accent); border-color: transparent; color: var(--on-accent); }
 .post h2 .badge { vertical-align: middle; font-size: .72rem; }
 .pager { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
@@ -29,7 +29,7 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .comments { display: flex; flex-direction: column; gap: .6rem; }
 .comments h3 { margin: 0; font-size: 1rem; font-weight: 700; }
 .comment-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: .5rem; }
-.comment-list li { padding: .6rem .8rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.comment-list li { padding: .6rem .8rem; border: 1px solid var(--glass-border); border-radius: 16px; background: var(--glass); box-shadow: var(--glass-shadow); } /* 댓글은 줄이 많아서 흐림 없이 */
 .c-head { display: flex; align-items: center; gap: 8px; font-size: .85rem; }
 .c-head span { color: var(--muted); }
 .c-head .icon-btn { margin-left: auto; }

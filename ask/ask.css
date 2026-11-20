@@ -7,7 +7,7 @@ main { display: flex; flex-direction: column; gap: 1rem; }
 .ask-out:empty { display: none; }
 
 /* 고른 교수님 한 분 */
-.ask-pick { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.ask-pick { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; background: var(--glass); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); border: 1px solid var(--glass-border); border-radius: var(--radius); box-shadow: var(--glass-shadow); }
 .ask-who { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .ask-who:hover b { text-decoration: underline; }
 .ask-who > div { display: flex; flex-direction: column; gap: 2px; }

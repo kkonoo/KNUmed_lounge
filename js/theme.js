@@ -17,7 +17,7 @@
     // 주소창·상태 표시줄 색: 고른 밝기로. 자동이면 원래 값(media로 나뉜 두 줄)으로
     for (const m of document.querySelectorAll('meta[name="theme-color"]')) {
       m.dataset.auto ||= m.content;
-      m.content = prefs.theme === 'auto' ? m.dataset.auto : prefs.theme === 'dark' ? '#121214' : '#F5F4F0';
+      m.content = prefs.theme === 'auto' ? m.dataset.auto : prefs.theme === 'dark' ? '#121014' : '#F4F1EC';
     }
   }
   function set(patch) {

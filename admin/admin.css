@@ -12,7 +12,7 @@ details.paste .form { margin-top: .6rem; }
 .preview b { color: var(--text); }
 .preview .bad { margin: .3rem 0 0; padding-left: 1.1rem; color: var(--bad); }
 
-.rows { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.rows { display: flex; flex-direction: column; background: var(--glass); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); border: 1px solid var(--glass-border); border-radius: var(--radius); box-shadow: var(--glass-shadow); overflow: hidden; }
 .r-row { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .8rem; padding: .7rem .9rem; border-top: 1px solid var(--line); }
 .r-row:first-child { border-top: none; }
 .r-who { display: flex; flex-direction: column; min-width: 12rem; flex: 1; }
