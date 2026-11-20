@@ -233,35 +233,39 @@ function showPost(id) {
   ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) form.requestSubmit(); });
 }
 
-// 반응 줄 (카톡 공감처럼, 글과 댓글이 같이 씀): [누른 반응 모음 + 누른 분 수] → 누르면 누가 눌렀는지. [+] → 반응 고르기
-//   번개 글은 손들기 하나라 [+ 손들기]를 바로 누름. list: 이 글(댓글)의 반응들, save(kinds): 내 반응 저장
+// 반응 줄 (카톡 공감처럼, 글과 댓글이 같이 씀): 누른 반응마다 [👍 3] (누르면 내 반응을 켜고 끔) · [+] 반응 고르기 · [👤] 누가 눌렀는지
+//   번개 글은 손들기 하나라 [🙋 손들기 N]을 늘 두고 바로 누름. list: 이 글(댓글)의 반응들, save(kinds): 내 반응 저장
 function reactRow(row, list, cat, save) {
-  const t = tallyReactions(list, cat, S.user.uid), shown = t.filter(x => x.names.length);
-  const people = list.filter(r => (r.kinds || []).some(k => shown.some(x => x.key === k))).length;
+  const t = tallyReactions(list, cat, S.user.uid), shown = t.filter(x => x.names.length), meet = cat === 'meet';
   const toggle = async key => { // 내 반응 목록에서 켜고 끔 (한 번 더 누르면 취소)
     if (!me) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
     const mine = list.find(r => r.uid === me.uid)?.kinds || [];
     try { await save(toggleKind(mine, key)); } catch (e) { fail('반응하지 못했어요', e); }
   };
-  const nodes = [];
-  if (shown.length) {
-    const sum = button('', () => showWho(sum, shown, cat === 'meet'), `sum${shown.some(x => x.mine) ? ' on' : ''}`);
-    sum.setAttribute('aria-label', `${cat === 'meet' ? '손든' : '반응한'} 분 ${people}명`);
-    sum.append(h('span', 'e', shown.map(x => x.emoji).join('')), h('span', 'n', String(people)));
-    nodes.push(sum);
-  }
-  if (t.length === 1) { // 번개: 손들기
-    const [x] = t, b = button('', () => toggle(x.key), x.mine ? 'on' : '');
+  const chip = x => {
+    const b = button('', () => toggle(x.key), x.mine ? 'on' : '');
+    b.title = x.label;
+    b.setAttribute('aria-label', `${x.label} ${x.names.length}`);
     b.setAttribute('aria-pressed', String(x.mine));
-    if (!x.mine) b.append(icon('plus'));
-    b.append(h('span', 'l', x.label));
-    nodes.push(b);
-  } else {
+    b.append(h('span', 'e', x.emoji));
+    if (meet) b.append(h('span', 'l', x.label));
+    if (x.names.length) b.append(h('span', 'n', String(x.names.length)));
+    return b;
+  };
+  const nodes = (meet ? t : shown).map(chip);
+  if (!meet) {
     const add = button('', () => pickReaction(add, t, toggle), 'add');
     add.title = '반응 고르기';
     add.setAttribute('aria-label', '반응 고르기');
     add.append(icon('plus'));
     nodes.push(add);
+  }
+  if (shown.length) {
+    const who = button('', () => showWho(who, shown, meet), 'who');
+    who.title = `${meet ? '손든' : '반응한'} 분 보기`;
+    who.setAttribute('aria-label', who.title);
+    who.append(icon('user'));
+    nodes.push(who);
   }
   row.replaceChildren(...nodes);
 }
