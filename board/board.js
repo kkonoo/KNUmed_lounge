@@ -1,5 +1,5 @@
 'use strict';
-// 자유 게시판 화면: 글 목록(#, #page=2, #cat=meet&page=2 …, 맨 위에 공지, 말머리로 거르기) · 글 하나와 댓글(#p=글번호) · 글쓰기·고치기 창
+// 자유 게시판 화면: 글 목록(#, #page=2, #cat=meet&page=2 …, 맨 위에 공지, 말머리로 거르기) · 글 하나와 사진·댓글(#p=글번호) · 글쓰기·고치기 창
 // 데이터는 board-db.js, 계산은 board-core.js, 입력 부품은 js/form.js
 // 회원만 봐요. 공동연구 찾기(AI)의 문맥에는 넣지 않아요
 
@@ -84,7 +84,7 @@ async function loadCounts(all) {
   if (!postId()) renderList();
 }
 
-// 목록 한 줄: [공지] [말머리] [새] 제목 / 글쓴이 · 시각 · 댓글 수
+// 목록 한 줄: [공지] [말머리] [새] 제목 / 글쓴이 · 시각 · 사진 수 · 댓글 수
 function postItem(p) {
   const a = h('a', 'post-item');
   a.href = `#p=${p.id}`;
@@ -94,6 +94,12 @@ function postItem(p) {
   if (catLabel(p.cat)) title.prepend(h('span', 'badge cat', catLabel(p.cat)));
   if (p.pinned) title.prepend(h('span', 'badge notice', '공지'));
   const meta = h('span', 'pi-meta', `${p.name} · ${fmtWhen(p.at)}`);
+  if (p.photos?.length) {
+    const c = h('span', 'pi-count');
+    c.append(icon('camera'), String(p.photos.length));
+    c.title = `사진 ${p.photos.length}장`;
+    meta.append(c);
+  }
   if (counts[p.id]) {
     const c = h('span', 'pi-count');
     c.append(icon('message-square'), String(counts[p.id]));
@@ -166,8 +172,9 @@ function linkNodes(text) {
 function showPost(id) {
   const v = view;
   const art = h('article', 'panel post');
-  const title = h('h2'), meta = h('p', 'post-meta'), body = h('div', 'post-body'), acts = h('div', 'form-actions');
-  art.append(title, meta, body, acts);
+  const title = h('h2'), meta = h('p', 'post-meta'), body = h('div', 'post-body'), photos = h('div', 'post-photos'), acts = h('div', 'form-actions');
+  photos.hidden = true;
+  art.append(title, meta, body, photos, acts);
 
   const sec = h('section', 'comments');
   const head = h('h3', '', '댓글');
@@ -188,6 +195,7 @@ function showPost(id) {
     title.replaceChildren(...(p.pinned ? [h('span', 'badge notice', '공지'), ' '] : []), ...(catLabel(p.cat) ? [h('span', 'badge cat', catLabel(p.cat)), ' '] : []), p.title);
     meta.textContent = [p.name, fmtWhen(p.at), p.editedAt ? '고침' : ''].filter(Boolean).join(' · ');
     body.replaceChildren(...linkNodes(p.body));
+    paintPhotos(photos, p);
     acts.replaceChildren();
     if (isMine(p)) acts.append(button('고치기', () => openForm(p), 'btn small'));
     if (S.isAdmin) {
@@ -215,6 +223,43 @@ function showPost(id) {
   ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) form.requestSubmit(); });
 }
 
+// 글 아래 사진: 1장은 원래 비율로, 2~3장은 정사각형 칸에. 누르면 크게. 사진이 바뀔 때만 다시 받음
+function paintPhotos(box, p) {
+  const ids = p.photos || [], key = ids.join();
+  if (box.dataset.ids === key) return;
+  box.dataset.ids = key;
+  box.className = `post-photos n${ids.length}`;
+  box.hidden = !ids.length;
+  if (!ids.length) { box.replaceChildren(); return; }
+  box.replaceChildren(h('p', 'hint', '사진 불러오는 중…'));
+  boardDb.photos(p.id, ids).then(srcs => {
+    if (box.dataset.ids !== key) return;
+    box.replaceChildren(...srcs.filter(src => src.startsWith('data:image/')).map((src, i) => {
+      const b = button('', () => viewPhoto(src), 'ph');
+      b.setAttribute('aria-label', `사진 ${i + 1} 크게 보기`);
+      const img = h('img');
+      Object.assign(img, { src, alt: '', decoding: 'async' });
+      b.append(img);
+      return b;
+    }));
+  }).catch(e => fail('사진을 읽지 못했어요', e));
+}
+// 사진 크게: 바깥이나 사진을 누르거나 Esc면 닫힘
+function viewPhoto(src) {
+  const dlg = h('dialog', 'photo-view');
+  const img = h('img');
+  Object.assign(img, { src, alt: '' });
+  const x = button('', () => dlg.close(), 'icon-btn');
+  x.append(icon('x'));
+  x.title = '닫기';
+  x.setAttribute('aria-label', '닫기');
+  dlg.append(img, x);
+  dlg.addEventListener('click', e => { if (e.target === dlg || e.target === img) dlg.close(); });
+  dlg.addEventListener('close', () => dlg.remove());
+  document.body.append(dlg);
+  dlg.showModal();
+}
+
 function commentItem(pid, c) {
   const li = h('li');
   const head = h('div', 'c-head');
@@ -236,8 +281,8 @@ function commentItem(pid, c) {
 }
 
 async function removePost(p) {
-  if (!confirmBox(`'${p.title}'을(를) 지울까요? 댓글도 같이 지워져요.`)) return;
-  try { await boardDb.remove(p.id); toast('지웠어요'); toList(); } catch (e) { fail('지우지 못했어요', e); }
+  if (!confirmBox(`'${p.title}'을(를) 지울까요? ${p.photos?.length ? '댓글과 사진도' : '댓글도'} 같이 지워져요.`)) return;
+  try { await boardDb.remove(p.id, p.photos || []); toast('지웠어요'); toList(); } catch (e) { fail('지우지 못했어요', e); }
 }
 
 // ---------- 글쓰기·고치기 ----------
@@ -258,31 +303,73 @@ function openForm(p) {
   const paintSeg = () => segBtns.forEach((b, i) => { const on = BOARD_CATS[i][0] === pick; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
   seg.append(...segBtns);
   paintSeg();
+  // 사진: 3장까지. picks = [{ id, src } 있던 사진 | { src } 새로 고른 사진] (보이는 순서)
+  const before = p?.photos || [];
+  const picks = before.map(id => ({ id, src: '' }));
+  const pickRow = h('div', 'photo-pick');
+  const file = h('input');
+  Object.assign(file, { type: 'file', accept: 'image/*', multiple: true, hidden: true });
+  let reading = false;
+  const paintPicks = () => {
+    const add = withIcon(button(reading ? '줄이는 중…' : '사진 고르기', () => file.click(), 'btn small'), 'camera');
+    add.disabled = reading;
+    pickRow.replaceChildren(...picks.map((x, i) => {
+      const box = h('div', 'pick');
+      const img = h('img');
+      img.alt = '';
+      if (x.src) img.src = x.src;
+      const del = button('', () => { picks.splice(i, 1); paintPicks(); }, 'icon-btn small');
+      del.append(icon('x'));
+      del.title = '사진 빼기';
+      del.setAttribute('aria-label', `사진 ${i + 1} 빼기`);
+      box.append(img, del);
+      return box;
+    }), ...(picks.length < BOARD_PHOTO.max ? [add] : []));
+  };
+  paintPicks();
+  if (before.length) {
+    boardDb.photos(p.id, before).then(srcs => { picks.forEach(x => { if (x.id) x.src = srcs[before.indexOf(x.id)] || ''; }); paintPicks(); }).catch(e => console.error(e));
+  }
+  file.addEventListener('change', async () => {
+    const files = [...file.files], room = BOARD_PHOTO.max - picks.length;
+    file.value = '';
+    if (files.length > room) toast(`사진은 글 하나에 ${BOARD_PHOTO.max}장까지예요`);
+    reading = true;
+    paintPicks();
+    for (const f of files.slice(0, room)) {
+      try { picks.push({ src: await photoData(f) }); } catch (err) { say(msg, err.message); }
+    }
+    reading = false;
+    paintPicks();
+  });
+  const photosChanged = () => picks.some(x => !x.id) || picks.map(x => x.id).join() !== before.join();
   const notice = h('input');
   notice.type = 'checkbox';
   const noticeRow = h('label', 'check');
   noticeRow.append(notice, '공지로 올리기 (목록 맨 위)');
   // 쓰던 글을 실수로 닫지 않게 (Esc·취소)
-  const dirty = () => title.value !== (p?.title || '') || body.value !== (p?.body || '') || pick !== cat0;
+  const dirty = () => title.value !== (p?.title || '') || body.value !== (p?.body || '') || pick !== cat0 || photosChanged();
   const leave = () => !dirty() || confirmBox('쓰던 글을 버릴까요?');
   const acts = h('div', 'form-actions');
   acts.append(button('취소', () => { if (leave()) dlg.close(); }, 'btn'), save); // 오른쪽 끝이 올리기
   form.append(
     h('h2', '', p ? '글 고치기' : '글쓰기'),
-    block('말머리', seg), field('제목', title), field('내용', body), ...(!p && S.isAdmin ? [noticeRow] : []), msg, acts,
+    block('말머리', seg), field('제목', title), field('내용', body), block('사진', pickRow, `${BOARD_PHOTO.max}장까지`), file,
+    ...(!p && S.isAdmin ? [noticeRow] : []), msg, acts,
   );
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const d = { title: title.value, body: body.value, cat: pick };
-    say(msg, postProblem(d));
+    say(msg, postProblem(d) || (reading ? '사진을 줄이는 중이에요. 잠시 뒤에 다시 눌러 주세요' : ''));
     if (!msg.hidden) return;
     try {
       if (p) {
-        await busy(save, '저장 중…', () => boardDb.edit(p.id, d));
+        const changed = photosChanged();
+        await busy(save, '저장 중…', () => boardDb.edit(p.id, d, changed ? picks : null, changed ? before.filter(id => !picks.some(x => x.id === id)) : []));
         dlg.close();
         toast('고쳤어요');
       } else {
-        const id = await busy(save, '올리는 중…', () => boardDb.add(d, me, S.isAdmin && notice.checked));
+        const id = await busy(save, '올리는 중…', () => boardDb.add(d, me, S.isAdmin && notice.checked, picks.map(x => x.src)));
         dlg.close();
         toast('올렸어요');
         fromList = !postId();
@@ -296,6 +383,26 @@ function openForm(p) {
   document.body.append(dlg);
   dlg.showModal();
   title.focus();
+}
+
+// 고른 사진을 줄여 data: 주소로 (JPEG, 긴 쪽 1600px부터. 문서 한도를 넘으면 더 줄임)
+async function photoData(file) {
+  let img;
+  try { img = await createImageBitmap(file); } catch { throw new Error('사진을 열지 못했어요. 다른 사진(JPG·PNG)으로 해 보세요'); }
+  try {
+    for (const [edge, quality] of BOARD_PHOTO.steps) {
+      const [w, hh] = photoSize(img.width, img.height, edge), c = h('canvas');
+      c.width = w;
+      c.height = hh;
+      const g = c.getContext('2d');
+      g.fillStyle = '#fff'; // 투명한 PNG가 검게 되지 않게
+      g.fillRect(0, 0, w, hh);
+      g.drawImage(img, 0, 0, w, hh);
+      const url = c.toDataURL('image/jpeg', quality);
+      if (url.length <= BOARD_PHOTO.chars) return url;
+    }
+  } finally { img.close(); }
+  throw new Error('사진이 너무 커요. 다른 사진으로 해 보세요');
 }
 
 start();

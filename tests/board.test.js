@@ -70,3 +70,13 @@ test('말머리: 넷 중 하나, 주소에 남아요 (#cat=meet&page=2)', () => 
   assert.equal(B.writeList({ cat: '', page: 1 }), '');
   for (const s of [{ cat: 'news', page: 4 }, { cat: '', page: 2 }]) assert.deepEqual(B.readList(B.writeList(s)), s);
 });
+
+test('사진: 긴 쪽을 맞춰 비율대로 줄이고, 작으면 그대로. 줄일수록 작게', () => {
+  assert.deepEqual(B.photoSize(4032, 3024, 1600), [1600, 1200]);
+  assert.deepEqual(B.photoSize(3024, 4032, 1600), [1200, 1600]);
+  assert.deepEqual(B.photoSize(800, 600, 1600), [800, 600]);
+  assert.equal(B.BOARD_PHOTO.max, 3);
+  const edges = B.BOARD_PHOTO.steps.map(([e]) => e);
+  assert.deepEqual(edges, [...edges].sort((a, b) => b - a));
+  assert.ok(B.BOARD_PHOTO.chars < 1000000); // Firestore 문서 하나는 1MB까지
+});

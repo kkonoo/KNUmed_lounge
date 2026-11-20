@@ -218,12 +218,14 @@ service cloud.firestore {
     }
 
     // ---------- 자유 게시판 ----------
-    // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글을 먼저 지우고 글을 지워요(한 번에)
+    // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글·사진을 먼저 지우고 글을 지워요(한 번에)
+    // photos: 사진 번호 목록 (3장까지, 사진은 아래 photos 문서에)
     function postOk(d) {
-      return d.keys().hasOnly(['title', 'body', 'cat', 'by', 'name', 'at', 'editedAt', 'pinned'])
+      return d.keys().hasOnly(['title', 'body', 'cat', 'by', 'name', 'at', 'editedAt', 'pinned', 'photos'])
         && d.keys().hasAll(['title', 'body', 'by', 'name', 'at', 'editedAt'])
         && (!('pinned' in d) || d.pinned is bool)
         && (!('cat' in d) || d.cat in ['news', 'meet', 'daily', 'etc'])
+        && (!('photos' in d) || (d.photos is list && d.photos.size() <= 3))
         && filled(d.title, 80) && filled(d.body, 4000)
         && d.by is string && d.name is string && d.at is timestamp
         && (d.editedAt == null || d.editedAt is timestamp);
@@ -237,7 +239,7 @@ service cloud.firestore {
         && request.resource.data.editedAt == null
         && (request.resource.data.get('pinned', false) == false || isAdmin());
       allow update: if (isMember() && resource.data.by == request.auth.uid && postOk(request.resource.data)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'body', 'cat', 'editedAt'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'body', 'cat', 'editedAt', 'photos'])
           && request.resource.data.editedAt == request.time)
         || (isAdmin() && postOk(request.resource.data)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinned']));
@@ -255,6 +257,17 @@ service cloud.firestore {
         allow delete: if isAdmin()
           || (isMember() && resource.data.by == request.auth.uid)
           || (isMember() && get(postPath()).data.by == request.auth.uid && !existsAfter(postPath()));
+      }
+      // 사진 한 장 = 문서 하나 { src: 줄인 사진의 data: 주소 } (문서 하나는 1MB까지라서 90만 자까지)
+      // 글쓴이가 글과 한 번에 올리고(글의 photos에 그 번호가 있어야 함), 글쓴이·관리자가 지움. 고치지는 않음(빼고 새로 올림)
+      match /photos/{fid} {
+        allow read: if isMember();
+        allow create: if isMember() && getAfter(postPath()).data.by == request.auth.uid
+          && fid in getAfter(postPath()).data.get('photos', [])
+          && request.resource.data.keys().hasOnly(['src'])
+          && request.resource.data.src is string && request.resource.data.src.size() <= 900000
+          && request.resource.data.src.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+');
+        allow delete: if isAdmin() || (isMember() && get(postPath()).data.by == request.auth.uid);
       }
     }
 

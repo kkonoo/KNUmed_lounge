@@ -26,6 +26,7 @@ function fakeRosterText() {
     return `${n} 교수님 <${email}>`;
   }).join(', ');
 }
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==', 'base64'); // 1×1 사진
 const inDays = n => { const d = new Date(Date.now() + n * 864e5); return d.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }); };
 
 let site, browser, admin, prof, guest;
@@ -238,15 +239,22 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.getByRole('link', { name: '내 프로필 고치기' }).waitFor();
   });
 
-  await t.test('자유 게시판: 글쓰기 → 홈 새 글 → 댓글 → 고치기 → 지우기', async () => {
+  await t.test('자유 게시판: 글쓰기(사진 한 장) → 홈 새 글 → 댓글 → 고치기 → 지우기', async () => {
     await P.goto(`${site.url}board/`);
     await P.getByText('아직 글이 없어요').waitFor();
     await P.getByRole('button', { name: '글쓰기' }).click();
     await P.getByLabel('제목').fill('원심분리기 나눠요');
     await P.getByLabel('내용').fill('필요하신 분 연락 주세요\n사진: https://example.com/photo.');
+    await P.locator('dialog input[type=file]').setInputFiles({ name: 'rotor.png', mimeType: 'image/png', buffer: PNG });
+    await P.locator('dialog .photo-pick .pick img').waitFor();
     await P.getByRole('button', { name: '올리기' }).click();
     await toast(P, '올렸어요');
     await P.getByRole('heading', { name: '원심분리기 나눠요' }).waitFor();
+    assert.match(await P.locator('.post-photos img').getAttribute('src'), /^data:image\/jpeg;base64,/); // 줄여서 JPEG로
+    await P.getByRole('button', { name: '사진 1 크게 보기' }).click();
+    await P.locator('dialog.photo-view img').waitFor();
+    await P.keyboard.press('Escape');
+    await P.locator('dialog.photo-view').waitFor({ state: 'detached' });
     assert.equal(await P.locator('.post-body a').getAttribute('href'), 'https://example.com/photo');
     assert.match(await P.locator('.post-meta').innerText(), new RegExp(`^${PROF.name} · `));
 
@@ -254,6 +262,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.locator('#boardFoot', { hasText: '새 글 1' }).waitFor();
     await A.goto(`${site.url}board/`);
     await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).locator('.badge.new').waitFor();
+    await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).locator('.pi-count[title="사진 1장"]').waitFor();
     await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).locator('.badge.cat', { hasText: '기타' }).waitFor(); // 말머리는 처음에 기타
     const chips = A.locator('.board-cats');
     await chips.getByRole('button', { name: '번개' }).click();
@@ -284,7 +293,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.locator('.post-meta', { hasText: '고침' }).waitFor();
     await P.locator('.post .form-actions').getByRole('button', { name: '지우기' }).click();
     await toast(P, '지웠어요');
-    await P.getByText('아직 글이 없어요').waitFor(); // 남의 댓글이 있어도 글쓴이가 글째 지움
+    await P.getByText('아직 글이 없어요').waitFor(); // 남의 댓글·사진이 있어도 글쓴이가 글째 지움
   });
 
   await t.test('게시판 공지와 페이지: 25개면 2페이지, 관리자가 공지로 올리면 맨 위', async () => {

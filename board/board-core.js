@@ -1,6 +1,6 @@
 'use strict';
 // 자유 게시판 계산 (화면 없음): board.js·홈이 쓰고, tests/board.test.js 가 Node에서 확인
-// 글 = { id, title, body, cat, by, name, at: ms, editedAt: ms | null } · 댓글 = { id, body, by, name, at: ms }
+// 글 = { id, title, body, cat, by, name, at: ms, editedAt: ms | null, photos: [사진 번호] } · 댓글 = { id, body, by, name, at: ms }
 
 // 말머리: 글마다 하나, 키로 저장 (이름을 바꿔도 글은 그대로). 글쓰기 창에서는 처음에 기타가 골라져 있어요
 //   말머리를 만들기 전에 쓴 글은 cat이 없어서 말머리 없이 전체에서만 보여요 (고쳐 저장하면 붙음)
@@ -18,6 +18,15 @@ function postProblem({ title, body }) {
   if (String(title).trim().length > POST_MAX.title) return `제목은 ${POST_MAX.title}자까지예요`;
   if (String(body).trim().length > POST_MAX.body) return `내용은 ${POST_MAX.body}자까지예요`;
   return '';
+}
+
+// 사진: 글 하나에 3장까지. 올리기 전에 브라우저에서 줄여서, 한 장을 문서 하나에 data: 주소로 (firestore.rules와 같음)
+//   긴 쪽 1600px부터, 그래도 chars를 넘으면 1280 → 1024px로 더 줄임 (문서 하나는 1MB까지라서)
+const BOARD_PHOTO = { max: 3, chars: 900000, steps: [[1600, 0.82], [1280, 0.75], [1024, 0.7]] };
+// 긴 쪽이 edge보다 크면 비율대로 줄인 크기 (작으면 그대로)
+function photoSize(w, h, edge) {
+  const k = Math.min(1, edge / Math.max(w, h));
+  return [Math.round(w * k), Math.round(h * k)];
 }
 
 // 지난번에 본 뒤로 올라온 남의 글 수 (seen: ms)

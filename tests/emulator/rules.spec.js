@@ -360,6 +360,77 @@ test('게시판: 글쓴이는 남의 댓글까지 한 번에 지우며 글을 �
   await assertSucceeds(tryRemove(ADMIN));
 });
 
+// 사진 (board-db.js add·edit·remove 모양): 글과 사진을 한 번에
+const photo = (n = 1000) => ({ src: `data:image/jpeg;base64,${'A'.repeat(n)}` });
+function postWithPhotos(db, u, n, extra = {}) {
+  const ref = doc(collection(db, 'posts')), b = writeBatch(db);
+  const ids = Array.from({ length: n }, () => { const p = doc(collection(db, 'posts', ref.id, 'photos')); b.set(p, photo()); return p.id; });
+  b.set(ref, post(u, { photos: ids, ...extra }));
+  return { ref, ids, commit: () => b.commit() };
+}
+
+test('게시판 사진: 글쓴이가 글과 한 번에 3장까지, 회원만 봄', async () => {
+  await base();
+  const db = as(PROF);
+  const ok = postWithPhotos(db, PROF, 3);
+  await assertSucceeds(ok.commit());
+  await assertSucceeds(getDoc(doc(as(ADMIN), 'posts', ok.ref.id, 'photos', ok.ids[0])));
+  await assertFails(getDoc(doc(as(OTHER), 'posts', ok.ref.id, 'photos', ok.ids[0]))); // 가입 전
+  await assertFails(getDoc(doc(anon(), 'posts', ok.ref.id, 'photos', ok.ids[0])));
+  await assertFails(postWithPhotos(db, PROF, 4).commit());
+  await assertSucceeds(addDoc(collection(db, 'posts'), post(PROF))); // 사진 없는 글은 photos 칸 없이 (예전처럼)
+  await assertFails(addDoc(collection(db, 'posts'), post(PROF, { photos: 'x' })));
+});
+
+test('게시판 사진: 글의 photos에 있는 번호만, 남의 글에는 못 올리고, 크기·모양 제한', async () => {
+  await base();
+  await seed(db => setDoc(doc(db, 'members', OTHER.uid), memberDoc(OTHER)));
+  const db = as(PROF);
+  const ok = postWithPhotos(db, PROF, 1);
+  await assertSucceeds(ok.commit());
+  await assertFails(setDoc(doc(db, 'posts', ok.ref.id, 'photos', 'nolist'), photo())); // 글의 목록에 없는 번호
+  await assertFails(setDoc(doc(db, 'posts', ok.ref.id, 'photos', ok.ids[0]), photo(10))); // 고치기는 없음 (빼고 새로)
+  const o = as(OTHER), b = writeBatch(o); // 남의 글에 번호까지 넣으며 올리기
+  b.update(doc(o, 'posts', ok.ref.id), { photos: [...ok.ids, 'mine'], editedAt: serverTimestamp() });
+  b.set(doc(o, 'posts', ok.ref.id, 'photos', 'mine'), photo());
+  await assertFails(b.commit());
+  const big = src => { const ref = doc(collection(db, 'posts')), bb = writeBatch(db); bb.set(ref, post(PROF, { photos: ['big'] })); bb.set(doc(db, 'posts', ref.id, 'photos', 'big'), { src }); return bb.commit(); };
+  await assertSucceeds(big(`data:image/jpeg;base64,${'A'.repeat(900000 - 23)}`)); // 딱 90만 자
+  await assertFails(big(`data:image/jpeg;base64,${'A'.repeat(900000 - 22)}`));
+  await assertFails(big('https://example.com/a.jpg'));
+  await assertFails(big('data:text/html;base64,AAAA'));
+});
+
+test('게시판 사진: 고치기에서 빼고 더하기는 글쓴이만, 글을 지우면 사진도 같이 (글쓴이·관리자)', async () => {
+  await base();
+  const db = as(PROF);
+  const ok = postWithPhotos(db, PROF, 2);
+  await assertSucceeds(ok.commit());
+  const edit = (u) => { // 첫 사진을 빼고 새 사진을 더함 (board-db.js edit 모양)
+    const d = as(u), b = writeBatch(d), p = doc(collection(d, 'posts', ok.ref.id, 'photos'));
+    b.set(p, photo());
+    b.delete(doc(d, 'posts', ok.ref.id, 'photos', ok.ids[0]));
+    b.update(doc(d, 'posts', ok.ref.id), { title: '장비 나눔', body: '사진 바꿈', cat: 'etc', photos: [ok.ids[1], p.id], editedAt: serverTimestamp() });
+    return b.commit();
+  };
+  await assertFails(edit(ADMIN)); // 관리자도 남의 글 사진은 못 바꿈
+  await assertSucceeds(edit(PROF));
+  const remove = async (u, ref, ids) => {
+    const d = as(u), b = writeBatch(d);
+    (await getDocs(collection(d, 'posts', ref.id, 'comments'))).docs.forEach(x => b.delete(x.ref));
+    for (const x of ids) b.delete(doc(d, 'posts', ref.id, 'photos', x));
+    b.delete(doc(d, 'posts', ref.id));
+    return b.commit();
+  };
+  const now2 = (await getDoc(doc(db, 'posts', ok.ref.id))).data().photos;
+  await assertSucceeds(remove(PROF, ok.ref, now2));
+  const other = postWithPhotos(db, PROF, 1);
+  await assertSucceeds(other.commit());
+  await seed(d => setDoc(doc(d, 'members', OTHER.uid), memberDoc(OTHER)));
+  await assertFails(remove(OTHER, other.ref, other.ids));
+  await assertSucceeds(remove(ADMIN, other.ref, other.ids));
+});
+
 // ---------- 연구실 둘러보기 프로필 ----------
 const base0 = { name: PROF.name, dept: PROF.dept, group: '기초', rank: '', hidden: false };
 const content = (u, extra = {}) => ({
