@@ -287,6 +287,12 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await A.getByLabel('댓글').fill('저요');
     await A.getByRole('button', { name: '달기' }).click();
     await P.locator('.comment-list li', { hasText: '저요' }).getByText(ADMIN.name).waitFor(); // 글쓴이 화면에 바로 보임
+    const mine = P.locator('.comment-list li', { hasText: '저요' }); // 댓글 반응: 글쓴이가 단 하트가 댓글 쓴 분 화면에
+    await mine.getByRole('button', { name: '반응 고르기' }).click();
+    await P.locator('.react-pick').getByRole('button', { name: '하트' }).click();
+    await A.locator('.comment-list li', { hasText: '저요' }).getByRole('button', { name: '반응한 분 1명' }).click();
+    await A.locator('.react-who').getByText(PROF.name).waitFor();
+    await A.keyboard.press('Escape');
     await P.getByRole('heading', { name: '댓글 1' }).waitFor();
     await A.locator('.topbar a.icon-btn').click(); // 목록으로
     await A.locator('.post-item .pi-count', { hasText: '1' }).waitFor();

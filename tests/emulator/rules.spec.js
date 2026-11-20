@@ -390,6 +390,44 @@ test('게시판 반응: 글쓴이는 남의 반응까지 한 번에 지우며 �
   await assertSucceeds(b.commit());
 });
 
+// 댓글 반응 (board-db.js reactComment·uncomment 모양): posts/{글}/commentReactions/{댓글}_{uid}
+const creact = (u, cid = 'c1', kinds = ['like'], extra = {}) => ({ cid, name: u.name, kinds, at: serverTimestamp(), ...extra });
+test('댓글 반응: 회원이 자기 것만, 있는 댓글에만, 여섯 가지 키만', async () => {
+  await withPost(); // c1은 관리자가 단 댓글
+  const ref = (u, cid = 'c1') => doc(as(u), 'posts/p1/commentReactions', `${cid}_${u.uid}`);
+  await assertSucceeds(setDoc(ref(PROF), creact(PROF, 'c1', ['heart', 'lol'])));
+  await assertSucceeds(setDoc(ref(ADMIN), creact(ADMIN))); // 내 댓글에도
+  await assertSucceeds(getDocs(collection(as(PROF), 'posts/p1/commentReactions')));
+  await assertFails(getDocs(collection(as(OTHER), 'posts/p1/commentReactions'))); // 가입 전
+  await assertFails(setDoc(doc(as(PROF), 'posts/p1/commentReactions', `c1_${ADMIN.uid}`), creact(PROF))); // 남의 자리
+  await assertFails(setDoc(doc(as(PROF), 'posts/p1/commentReactions', `c2_${PROF.uid}`), creact(PROF, 'c1'))); // 번호와 칸이 다름
+  await assertFails(setDoc(ref(PROF, 'none'), creact(PROF, 'none'))); // 없는 댓글
+  await assertFails(setDoc(ref(PROF), creact(PROF, 'c1', ['hand']))); // 손들기는 글에만
+  await assertFails(setDoc(ref(PROF), creact(PROF, 'c1', ['like'], { name: '익명' })));
+  await assertFails(setDoc(ref(PROF), creact(PROF, 'c1', [])));
+  await assertFails(deleteDoc(doc(as(PROF), 'posts/p1/commentReactions', `c1_${ADMIN.uid}`))); // 글쓴이도 남의 반응 하나만은 못 지움
+  await assertSucceeds(deleteDoc(ref(PROF)));
+});
+test('댓글 반응: 댓글을 지우면 쓴 분이 반응까지 한 번에, 글을 지우면 글쓴이가 모두', async () => {
+  await withPost();
+  await seed(async db => {
+    await setDoc(doc(db, 'posts/p1/comments/c2'), { body: '저도요', by: PROF.uid, name: PROF.name, at: now() });
+    for (const [u, cid] of [[PROF, 'c1'], [ADMIN, 'c1'], [ADMIN, 'c2']]) await setDoc(doc(db, 'posts/p1/commentReactions', `${cid}_${u.uid}`), { cid, name: u.name, kinds: ['like'], at: now() });
+  });
+  const uncomment = async (u, cid) => {
+    const d = as(u), b = writeBatch(d);
+    (await getDocs(query(collection(d, 'posts/p1/commentReactions'), where('cid', '==', cid)))).docs.forEach(x => b.delete(x.ref));
+    b.delete(doc(d, 'posts/p1/comments', cid));
+    return b.commit();
+  };
+  await assertFails(uncomment(PROF, 'c1')); // 남의 댓글은 못 지움
+  await assertSucceeds(uncomment(ADMIN, 'c1')); // 내 댓글: 남의 반응까지
+  const d = as(PROF), b = writeBatch(d); // 글쓴이가 글째 지우기 (남의 댓글·댓글 반응까지)
+  for (const c of ['comments', 'reactions', 'commentReactions']) (await getDocs(collection(d, 'posts/p1', c))).docs.forEach(x => b.delete(x.ref));
+  b.delete(doc(d, 'posts/p1'));
+  await assertSucceeds(b.commit());
+});
+
 // 사진 (board-db.js add·edit·remove 모양): 글과 사진을 한 번에
 const photo = (n = 1000) => ({ src: `data:image/jpeg;base64,${'A'.repeat(n)}` });
 function postWithPhotos(db, u, n, extra = {}) {

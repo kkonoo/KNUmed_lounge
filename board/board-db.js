@@ -1,6 +1,7 @@
 'use strict';
 // 자유 게시판 데이터 (Firestore): posts/{글} · posts/{글}/comments/{댓글} · posts/{글}/photos/{사진} { src: 줄인 사진의 data: 주소 }
 //   · posts/{글}/reactions/{uid} { name, kinds: [반응 키], at } (한 사람에 하나, 다 끄면 지움)
+//   · posts/{글}/commentReactions/{댓글}_{uid} { cid, name, kinds, at } (댓글 반응. 글마다 한 곳에 모아 한 번에 지켜봄)
 //   글에는 사진 번호 목록(photos)만 둬서 목록을 볼 때는 사진을 안 받고, 글을 열 때만 받아요
 // 연결은 js/session.js의 fb(), 누가 무엇을 할 수 있는지는 firestore.rules
 const boardMs = t => (t ? t.toMillis() : null);
@@ -83,9 +84,9 @@ const boardDb = {
   // 지우기: 댓글·반응·사진부터 지우고 글 (Firestore는 아래 문서를 같이 지워 주지 않음). 사진은 글의 번호 목록으로 (사진을 받지 않고)
   async remove(id, photos = []) {
     const { F, db } = await fb();
-    const [cs, rs] = await Promise.all(['comments', 'reactions'].map(c => F.getDocs(F.collection(db, 'posts', id, c))));
+    const all = await Promise.all(['comments', 'reactions', 'commentReactions'].map(c => F.getDocs(F.collection(db, 'posts', id, c))));
     const b = F.writeBatch(db);
-    [...cs.docs, ...rs.docs].forEach(d => b.delete(d.ref));
+    all.flatMap(q => q.docs).forEach(d => b.delete(d.ref));
     for (const x of photos) b.delete(F.doc(db, 'posts', id, 'photos', x));
     b.delete(F.doc(db, 'posts', id));
     await b.commit();
@@ -107,9 +108,14 @@ const boardDb = {
     const { F, db } = await fb();
     await F.addDoc(F.collection(db, 'posts', id, 'comments'), { body: body.trim(), by: me.uid, name: me.name, at: F.serverTimestamp() });
   },
+  // 댓글 지우기: 그 댓글의 반응도 같이
   async uncomment(id, cid) {
     const { F, db } = await fb();
-    await F.deleteDoc(F.doc(db, 'posts', id, 'comments', cid));
+    const rs = await F.getDocs(F.query(F.collection(db, 'posts', id, 'commentReactions'), F.where('cid', '==', cid)));
+    const b = F.writeBatch(db);
+    rs.docs.forEach(d => b.delete(d.ref));
+    b.delete(F.doc(db, 'posts', id, 'comments', cid));
+    await b.commit();
   },
 
   // 반응: 글마다 누른 사람들 [{ uid, name, kinds, at }]을 지켜봄
@@ -125,6 +131,20 @@ const boardDb = {
     const { F, db } = await fb();
     const ref = F.doc(db, 'posts', id, 'reactions', me.uid);
     if (kinds.length) await F.setDoc(ref, { name: me.name, kinds, at: F.serverTimestamp() });
+    else await F.deleteDoc(ref);
+  },
+  // 댓글 반응: 이 글의 댓글 반응 모두 [{ uid, cid, name, kinds, at }]를 지켜봄
+  async watchCommentReactions(id, onList, onError) {
+    const { F, db } = await fb();
+    return F.onSnapshot(F.collection(db, 'posts', id, 'commentReactions'), s => onList(s.docs.map(d => {
+      const x = d.data({ serverTimestamps: 'estimate' });
+      return { ...x, uid: d.id.slice(String(x.cid).length + 1), at: boardMs(x.at) };
+    })), onError);
+  },
+  async reactComment(id, cid, me, kinds) {
+    const { F, db } = await fb();
+    const ref = F.doc(db, 'posts', id, 'commentReactions', `${cid}_${me.uid}`);
+    if (kinds.length) await F.setDoc(ref, { cid, name: me.name, kinds, at: F.serverTimestamp() });
     else await F.deleteDoc(ref);
   },
 };

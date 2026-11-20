@@ -218,7 +218,7 @@ service cloud.firestore {
     }
 
     // ---------- 자유 게시판 ----------
-    // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글·반응·사진을 먼저 지우고 글을 지워요(한 번에)
+    // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글·반응·댓글 반응·사진을 먼저 지우고 글을 지워요(한 번에)
     // photos: 사진 번호 목록 (3장까지, 사진은 아래 photos 문서에)
     function postOk(d) {
       return d.keys().hasOnly(['title', 'body', 'cat', 'by', 'name', 'at', 'editedAt', 'pinned', 'photos'])
@@ -272,6 +272,27 @@ service cloud.firestore {
           && request.resource.data.at == request.time;
         allow delete: if isAdmin()
           || (isMember() && uid == request.auth.uid)
+          || (isMember() && get(postPath()).data.by == request.auth.uid && !existsAfter(postPath()));
+      }
+      // 댓글 반응: 글마다 한 곳에 모음. 문서 번호 = 댓글번호_내uid, 여섯 가지 키(손들기 없음)
+      // 본인만 쓰고 지움. 댓글을 지울 때는 댓글 쓴 분도, 글을 지울 때는 글쓴이도, 관리자는 언제나 지움
+      function commentPath(cid) { return /databases/$(database)/documents/posts/$(pid)/comments/$(cid); }
+      match /commentReactions/{rid} {
+        allow read: if isMember();
+        allow create, update: if isMember()
+          && request.resource.data.keys().hasOnly(['cid', 'name', 'kinds', 'at'])
+          && request.resource.data.cid is string && request.resource.data.cid.matches('[A-Za-z0-9]{1,40}')
+          && rid == request.resource.data.cid + '_' + request.auth.uid
+          && exists(commentPath(request.resource.data.cid))
+          && request.resource.data.name == me().name
+          && request.resource.data.kinds is list
+          && request.resource.data.kinds.size() >= 1 && request.resource.data.kinds.size() <= 6
+          && request.resource.data.kinds.toSet().size() == request.resource.data.kinds.size()
+          && request.resource.data.kinds.hasOnly(['like', 'heart', 'party', 'lol', 'sad', 'ribbon'])
+          && request.resource.data.at == request.time;
+        allow delete: if isAdmin()
+          || (isMember() && rid == resource.data.cid + '_' + request.auth.uid)
+          || (isMember() && get(commentPath(resource.data.cid)).data.by == request.auth.uid && !existsAfter(commentPath(resource.data.cid)))
           || (isMember() && get(postPath()).data.by == request.auth.uid && !existsAfter(postPath()));
       }
       // 사진 한 장 = 문서 하나 { src: 줄인 사진의 data: 주소 } (문서 하나는 1MB까지라서 90만 자까지)

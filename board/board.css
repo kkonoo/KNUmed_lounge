@@ -62,10 +62,15 @@ dialog.photo-view .icon-btn { position: fixed; top: calc(12px + env(safe-area-in
 .photo-pick .pick .icon-btn { position: absolute; top: 3px; right: 3px; background: rgba(0, 0, 0, .55); color: #fff; } /* 어떤 사진 위에서도 보이게 */
 .photo-pick .pick .icon-btn:hover { background: rgba(0, 0, 0, .72); color: #fff; }
 
-/* 반응 (카톡 공감처럼): [누른 반응 모음 + 수] [+] 칩, 누르면 단추 아래에 작은 창 (반응 고르기 · 누가 눌렀는지) */
-.post .reacts { gap: 6px; margin-top: .3rem; }
-.post .reacts button { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 3px 11px; font-size: .95rem; }
-.post .reacts button.add { padding-inline: 9px; }
+/* 반응 (카톡 공감처럼): [누른 반응 모음 + 수] [+] 칩, 누르면 단추 아래에 작은 창 (반응 고르기 · 누가 눌렀는지). 댓글은 조금 작게 */
+.reacts { gap: 6px; }
+.post .reacts { margin-top: .3rem; }
+.reacts button { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 3px 11px; font-size: .95rem; }
+.reacts button.add { padding-inline: 9px; }
+.c-reacts { margin-top: .35rem; gap: 5px; }
+.c-reacts button { min-height: 26px; padding: 2px 9px; font-size: .85rem; }
+.c-reacts button.add { padding-inline: 7px; }
+.c-reacts .lc { width: 14px; height: 14px; }
 .reacts .l, .reacts .n { font-size: .82rem; font-weight: 600; font-variant-numeric: tabular-nums; }
 .react-pop { position: fixed; inset: auto; margin: 0; padding: 6px; max-width: calc(100vw - 16px); border: 1px solid var(--glass-border); border-radius: 18px; background: var(--dialog-bg); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); color: var(--text); box-shadow: 0 12px 32px rgba(0, 0, 0, .18); }
 .react-pop.inline { position: static; align-self: flex-start; } /* popover가 없는 브라우저: 반응 줄 아래에 */
