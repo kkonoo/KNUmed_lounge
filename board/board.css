@@ -62,10 +62,19 @@ dialog.photo-view .icon-btn { position: fixed; top: calc(12px + env(safe-area-in
 .photo-pick .pick .icon-btn { position: absolute; top: 3px; right: 3px; background: rgba(0, 0, 0, .55); color: #fff; } /* 어떤 사진 위에서도 보이게 */
 .photo-pick .pick .icon-btn:hover { background: rgba(0, 0, 0, .72); color: #fff; }
 
-/* 반응: 이모지 단추 (내가 누른 것은 고른 칩처럼 강조, 누른 수), 아래 줄에 누가 눌렀는지 */
+/* 반응 (카톡 공감처럼): [누른 반응 모음 + 수] [+] 칩, 누르면 단추 아래에 작은 창 (반응 고르기 · 누가 눌렀는지) */
 .post .reacts { gap: 6px; margin-top: .3rem; }
-.post .reacts button { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; font-size: .95rem; }
+.post .reacts button { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 3px 11px; font-size: .95rem; }
+.post .reacts button.add { padding-inline: 9px; }
 .reacts .l, .reacts .n { font-size: .82rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-.react-who { display: flex; flex-direction: column; gap: 3px; margin: 0; padding: 0; list-style: none; font-size: .85rem; color: var(--muted); }
-.react-who li { display: flex; gap: 6px; }
+.react-pop { position: fixed; inset: auto; margin: 0; padding: 6px; max-width: calc(100vw - 16px); border: 1px solid var(--glass-border); border-radius: 18px; background: var(--dialog-bg); -webkit-backdrop-filter: var(--glass-filter); backdrop-filter: var(--glass-filter); color: var(--text); box-shadow: 0 12px 32px rgba(0, 0, 0, .18); }
+.react-pop.inline { position: static; align-self: flex-start; } /* popover가 없는 브라우저: 반응 줄 아래에 */
+.react-pick { display: flex; gap: 2px; }
+.react-pick button { width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; font-size: 1.45rem; line-height: 1; cursor: pointer; transition: background-color .2s ease; }
+.react-pick button:hover { background: var(--surface-2); }
+.react-pick button.on { background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.react-pop .pop-title { margin: 4px 8px 6px; font-size: .78rem; font-weight: 600; color: var(--muted); }
+.react-who { display: flex; flex-direction: column; gap: 6px; max-width: 20rem; max-height: 50vh; overflow: auto; margin: 0; padding: 0 8px 6px; list-style: none; font-size: .9rem; }
+.react-who li { display: flex; align-items: baseline; gap: 6px; }
 .react-who .e { flex: none; }
+.react-who .n { flex: none; min-width: 1.2em; font-size: .8rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }

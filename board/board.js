@@ -173,28 +173,38 @@ function showPost(id) {
   const v = view;
   const art = h('article', 'panel post');
   const title = h('h2'), meta = h('p', 'post-meta'), body = h('div', 'post-body'), photos = h('div', 'post-photos'), acts = h('div', 'form-actions');
-  const reacts = h('div', 'pills reacts'), who = h('ul', 'react-who');
+  const reacts = h('div', 'pills reacts');
   reacts.setAttribute('aria-label', '반응');
-  photos.hidden = who.hidden = true;
-  art.append(title, meta, body, photos, reacts, who, acts);
+  photos.hidden = true;
+  art.append(title, meta, body, photos, reacts, acts);
   let post = null, rlist = [];
-  // 반응 단추(누른 수)와 누가 눌렀는지. 번개 글은 손들기 하나라 글자도 붙임
+  // 반응 (카톡 공감처럼): [누른 반응 모음 + 누른 분 수] → 누르면 누가 눌렀는지. [+] → 반응 고르기
+  //   번개 글은 손들기 하나라 [+ 손들기]를 바로 누름
   const paintReacts = () => {
     if (!post) return;
-    const t = tallyReactions(rlist, post.cat, S.user.uid);
-    reacts.replaceChildren(...t.map(x => {
-      const b = button('', () => react(id, x.key, rlist), x.mine ? 'on' : '');
-      b.title = x.label;
-      b.setAttribute('aria-label', `${x.label} ${x.names.length}`);
+    const t = tallyReactions(rlist, post.cat, S.user.uid), shown = t.filter(x => x.names.length);
+    const people = rlist.filter(r => (r.kinds || []).some(k => shown.some(x => x.key === k))).length;
+    const nodes = [];
+    if (shown.length) {
+      const sum = button('', () => showWho(sum, shown, post.cat === 'meet'), `sum${shown.some(x => x.mine) ? ' on' : ''}`);
+      sum.setAttribute('aria-label', `${post.cat === 'meet' ? '손든' : '반응한'} 분 ${people}명`);
+      sum.append(h('span', 'e', shown.map(x => x.emoji).join('')), h('span', 'n', String(people)));
+      nodes.push(sum);
+    }
+    if (t.length === 1) { // 번개: 손들기
+      const [x] = t, b = button('', () => react(id, x.key, rlist), x.mine ? 'on' : '');
       b.setAttribute('aria-pressed', String(x.mine));
-      b.append(h('span', 'e', x.emoji));
-      if (t.length === 1) b.append(h('span', 'l', x.label));
-      if (x.names.length) b.append(h('span', 'n', String(x.names.length)));
-      return b;
-    }));
-    const shown = t.filter(x => x.names.length);
-    who.replaceChildren(...shown.map(x => { const li = h('li'); li.append(h('span', 'e', x.emoji), h('span', '', x.names.join(' · '))); return li; }));
-    who.hidden = !shown.length;
+      if (!x.mine) b.append(icon('plus'));
+      b.append(h('span', 'l', x.label));
+      nodes.push(b);
+    } else {
+      const add = button('', () => pickReaction(add, t, key => react(id, key, rlist)), 'add');
+      add.title = '반응 고르기';
+      add.setAttribute('aria-label', '반응 고르기');
+      add.append(icon('plus'));
+      nodes.push(add);
+    }
+    reacts.replaceChildren(...nodes);
   };
 
   const sec = h('section', 'comments');
@@ -253,6 +263,56 @@ async function react(id, key, rlist) {
   if (!me) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
   const mine = rlist.find(r => r.uid === me.uid)?.kinds || [];
   try { await boardDb.react(id, me, toggleKind(mine, key)); } catch (e) { fail('반응하지 못했어요', e); }
+}
+
+// 단추 아래에 뜨는 작은 창 (밝기 메뉴처럼 바깥을 누르면 닫힘). popover가 없는 예전 브라우저는 반응 줄 아래에 펼침
+//   열린 창의 단추를 다시 누르면 닫히기만 함 (바깥 누름으로 닫힌 바로 뒤라 다시 열지 않음). 돌려주는 것: { close } 또는 null
+function popUnder(anchor, ...content) {
+  const open = document.querySelector('.react-pop');
+  if (open?.classList.contains('inline') && open.previousElementSibling === anchor.parentElement && open.dataset.by === anchor.className) { open.remove(); return null; }
+  open?.remove();
+  if (Date.now() - (anchor.closedAt || 0) < 400) return null;
+  const pop = h('div', 'react-pop');
+  pop.append(...content);
+  if (!HTMLElement.prototype.showPopover) {
+    pop.classList.add('inline');
+    pop.dataset.by = anchor.className;
+    anchor.parentElement.after(pop);
+    return { pop, close: () => pop.remove() };
+  }
+  pop.popover = 'auto';
+  pop.addEventListener('toggle', e => { if (e.newState === 'closed') { anchor.closedAt = Date.now(); pop.remove(); } });
+  document.body.append(pop);
+  pop.showPopover();
+  const r = anchor.getBoundingClientRect();
+  pop.style.top = `${Math.min(r.bottom + 6, innerHeight - pop.offsetHeight - 8)}px`;
+  pop.style.left = `${Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8))}px`;
+  return { pop, close: () => pop.hidePopover() };
+}
+// [+]: 반응 고르기. 내가 누른 것은 표시되고, 고르면 켜고 끄고 닫힘
+function pickReaction(anchor, t, onPick) {
+  if (!me) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
+  const row = h('div', 'react-pick');
+  let p = null;
+  row.append(...t.map(x => {
+    const b = button(x.emoji, () => { p?.close(); onPick(x.key); }, x.mine ? 'on' : '');
+    b.title = x.label;
+    b.setAttribute('aria-label', x.label);
+    b.setAttribute('aria-pressed', String(x.mine));
+    return b;
+  }));
+  p = popUnder(anchor, row); // 칸을 다 채운 뒤에 띄워야 화면 밖으로 안 나감
+  if (p) row.querySelector('button').focus();
+}
+// 반응 모음: 누가 눌렀는지 (반응마다 이름, 먼저 누른 분부터)
+function showWho(anchor, shown, meet) {
+  const list = h('ul', 'react-who');
+  list.append(...shown.map(x => {
+    const li = h('li');
+    li.append(h('span', 'e', x.emoji), h('span', 'n', String(x.names.length)), h('span', 'names', x.names.join(' · ')));
+    return li;
+  }));
+  popUnder(anchor, h('p', 'pop-title', meet ? '손든 분' : '반응한 분'), list);
 }
 
 // 글 아래 사진: 1장은 원래 비율로, 2~3장은 정사각형 칸에. 누르면 크게. 사진이 바뀔 때만 다시 받음

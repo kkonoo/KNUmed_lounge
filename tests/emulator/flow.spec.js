@@ -273,12 +273,17 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await chips.getByRole('button', { name: '기타' }).click(); // 한 번 더 누르면 전체
     await chips.getByRole('button', { name: '전체', pressed: true }).waitFor();
     await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).click();
-    await A.getByRole('button', { name: '따봉 0' }).click(); // 반응: 누르면 수와 이름이 글쓴이 화면에도
-    await P.getByRole('button', { name: '따봉 1' }).waitFor();
+    await A.getByRole('button', { name: '반응 고르기' }).click(); // 반응: [+]로 고르면 글쓴이 화면에 모음 칩, 누르면 누가 눌렀는지
+    await A.locator('.react-pick').getByRole('button', { name: '따봉' }).click();
+    await P.getByRole('button', { name: '반응한 분 1명' }).click();
     await P.locator('.react-who li', { hasText: '👍' }).getByText(ADMIN.name).waitFor();
-    await A.getByRole('button', { name: '따봉 1', pressed: true }).click(); // 한 번 더 누르면 취소
-    await P.getByRole('button', { name: '따봉 0' }).waitFor();
-    await A.getByRole('button', { name: '축하 0' }).click();
+    await P.keyboard.press('Escape');
+    await A.getByRole('button', { name: '반응 고르기' }).click(); // 한 번 더 고르면 취소
+    await A.locator('.react-pick').getByRole('button', { name: '따봉', pressed: true }).click();
+    await P.getByRole('button', { name: /반응한 분/ }).waitFor({ state: 'detached' });
+    await A.getByRole('button', { name: '반응 고르기' }).click();
+    await A.locator('.react-pick').getByRole('button', { name: '축하' }).click();
+    await P.getByRole('button', { name: '반응한 분 1명' }).waitFor();
     await A.getByLabel('댓글').fill('저요');
     await A.getByRole('button', { name: '달기' }).click();
     await P.locator('.comment-list li', { hasText: '저요' }).getByText(ADMIN.name).waitFor(); // 글쓴이 화면에 바로 보임
