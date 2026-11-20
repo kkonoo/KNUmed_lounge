@@ -43,10 +43,12 @@ a.prof:hover { background: var(--glass-hover); }
 .prof .more { display: block; margin: -.5rem 0 .55rem; font-size: .8rem; color: var(--muted); visibility: hidden; } /* 안 잘린 카드도 자리는 남겨서 높이가 같게 */
 .prof.cut .more { visibility: visible; }
 a.prof:hover .more { color: var(--accent); }
-/* 카드 키워드는 한 줄만 (넘치는 칩은 숨김, 자세히에서 다 보임) */
-.prof .kw { max-height: 1.55rem; overflow: hidden; }
-.kw { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0; padding: 0; list-style: none; }
-.kw li { padding: .12rem .55rem; border-radius: 999px; background: var(--control-bg); border: 1px solid var(--control-border); color: var(--text); font-size: .78rem; }
+/* 카드 키워드는 한 줄만 (넘치는 키워드는 숨김, 자세히에서 다 보임) */
+.prof .kw { max-height: calc(.82rem * 1.5); overflow: hidden; }
+.kw { display: flex; flex-wrap: wrap; gap: .15rem .65rem; margin: 0; padding: 0; list-style: none; }
+/* 키워드는 해시태그처럼: 앞에 #, 강조색 (글자에는 # 없이 저장, 찾기도 그대로) */
+.kw li { color: var(--accent); font-size: .82rem; font-weight: 500; line-height: 1.5; }
+.kw li::before { content: "#"; }
 .links { display: flex; flex-wrap: wrap; gap: .2rem .8rem; margin: .6rem 0 0; font-size: .8rem; }
 .links a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
 .links a:hover { color: var(--accent); border-color: var(--accent); }
