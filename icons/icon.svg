@@ -1,11 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- 경북의대 라운지 아이콘: Lucide 'sofa' (ISC, https://lucide.dev) 를 크림슨(#B0283C, HaLab 슬라이드 갤러리) 바탕에 흰 선으로 -->
-  <rect width="512" height="512" rx="112" fill="#B0283C"/>
-  <g transform="translate(106 106) scale(12.5)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/>
-    <path d="M2 16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/>
-    <path d="M4 18v2"/>
-    <path d="M20 18v2"/>
-    <path d="M12 4v9"/>
-  </g>
+  <!-- 앱 아이콘 원본: 둥근 타일(모서리 114) 위 흰 심볼, 가운데 288px 안. PNG는 tools/make-icons.py로 그려요 -->
+  <rect width="512" height="512" rx="114" fill="#B05550"/>
+  <rect x="144" y="140" width="224" height="150" rx="36" fill="#FFFFFF"/>
+  <path d="M256 164 V246" stroke="#B05550" stroke-width="14" stroke-linecap="round"/>
+  <path d="M108 250 a36 36 0 0 1 72 0 V262 H332 V250 a36 36 0 0 1 72 0 V326 a24 24 0 0 1 -24 24 H132 a24 24 0 0 1 -24 -24 Z" fill="#FFFFFF" stroke="#B05550" stroke-width="14" stroke-linejoin="round"/>
+  <rect x="136" y="346" width="26" height="36" rx="12" fill="#FFFFFF"/>
+  <rect x="350" y="346" width="26" height="36" rx="12" fill="#FFFFFF"/>
 </svg>
