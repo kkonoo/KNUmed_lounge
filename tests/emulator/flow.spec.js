@@ -273,6 +273,12 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await chips.getByRole('button', { name: '기타' }).click(); // 한 번 더 누르면 전체
     await chips.getByRole('button', { name: '전체', pressed: true }).waitFor();
     await A.locator('.post-item', { hasText: '원심분리기 나눠요' }).click();
+    await A.getByRole('button', { name: '따봉 0' }).click(); // 반응: 누르면 수와 이름이 글쓴이 화면에도
+    await P.getByRole('button', { name: '따봉 1' }).waitFor();
+    await P.locator('.react-who li', { hasText: '👍' }).getByText(ADMIN.name).waitFor();
+    await A.getByRole('button', { name: '따봉 1', pressed: true }).click(); // 한 번 더 누르면 취소
+    await P.getByRole('button', { name: '따봉 0' }).waitFor();
+    await A.getByRole('button', { name: '축하 0' }).click();
     await A.getByLabel('댓글').fill('저요');
     await A.getByRole('button', { name: '달기' }).click();
     await P.locator('.comment-list li', { hasText: '저요' }).getByText(ADMIN.name).waitFor(); // 글쓴이 화면에 바로 보임
@@ -293,7 +299,7 @@ test('처음 설정 → 명단 → 가입 → 친목회 참석 체크', async t 
     await P.locator('.post-meta', { hasText: '고침' }).waitFor();
     await P.locator('.post .form-actions').getByRole('button', { name: '지우기' }).click();
     await toast(P, '지웠어요');
-    await P.getByText('아직 글이 없어요').waitFor(); // 남의 댓글·사진이 있어도 글쓴이가 글째 지움
+    await P.getByText('아직 글이 없어요').waitFor(); // 남의 댓글·반응·사진이 있어도 글쓴이가 글째 지움
   });
 
   await t.test('게시판 공지와 페이지: 25개면 2페이지, 관리자가 공지로 올리면 맨 위', async () => {

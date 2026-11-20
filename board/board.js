@@ -1,5 +1,5 @@
 'use strict';
-// 자유 게시판 화면: 글 목록(#, #page=2, #cat=meet&page=2 …, 맨 위에 공지, 말머리로 거르기) · 글 하나와 사진·댓글(#p=글번호) · 글쓰기·고치기 창
+// 자유 게시판 화면: 글 목록(#, #page=2, #cat=meet&page=2 …, 맨 위에 공지, 말머리로 거르기) · 글 하나와 사진·반응·댓글(#p=글번호) · 글쓰기·고치기 창
 // 데이터는 board-db.js, 계산은 board-core.js, 입력 부품은 js/form.js
 // 회원만 봐요. 공동연구 찾기(AI)의 문맥에는 넣지 않아요
 
@@ -173,8 +173,29 @@ function showPost(id) {
   const v = view;
   const art = h('article', 'panel post');
   const title = h('h2'), meta = h('p', 'post-meta'), body = h('div', 'post-body'), photos = h('div', 'post-photos'), acts = h('div', 'form-actions');
-  photos.hidden = true;
-  art.append(title, meta, body, photos, acts);
+  const reacts = h('div', 'pills reacts'), who = h('ul', 'react-who');
+  reacts.setAttribute('aria-label', '반응');
+  photos.hidden = who.hidden = true;
+  art.append(title, meta, body, photos, reacts, who, acts);
+  let post = null, rlist = [];
+  // 반응 단추(누른 수)와 누가 눌렀는지. 번개 글은 손들기 하나라 글자도 붙임
+  const paintReacts = () => {
+    if (!post) return;
+    const t = tallyReactions(rlist, post.cat, S.user.uid);
+    reacts.replaceChildren(...t.map(x => {
+      const b = button('', () => react(id, x.key, rlist), x.mine ? 'on' : '');
+      b.title = x.label;
+      b.setAttribute('aria-label', `${x.label} ${x.names.length}`);
+      b.setAttribute('aria-pressed', String(x.mine));
+      b.append(h('span', 'e', x.emoji));
+      if (t.length === 1) b.append(h('span', 'l', x.label));
+      if (x.names.length) b.append(h('span', 'n', String(x.names.length)));
+      return b;
+    }));
+    const shown = t.filter(x => x.names.length);
+    who.replaceChildren(...shown.map(x => { const li = h('li'); li.append(h('span', 'e', x.emoji), h('span', '', x.names.join(' · '))); return li; }));
+    who.hidden = !shown.length;
+  };
 
   const sec = h('section', 'comments');
   const head = h('h3', '', '댓글');
@@ -196,6 +217,8 @@ function showPost(id) {
     meta.textContent = [p.name, fmtWhen(p.at), p.editedAt ? '고침' : ''].filter(Boolean).join(' · ');
     body.replaceChildren(...linkNodes(p.body));
     paintPhotos(photos, p);
+    post = p;
+    paintReacts();
     acts.replaceChildren();
     if (isMine(p)) acts.append(button('고치기', () => openForm(p), 'btn small'));
     if (S.isAdmin) {
@@ -206,6 +229,8 @@ function showPost(id) {
     if (isMine(p) || S.isAdmin) acts.append(button('지우기', () => removePost(p), 'btn small danger'));
     acts.hidden = !acts.childElementCount;
   }, e => fail('글을 읽지 못했어요', e)));
+
+  keep(v, boardDb.watchReactions(id, list => { rlist = list; paintReacts(); }, e => fail('반응을 읽지 못했어요', e)));
 
   keep(v, boardDb.watchComments(id, cs => {
     head.textContent = cs.length ? `댓글 ${cs.length}` : '댓글';
@@ -221,6 +246,13 @@ function showPost(id) {
     try { await busy(send, '다는 중…', () => boardDb.comment(id, text, me)); ta.value = ''; } catch (err) { fail('댓글을 달지 못했어요', err); }
   });
   ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) form.requestSubmit(); });
+}
+
+// 반응 누르기: 내 반응 목록에서 켜고 끔 (한 번 더 누르면 취소)
+async function react(id, key, rlist) {
+  if (!me) return toast('관리자 계정이 교수님 명단에 가입돼 있지 않아요');
+  const mine = rlist.find(r => r.uid === me.uid)?.kinds || [];
+  try { await boardDb.react(id, me, toggleKind(mine, key)); } catch (e) { fail('반응하지 못했어요', e); }
 }
 
 // 글 아래 사진: 1장은 원래 비율로, 2~3장은 정사각형 칸에. 누르면 크게. 사진이 바뀔 때만 다시 받음
@@ -281,7 +313,7 @@ function commentItem(pid, c) {
 }
 
 async function removePost(p) {
-  if (!confirmBox(`'${p.title}'을(를) 지울까요? ${p.photos?.length ? '댓글과 사진도' : '댓글도'} 같이 지워져요.`)) return;
+  if (!confirmBox(`'${p.title}'을(를) 지울까요? ${p.photos?.length ? '댓글·반응·사진도' : '댓글·반응도'} 같이 지워져요.`)) return;
   try { await boardDb.remove(p.id, p.photos || []); toast('지웠어요'); toList(); } catch (e) { fail('지우지 못했어요', e); }
 }
 

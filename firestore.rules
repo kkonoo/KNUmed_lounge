@@ -218,7 +218,7 @@ service cloud.firestore {
     }
 
     // ---------- 자유 게시판 ----------
-    // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글·사진을 먼저 지우고 글을 지워요(한 번에)
+    // 이름은 회원 이름 그대로(실명), 시각은 서버 시각. 글을 지울 때는 댓글·반응·사진을 먼저 지우고 글을 지워요(한 번에)
     // photos: 사진 번호 목록 (3장까지, 사진은 아래 photos 문서에)
     function postOk(d) {
       return d.keys().hasOnly(['title', 'body', 'cat', 'by', 'name', 'at', 'editedAt', 'pinned', 'photos'])
@@ -256,6 +256,22 @@ service cloud.firestore {
           && request.resource.data.at == request.time;
         allow delete: if isAdmin()
           || (isMember() && resource.data.by == request.auth.uid)
+          || (isMember() && get(postPath()).data.by == request.auth.uid && !existsAfter(postPath()));
+      }
+      // 반응: 한 사람에 문서 하나(내 uid), 누른 반응 키 목록 (번개 글은 손들기만이지만 말머리가 바뀔 수 있어서 규칙은 일곱 가지 모두)
+      // 본인만 쓰고 지움. 글을 지울 때는 글쓴이도, 관리자는 언제나 지움
+      match /reactions/{uid} {
+        allow read: if isMember();
+        allow create, update: if isMember() && uid == request.auth.uid && exists(postPath())
+          && request.resource.data.keys().hasOnly(['name', 'kinds', 'at'])
+          && request.resource.data.name == me().name
+          && request.resource.data.kinds is list
+          && request.resource.data.kinds.size() >= 1 && request.resource.data.kinds.size() <= 7
+          && request.resource.data.kinds.toSet().size() == request.resource.data.kinds.size()
+          && request.resource.data.kinds.hasOnly(['hand', 'like', 'heart', 'party', 'lol', 'sad', 'ribbon'])
+          && request.resource.data.at == request.time;
+        allow delete: if isAdmin()
+          || (isMember() && uid == request.auth.uid)
           || (isMember() && get(postPath()).data.by == request.auth.uid && !existsAfter(postPath()));
       }
       // 사진 한 장 = 문서 하나 { src: 줄인 사진의 data: 주소 } (문서 하나는 1MB까지라서 90만 자까지)

@@ -360,6 +360,36 @@ test('게시판: 글쓴이는 남의 댓글까지 한 번에 지우며 글을 �
   await assertSucceeds(tryRemove(ADMIN));
 });
 
+// 반응 (board-db.js react 모양): 한 사람에 문서 하나
+const reaction = (u, kinds = ['like'], extra = {}) => ({ name: u.name, kinds, at: serverTimestamp(), ...extra });
+test('게시판 반응: 회원이 자기 것만, 이름은 회원 이름, 정한 키만, 다 끄면 지움', async () => {
+  await withPost();
+  const ref = u => doc(as(u), 'posts/p1/reactions', u.uid);
+  await assertSucceeds(setDoc(ref(ADMIN), reaction(ADMIN, ['like', 'heart'])));
+  await assertSucceeds(setDoc(ref(PROF), reaction(PROF, ['party']))); // 내 글에도
+  await assertSucceeds(setDoc(ref(PROF), reaction(PROF, ['party', 'lol', 'sad', 'ribbon', 'hand'])));
+  await assertSucceeds(getDocs(collection(as(PROF), 'posts/p1/reactions')));
+  await assertFails(getDocs(collection(as(OTHER), 'posts/p1/reactions'))); // 가입 전
+  await assertFails(setDoc(doc(as(PROF), 'posts/p1/reactions', ADMIN.uid), reaction(ADMIN))); // 남의 자리
+  await assertFails(setDoc(ref(PROF), reaction(PROF, ['like'], { name: '익명' })));
+  await assertFails(setDoc(ref(PROF), reaction(PROF, ['angry'])));
+  await assertFails(setDoc(ref(PROF), reaction(PROF, [])));
+  await assertFails(setDoc(ref(PROF), reaction(PROF, ['like', 'like'])));
+  await assertFails(setDoc(ref(PROF), reaction(PROF, ['like'], { at: now() })));
+  await assertFails(setDoc(doc(as(PROF), 'posts/none/reactions', PROF.uid), reaction(PROF))); // 없는 글
+  await assertFails(deleteDoc(doc(as(PROF), 'posts/p1/reactions', ADMIN.uid))); // 내 글이어도 남의 반응 하나만은 못 지움
+  await assertSucceeds(deleteDoc(ref(PROF)));
+  await assertSucceeds(deleteDoc(doc(as(ADMIN), 'posts/p1/reactions', ADMIN.uid)));
+});
+test('게시판 반응: 글쓴이는 남의 반응까지 한 번에 지우며 글을 지움', async () => {
+  await withPost();
+  await seed(db => setDoc(doc(db, 'posts/p1/reactions', ADMIN.uid), { name: ADMIN.name, kinds: ['like'], at: now() }));
+  const d = as(PROF), b = writeBatch(d);
+  for (const c of ['comments', 'reactions']) (await getDocs(collection(d, 'posts/p1', c))).docs.forEach(x => b.delete(x.ref));
+  b.delete(doc(d, 'posts/p1'));
+  await assertSucceeds(b.commit());
+});
+
 // 사진 (board-db.js add·edit·remove 모양): 글과 사진을 한 번에
 const photo = (n = 1000) => ({ src: `data:image/jpeg;base64,${'A'.repeat(n)}` });
 function postWithPhotos(db, u, n, extra = {}) {

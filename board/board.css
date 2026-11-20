@@ -61,3 +61,11 @@ dialog.photo-view .icon-btn { position: fixed; top: calc(12px + env(safe-area-in
 .photo-pick .pick img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .photo-pick .pick .icon-btn { position: absolute; top: 3px; right: 3px; background: rgba(0, 0, 0, .55); color: #fff; } /* 어떤 사진 위에서도 보이게 */
 .photo-pick .pick .icon-btn:hover { background: rgba(0, 0, 0, .72); color: #fff; }
+
+/* 반응: 이모지 단추 (내가 누른 것은 고른 칩처럼 강조, 누른 수), 아래 줄에 누가 눌렀는지 */
+.post .reacts { gap: 6px; margin-top: .3rem; }
+.post .reacts button { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; font-size: .95rem; }
+.reacts .l, .reacts .n { font-size: .82rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.react-who { display: flex; flex-direction: column; gap: 3px; margin: 0; padding: 0; list-style: none; font-size: .85rem; color: var(--muted); }
+.react-who li { display: flex; gap: 6px; }
+.react-who .e { flex: none; }

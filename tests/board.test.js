@@ -80,3 +80,21 @@ test('사진: 긴 쪽을 맞춰 비율대로 줄이고, 작으면 그대로. 줄
   assert.deepEqual(edges, [...edges].sort((a, b) => b - a));
   assert.ok(B.BOARD_PHOTO.chars < 1000000); // Firestore 문서 하나는 1MB까지
 });
+
+test('반응: 번개 글은 손들기만, 다른 글은 여섯 가지. 먼저 누른 분부터, 내 것 표시, 켜고 끄기', () => {
+  assert.deepEqual(B.reactionsFor('meet').map(r => r[0]), ['hand']);
+  assert.deepEqual(B.reactionsFor('news').map(r => r[0]), ['like', 'heart', 'party', 'lol', 'sad', 'ribbon']);
+  assert.deepEqual(B.reactionsFor(undefined).map(r => r[0]), ['like', 'heart', 'party', 'lol', 'sad', 'ribbon']); // 말머리 없는 예전 글
+  const list = [
+    { uid: 'b', name: '김철수', kinds: ['like', 'heart'], at: 20 },
+    { uid: 'a', name: '홍길동', kinds: ['like', 'hand'], at: 10 },
+  ];
+  const t = B.tallyReactions(list, 'news', 'b');
+  assert.deepEqual(t.find(x => x.key === 'like'), { key: 'like', emoji: '👍', label: '따봉', names: ['홍길동', '김철수'], mine: true });
+  assert.deepEqual(t.find(x => x.key === 'heart').names, ['김철수']);
+  assert.equal(t.find(x => x.key === 'sad').names.length, 0);
+  assert.equal(t.some(x => x.key === 'hand'), false); // 번개가 아니면 손들기는 안 보임
+  assert.deepEqual(B.tallyReactions(list, 'meet', 'b').map(x => [x.key, x.names, x.mine]), [['hand', ['홍길동'], false]]);
+  assert.deepEqual(B.toggleKind(['like'], 'heart'), ['like', 'heart']);
+  assert.deepEqual(B.toggleKind(['like', 'heart'], 'like'), ['heart']);
+});

@@ -1,6 +1,7 @@
 'use strict';
 // 자유 게시판 계산 (화면 없음): board.js·홈이 쓰고, tests/board.test.js 가 Node에서 확인
 // 글 = { id, title, body, cat, by, name, at: ms, editedAt: ms | null, photos: [사진 번호] } · 댓글 = { id, body, by, name, at: ms }
+// 반응 = { uid, name, kinds: [반응 키], at: ms } (한 사람에 하나)
 
 // 말머리: 글마다 하나, 키로 저장 (이름을 바꿔도 글은 그대로). 글쓰기 창에서는 처음에 기타가 골라져 있어요
 //   말머리를 만들기 전에 쓴 글은 cat이 없어서 말머리 없이 전체에서만 보여요 (고쳐 저장하면 붙음)
@@ -28,6 +29,24 @@ function photoSize(w, h, edge) {
   const k = Math.min(1, edge / Math.max(w, h));
   return [Math.round(w * k), Math.round(h * k)];
 }
+
+// 반응: 번개 글은 🙋 손들기만, 다른 글은 여섯 가지. 한 사람이 여러 개 (누른 걸 한 번 더 누르면 취소)
+//   키로 저장 (firestore.rules와 같음). 이름은 단추에 마우스를 올리거나 화면 읽기에서 들려요
+const REACTIONS = [
+  ['hand', '🙋', '손들기'], ['like', '👍', '따봉'], ['heart', '♥️', '하트'], ['party', '🎉', '축하'],
+  ['lol', '🤣', '웃겨요'], ['sad', '😢', '슬퍼요'], ['ribbon', '🎗️', '애도'],
+];
+const reactionsFor = cat => REACTIONS.filter(([k]) => (cat === 'meet') === (k === 'hand'));
+// 사람마다 { uid, name, kinds, at } → 이 글에서 보이는 반응마다 { key, emoji, label, names(먼저 누른 분부터), mine }
+function tallyReactions(list, cat, uid) {
+  const sorted = [...list].sort((a, b) => (a.at || 0) - (b.at || 0));
+  return reactionsFor(cat).map(([key, emoji, label]) => {
+    const who = sorted.filter(r => (r.kinds || []).includes(key));
+    return { key, emoji, label, names: who.map(r => r.name), mine: who.some(r => r.uid === uid) };
+  });
+}
+// 내 반응 목록에서 하나를 켜고 끔
+const toggleKind = (kinds, k) => (kinds.includes(k) ? kinds.filter(x => x !== k) : [...kinds, k]);
 
 // 지난번에 본 뒤로 올라온 남의 글 수 (seen: ms)
 const newCount = (posts, seen, uid) => posts.filter(p => p.at > seen && p.by !== uid).length;
