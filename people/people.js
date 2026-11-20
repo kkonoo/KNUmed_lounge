@@ -166,7 +166,7 @@
     if (p.rank) name.append(h('small', '', p.rank));
     const state = p.confirmedAt
       ? `마지막 확인 ${fmtDay(p.confirmedAt)}${isStale(p.confirmedAt) ? ' · 1년이 넘었어요' : ''}`
-      : p.drafted ? '아직 교수님 확인 전이에요. 연구 질문·축·발자취는 논문으로 만든 초안이에요' : '아직 교수님 확인 전이에요';
+      : p.drafted ? '아직 교수님 확인 전이에요. 연구 질문·주제·발자취는 논문으로 만든 초안이에요' : '아직 교수님 확인 전이에요';
     who.append(name, h('p', 'dept', p.dept));
     if (p.room) who.append(roomOf(p));
     who.append(h('p', 'state', state));
@@ -181,7 +181,7 @@
       nodes.push(kw);
     }
     if (p.axes?.length) {
-      nodes.push(section('연구 축', ...p.axes.map(a => {
+      nodes.push(section('연구 주제', ...p.axes.map(a => {
         const d = h('div', 'axis');
         d.append(h('b', '', a.name));
         if (a.text) d.append(h('p', '', a.text));

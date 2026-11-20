@@ -145,7 +145,7 @@ test('논문 초안: 확인 전에만 보이고, 이름북 한 줄은 그대로.
   assert.equal(f.line, '다른 소개');
 });
 
-test('찾기: 본인이 쓴 연구 축·보유 자원도 찾음', () => {
+test('찾기: 본인이 쓴 연구 주제·보유 자원도 찾음', () => {
   const p = { name: '홍길동', dept: '', line: '', axes: [{ name: '지질 신호', text: '' }], resources: { equipment: '공초점 현미경' } };
   assert.equal(P.matches(p, '공초점'), true);
   assert.equal(P.matches(p, '지질신호'), true);
@@ -158,7 +158,7 @@ test('1년 넘게 확인 안 한 프로필', () => {
   assert.equal(P.isStale(null, now), false);
 });
 
-test('고치기 칸: 처음엔 이름북에서, 저장한 뒤엔 내 값. 축 3칸·발자취 4칸·링크 4칸', () => {
+test('고치기 칸: 처음엔 이름북에서, 저장한 뒤엔 내 값. 주제 3칸·발자취 4칸·링크 4칸', () => {
   const f = P.profileForm(null, BOOK[0]);
   assert.equal(f.line, '이름북 소개');
   assert.equal(f.room, '');
@@ -194,8 +194,8 @@ test('저장 값 다듬기와 확인', () => {
   assert.equal(P.profileProblem(c), '');
   assert.equal(P.profileProblem({ ...c, line: '' }), '한 줄 소개를 넣어 주세요');
   assert.equal(P.profileProblem({ ...c, room: 'ㄱ'.repeat(41) }), '연구실은 40자까지예요');
-  assert.equal(P.profileProblem({ ...c, axes: [{ name: '', text: '설명만', papers: [] }] }), '연구 축 1의 이름을 넣어 주세요');
-  assert.equal(P.profileProblem({ ...c, axes: [{ name: '축', text: '', papers: [{ label: 'a', url: 'https://x.y/1' }, { label: 'b', url: 'https://x.y/2' }, { label: 'c', url: 'https://x.y/3' }] }] }), '대표 논문은 축마다 2편까지예요');
+  assert.equal(P.profileProblem({ ...c, axes: [{ name: '', text: '설명만', papers: [] }] }), '연구 주제 1의 이름을 넣어 주세요');
+  assert.equal(P.profileProblem({ ...c, axes: [{ name: '축', text: '', papers: [{ label: 'a', url: 'https://x.y/1' }, { label: 'b', url: 'https://x.y/2' }, { label: 'c', url: 'https://x.y/3' }] }] }), '대표 논문은 주제마다 2편까지예요');
   assert.equal(P.profileProblem({ ...c, timeline: [{ years: '2010', text: '' }] }), '연구 발자취는 기간과 한 줄을 같이 넣어 주세요');
   assert.equal(P.profileProblem({ ...c, links: [{ url: 'javascript:alert(1)', label: 'x' }] }), '링크 주소는 https://로 시작해요');
   assert.equal(P.profileProblem({ ...c, keywords: Array.from({ length: 11 }, (_, i) => `k${i}`) }), '키워드는 10개까지예요');

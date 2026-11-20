@@ -74,13 +74,13 @@ function render(S, pid, doc, priv, book) {
   }));
   paintTopics();
 
-  // 연구 축 3칸
+  // 연구 주제 3칸
   const axes = v.axes.map((a, i) => {
-    const name = textInput('text', { value: a.name, maxLength: M.axisName, placeholder: '축 이름' });
-    const text = area(a.text, M.axisText, 2, '이 축에서 묻는 것 한 문장');
+    const name = textInput('text', { value: a.name, maxLength: M.axisName, placeholder: '주제 이름' });
+    const text = area(a.text, M.axisText, 2, '이 주제에서 묻는 것 한 문장');
     const papers = area(a.papers, 700, 2, '대표 논문 2편까지, 한 줄에 하나\n예: Brain 2023 https://doi.org/…');
     const slot = h('div', 'slot');
-    slot.append(h('b', '', `연구 축 ${i + 1}`), name, text, papers);
+    slot.append(h('b', '', `연구 주제 ${i + 1}`), name, text, papers);
     return { slot, name, text, papers };
   });
   // 발자취 4줄
@@ -121,7 +121,7 @@ function render(S, pid, doc, priv, book) {
   form.append(
     who, state,
     intro,
-    section('연구 축', `${M.axes}개까지`, ...axes.map(a => a.slot)),
+    section('연구 주제', `${M.axes}개까지`, ...axes.map(a => a.slot)),
     section('연구 발자취', `기간마다 한 줄, ${M.timeline}줄까지`, ...steps.map(s => s.row)),
     section('보유 자원', '다른 교수님과 같이 쓰거나 빌려드릴 수 있는 것. 없는 칸은 비워 두셔도 돼요', ...res.map(([, label, t]) => field(label, t))),
     section('링크', '연구실 홈페이지, Google Scholar, ORCID 같은 곳', ...links.map(l => l.row)),

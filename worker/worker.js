@@ -229,7 +229,7 @@ async function checkKey(apiKey) {
 }
 
 // ---------- 공동연구 찾기 (DESIGN §11): 연구실 둘러보기 프로필 전체를 문맥으로 ----------
-const ASK_FIELDS = ['한 줄 소개', '연구 질문', '키워드', '연구 축', '연구 발자취', '보유 자원'];
+const ASK_FIELDS = ['한 줄 소개', '연구 질문', '키워드', '연구 주제', '연구 발자취', '보유 자원'];
 const ASK_PROMPT = `경북대 의과대학 기초교실 교수님들의 공개 프로필이 아래에 있어요. 한 교수님이 공동연구에 필요한 것(모델·시료·장비·데이터·기법·주제)을 물어요.
 프로필에서 그것을 갖고 있거나 다뤄 온 교수님을 찾아 주세요.
 
@@ -307,7 +307,7 @@ function askContext(people, topics) {
     add('연구 질문', p.question);
     add('키워드', (p.keywords || []).join(', '));
     add('주제', (p.topics || []).map(k => topicName[k]).filter(Boolean).join(', '));
-    for (const a of p.axes || []) add('연구 축', `${a.name}${a.text ? ` — ${a.text}` : ''}${a.papers?.length ? ` (대표 논문: ${a.papers.map(x => x.label).join('; ')})` : ''}`);
+    for (const a of p.axes || []) add('연구 주제', `${a.name}${a.text ? ` — ${a.text}` : ''}${a.papers?.length ? ` (대표 논문: ${a.papers.map(x => x.label).join('; ')})` : ''}`);
     add('연구 발자취', (p.timeline || []).map(t => `${t.years} ${t.text}`).join(' / '));
     add('보유 자원', Object.entries(p.resources || {}).filter(([, v]) => v).map(([k, v]) => `${res[k] || k}: ${v.replace(/\s*\n\s*/g, '; ')}`).join(' | '));
     return lines.join('\n');

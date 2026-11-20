@@ -224,7 +224,7 @@ test('공동연구 찾기: 연구실 둘러보기와 같은 프로필(초안 포
   assert.deepEqual(sent.system[1].cache_control, { type: 'ephemeral' });
   assert.ok(ctx.indexOf('[aaaaaa]') < ctx.indexOf('[cccccc]') && ctx.indexOf('[cccccc]') < ctx.indexOf('[zzzzzz]'), '번호 순서');
   assert.match(ctx, /연구 질문: 초안 질문/); // 논문 초안도 문맥에
-  assert.match(ctx, /연구 축: 지질 축 — 스핑고지질 대사 \(대표 논문: J 2024 · 지질\)/);
+  assert.match(ctx, /연구 주제: 지질 축 — 스핑고지질 대사 \(대표 논문: J 2024 · 지질\)/);
   assert.match(ctx, /모델: 5xFAD 마우스/);
   assert.match(ctx, /주제: 면역·염증·알레르기/);
   assert.equal(ctx.includes('숨은분'), false); // 숨김은 빠짐

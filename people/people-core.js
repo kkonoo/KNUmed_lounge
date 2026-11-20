@@ -127,7 +127,7 @@ function parsePapers(s) {
 const papersText = papers => (papers || []).map(p => (p.label && p.label !== '논문' ? `${p.label} ${p.url}` : p.url)).join('\n');
 
 // 내 프로필 고치기 칸의 처음 값: 저장한 적 있으면 그 값, 없으면 이름북 소개와 논문 초안(old)에서 가져옴
-//   연구 축은 3칸, 발자취는 4칸으로 늘 같은 수 (빈 칸은 저장할 때 빠짐)
+//   연구 주제는 3칸, 발자취는 4칸으로 늘 같은 수 (빈 칸은 저장할 때 빠짐)
 function profileForm(doc, old) {
   const mine = doc?.confirmedAt ? doc : null, src = mine || old || {};
   const pad = (list, n, empty) => [...list, ...Array.from({ length: Math.max(0, n - list.length) }, empty)].slice(0, n);
@@ -165,12 +165,12 @@ function profileProblem(c) {
   if (c.question.length > M.question) return `연구 질문은 ${M.question}자까지예요`;
   if (c.keywords.length > M.keywords) return `키워드는 ${M.keywords}개까지예요`;
   if (c.keywords.some(k => k.length > M.keyword)) return `키워드 하나는 ${M.keyword}자까지예요`;
-  if (c.axes.length > M.axes) return `연구 축은 ${M.axes}개까지예요`;
+  if (c.axes.length > M.axes) return `연구 주제는 ${M.axes}개까지예요`;
   for (const [i, a] of c.axes.entries()) {
-    if (!a.name) return `연구 축 ${i + 1}의 이름을 넣어 주세요`;
-    if (a.name.length > M.axisName) return `연구 축 이름은 ${M.axisName}자까지예요`;
-    if (a.text.length > M.axisText) return `연구 축 설명은 ${M.axisText}자까지예요`;
-    if (a.papers.length > M.papers) return `대표 논문은 축마다 ${M.papers}편까지예요`;
+    if (!a.name) return `연구 주제 ${i + 1}의 이름을 넣어 주세요`;
+    if (a.name.length > M.axisName) return `연구 주제 이름은 ${M.axisName}자까지예요`;
+    if (a.text.length > M.axisText) return `연구 주제 설명은 ${M.axisText}자까지예요`;
+    if (a.papers.length > M.papers) return `대표 논문은 주제마다 ${M.papers}편까지예요`;
     if (a.papers.some(p => p.url.length > M.url || p.label.length > M.label)) return '대표 논문 줄이 너무 길어요';
   }
   if (c.timeline.length > M.timeline) return `연구 발자취는 ${M.timeline}줄까지예요`;
